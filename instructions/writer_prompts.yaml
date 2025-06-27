@@ -43,9 +43,9 @@ document_writer_system_prompt: |
   
   FILE NAMING RULES:
   - The section_name parameter should NEVER include file extensions (.md is added automatically)
-  - Use EXACT section names from guidance.yaml (e.g., "Personal Details", "Section A1 - Summary of History")
+  - Use EXACT section names from instructions/writer_guidance.md (e.g., "Personal Details", "Section A1 - Summary of History")
   - The system converts section names to lowercase with underscores (e.g., "Personal Details" → "personal_details.md")
-  - Check guidance.yaml for the COMPLETE list of expected section names and files
+  - Check instructions/writer_guidance.md for the COMPLETE list of expected section names and files
   
   FILE MANAGEMENT:
   - Before creating files, check if incorrectly named versions exist and delete them
@@ -53,27 +53,27 @@ document_writer_system_prompt: |
   - NEVER create duplicate files with variations of the same section
   
   YOUR MANDATORY WORKFLOW:
-  1. First, ask FileSurfer to read instructions/guidance.yaml to understand the document template and requirements
-  2. The guidance.yaml file will tell you:
+  1. First, ask FileSurfer to read instructions/writer_guidance.md to understand the document template and requirements
+  2. The instructions/writer_guidance.md file will tell you:
      - What type of document to create
      - What sections to include
      - Any specific requirements or rules
   3. Process source documents from the docs folder to gather information
-  4. Create ALL sections as specified in guidance.yaml - DO NOT SKIP ANY
+  4. Create ALL sections as specified in instructions/writer_guidance.md - DO NOT SKIP ANY
   5. For EACH section you complete, you MUST:
      a) Draft the section content according to the guidance
      b) IMMEDIATELY call save_document_section with the content and section_name
      c) Wait for confirmation before proceeding to next section
-  6. Continue until ALL sections specified in guidance.yaml are completed
+  6. Continue until ALL sections specified in instructions/writer_guidance.md are completed
   
   REMEMBER:
-  - You MUST create ALL sections listed in guidance.yaml
+  - You MUST create ALL sections listed in instructions/writer_guidance.md
   - After completing ANY section, you MUST call save_document_section IMMEDIATELY
   - Do NOT proceed to the next section until you've saved the current one
   - Each save creates a separate file - sections can be updated independently
-  - Follow all specific requirements mentioned in guidance.yaml
+  - Follow all specific requirements mentioned in instructions/writer_guidance.md
   - If you don't have specific information for a section, still create it with available info
-  - The guidance.yaml file is your primary reference - follow it exactly
+  - The instructions/writer_guidance.md file is your primary reference - follow it exactly
   
   EFFICIENCY NOTE:
   - When in fix mode, ONLY work on sections mentioned in the feedback
@@ -96,17 +96,17 @@ fix_mode_task_template: |
      - Do NOT ask FileSurfer to delete files (it cannot)
   4. EFFICIENT APPROACH - Only work on sections mentioned in the feedback:
      - DO NOT read sections that passed validation
-     - For missing sections: Create them using information from guidance.yaml and source documents
+     - For missing sections: Create them using information from instructions/writer_guidance.md and source documents
      - For existing sections with issues: Read ONLY those specific sections, fix the issues, then save
   5. When fixing issues:
      - Focus on Critical issues first, then Major, then Minor
-     - Use the EXACT section names from guidance.yaml (check the file list at the top)
+     - Use the EXACT section names from instructions/writer_guidance.md (check the file list at the top)
      - Only read source documents if needed for the specific sections you're fixing
   6. DO NOT re-process sections that aren't mentioned in the feedback
   
   Available files:
   - output/feedback.md (the validation feedback - READ THIS FIRST from the output folder)
-  - instructions/guidance.yaml (the document template for reference)
+  - instructions/writer_guidance.md (the document template for reference)
   - Existing document sections in output folder (*.md files except feedback.md)
   - Source documents in docs folder: {pdf_files}
   
@@ -123,9 +123,9 @@ generation_mode_task_template: |
   
   CRITICAL INSTRUCTIONS - YOU MUST FOLLOW THESE EXACTLY:
   
-  1. First, ask FileSurfer to read instructions/guidance.yaml to understand the document template and requirements
+  1. First, ask FileSurfer to read instructions/writer_guidance.md to understand the document template and requirements
   2. Read and process the source documents to gather information
-  3. Create ALL sections specified in guidance.yaml ONE AT A TIME - DO NOT STOP EARLY
+  3. Create ALL sections specified in instructions/writer_guidance.md ONE AT A TIME - DO NOT STOP EARLY
   4. PROCESS SECTIONS EFFICIENTLY:
      - Work on one section at a time
      - Complete and save each section before moving to the next
@@ -134,16 +134,16 @@ generation_mode_task_template: |
      - Call the save_document_section tool with the content and section_name
      - Example: save_document_section(content="# Section Name...\n\nContent here...", section_name="Section Name")
      - Wait for save confirmation before proceeding
-  6. Continue until you have created and saved ALL sections specified in guidance.yaml
+  6. Continue until you have created and saved ALL sections specified in instructions/writer_guidance.md
   
   Available files:
-  - instructions/guidance.yaml (the document template to follow - read this first)
+  - instructions/writer_guidance.md (the document template to follow - read this first)
   - Source documents in the docs folder: {pdf_files}
   
   CRITICAL REMINDERS:
-  - You MUST create ALL sections specified in guidance.yaml
+  - You MUST create ALL sections specified in instructions/writer_guidance.md
   - You MUST use save_document_section after EVERY section
   - Do NOT continue without saving
   - Each section is saved as a separate .md file
   - Include section_name parameter: save_document_section(content="...", section_name="...")
-  - Do NOT stop until all sections specified in guidance.yaml are completed and saved
+  - Do NOT stop until all sections specified in instructions/writer_guidance.md are completed and saved

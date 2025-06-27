@@ -32,10 +32,10 @@ quality_assessor_system_prompt: |
   2. Use 'delete_file' if you need to recommend file deletions (though typically just note them in feedback)
   
   YOUR WORKFLOW:
-  1. First, ask FileSurfer to read instructions/validation_guidance.yaml to understand all validation rules
+  1. First, ask FileSurfer to read instructions/validator_guidance.md to understand all validation rules
   2. Ask FileSurfer to list all files in the output folder to see what sections exist
   3. FILE STRUCTURE VALIDATION:
-     - Check against the "expected_files" list in validation_guidance.yaml
+     - Check against the "Expected Files" list in instructions/validator_guidance.md
      - Identify any missing files (CRITICAL issues)
      - Identify any unexpected files (MAJOR issues - e.g., "main_contact_details.md")
      - Note any naming issues or duplicates
@@ -65,12 +65,12 @@ quality_assessor_system_prompt: |
      - File naming issues identified
      - Recommendations for file cleanup/deletion
   3. Section-by-section analysis with specific issues
-  4. Analysis of any specific requirements from validation_guidance.yaml
+  4. Analysis of any specific requirements from instructions/validator_guidance.md
   5. Compliance scores for each section and file structure
   6. Prioritized recommendations including file management actions
   
   REMEMBER:
-  - Follow the validation rules exactly as specified in validation_guidance.yaml
+  - Follow the validation rules exactly as specified in instructions/validator_guidance.md
   - Be specific about issues found (include examples)
   - Reference line numbers or specific content where possible
   - Provide constructive feedback
@@ -84,10 +84,10 @@ validation_task_template: |
   
   CRITICAL INSTRUCTIONS:
   
-  1. First, ask FileSurfer to read instructions/validation_guidance.yaml to understand ALL validation rules
+  1. First, ask FileSurfer to read instructions/validator_guidance.md to understand ALL validation rules
   2. Then, ask FileSurfer to list all files in the output folder to see what sections already exist
   3. FILE STRUCTURE VALIDATION:
-     - Compare file list against "expected_files" section in validation_guidance.yaml
+     - Compare file list against "Expected Files" section in instructions/validator_guidance.md
      - Note any files that shouldn't exist (e.g., "main_contact_details.md" - content should be in personal_details.md)
      - Note any expected files that are missing
      - Check for duplicate sections or incorrect naming
@@ -123,7 +123,7 @@ validation_task_template: |
      This is a required step - the feedback MUST be saved to a file, not just displayed.
   
   Available files:
-  - instructions/validation_guidance.yaml (validation rules - read this first)
+  - instructions/validator_guidance.md (validation rules - read this first)
   - Document files in output folder: {document_files}
   
   Remember to be thorough but constructive in your assessment.

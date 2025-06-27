@@ -119,8 +119,8 @@ SEPARATOR_MINOR = "-" * 80
 INSTRUCTIONS_DIR = Path("./instructions")
 
 # Instruction File Paths
-GUIDANCE_FILE = INSTRUCTIONS_DIR / "guidance.yaml"
-VALIDATION_GUIDANCE_FILE = INSTRUCTIONS_DIR / "validation_guidance.yaml"
+WRITER_GUIDANCE_FILE = INSTRUCTIONS_DIR / "writer_guidance.md"
+VALIDATOR_GUIDANCE_FILE = INSTRUCTIONS_DIR / "validator_guidance.md"
 WRITER_PROMPTS_FILE = INSTRUCTIONS_DIR / "writer_prompts.yaml"
 VALIDATOR_PROMPTS_FILE = INSTRUCTIONS_DIR / "validator_prompts.yaml"
 
