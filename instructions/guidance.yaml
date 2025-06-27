@@ -1,0 +1,191 @@
+# EHCP Template for Testing in Change Programme Areas
+# This file defines the document structure and requirements
+
+document_type: "EHCP Document"
+document_description: "Education, Health and Care Plan (EHCP) Template"
+
+# Critical instructions for document generation
+critical_instructions:
+  file_management_rules:
+    - "DO NOT create duplicate files with variations of these names"
+    - "DO NOT add .md extension in the section_name parameter (it's added automatically)"
+    - "CONSOLIDATE all outcomes from different areas into the single section_e_outcomes.md file"
+    - "CONSOLIDATE all special educational provisions into the single section_f_special_educational_provision.md file"
+    - "DELETE any incorrectly named files before creating the correct ones"
+    - "VERIFY file names match exactly - the system converts section names to lowercase with underscores"
+
+# Document structure with required sections
+document_structure:
+  sections:
+    - name: "Personal Details"
+      filename: "personal_details.md"
+      includes:
+        - "Child or Young Person's Personal Details"
+        - "Main Contact Details (Parent/Carer 1 and 2)"
+        - "Services Currently Involved"
+      requirements:
+        - "Include name (format: Forename, middle names (Optional), SURNAME)"
+        - "Include date of birth (CCYY-MM-DD format)"
+        - "Include sex, ethnicity, first language"
+        - "Include parent/carer contact details"
+        - "Include NHS number if available"
+        - "Include social care status"
+        
+    - name: "Section A1 - Summary of History"
+      filename: "section_a1_summary_of_history.md"
+      requirements:
+        - "Brief overview of child/young person's circumstances"
+        - "Proposed future learning and development"
+        - "Summary of communication methods and engagement strategies"
+        - "Maximum 500 words or 3000 characters"
+        - "Often bullet points, no longer than one A4 page"
+        
+    - name: "Section A2 - Views Interests and Aspirations"
+      filename: "section_a2_views_interests_aspirations.md"
+      subsections:
+        - "Views"
+        - "Interests"
+        - "Strengths"
+        - "Aspirations"
+      requirements:
+        - "State how information was collected"
+        - "Include if another person provided information on behalf"
+        - "Be purposeful and specific"
+        - "ALL strengths in strengths section (no needs)"
+        - "Capture child/young person's ambitions"
+        
+    - name: "Section B - Communication and Interaction"
+      filename: "section_b_communication_and_interaction.md"
+      requirements:
+        - "Describe special educational needs in this area"
+        - "Link directly to provision in Section F"
+        - "Describe impact of needs"
+        - "If no needs, state: 'Child/Young person has no identified special educational needs in this area'"
+        
+    - name: "Section B - Cognition and Learning"
+      filename: "section_b_cognition_and_learning.md"
+      requirements:
+        - "Describe special educational needs in this area"
+        - "Link directly to provision in Section F"
+        - "Describe impact of needs"
+        - "If no needs, state: 'Child/Young person has no identified special educational needs in this area'"
+        
+    - name: "Section B - Social Emotional and Mental Health"
+      filename: "section_b_social_emotional_mental_health.md"
+      requirements:
+        - "Describe special educational needs in this area"
+        - "Link directly to provision in Section F"
+        - "Describe impact of needs"
+        - "If no needs, state: 'Child/Young person has no identified special educational needs in this area'"
+        
+    - name: "Section B - Sensory and Physical Needs"
+      filename: "section_b_sensory_physical_needs.md"
+      requirements:
+        - "Describe special educational needs in this area"
+        - "Link directly to provision in Section F"
+        - "Describe impact of needs"
+        - "If no needs, state: 'Child/Young person has no identified special educational needs in this area'"
+        
+    - name: "Section C - Health Care Needs"
+      filename: "section_c_health_care_needs.md"
+      requirements:
+        - "Capture health care needs related to SEN"
+        - "If no needs, state: 'Child or young person has no identified special educational needs in this area'"
+        
+    - name: "Section D - Social Care Needs"
+      filename: "section_d_social_care_needs.md"
+      requirements:
+        - "Detail social care needs identified"
+        - "Include impact of those needs"
+        - "If no needs, state: 'Child or young person has no identified special educational needs in this area'"
+        
+    - name: "Section E - Outcomes"
+      filename: "section_e_outcomes.md"
+      consolidates:
+        - "Communication and Interaction outcomes"
+        - "Cognition and Learning outcomes"
+        - "Social, Emotional and Mental Health outcomes"
+        - "Sensory and Physical Needs outcomes"
+        - "Health Care outcomes"
+        - "Social Care outcomes"
+      requirements:
+        - "All outcomes must be SMART (Specific, Measurable, Achievable, Realistic, Time-bound)"
+        - "Personal, not service-focused"
+        - "Enable progress monitoring and evaluation"
+        - "Based on achievement, independence, participation, health"
+        - "Clear link to provision"
+        
+    - name: "Section F - Special Educational Provision"
+      filename: "section_f_special_educational_provision.md"
+      consolidates:
+        - "Communication and Interaction provision"
+        - "Cognition and Learning provision"
+        - "Social, Emotional and Mental Health provision"
+        - "Sensory and Physical Needs provision"
+      requirements:
+        - "Specified for each need in Section B"
+        - "Five elements: Support required, Who provides, Ratio, Frequency, Duration"
+        - "Clear link to outcomes"
+        - "Include therapy provision that educates/trains"
+        
+    - name: "Section G - Health Care Provision"
+      filename: "section_g_health_care_provision.md"
+      requirements:
+        - "Specify provision for needs in Section C"
+        - "Five elements: Support required, Who provides, Ratio, Frequency, Duration"
+        
+    - name: "Section H1 - Social Care Provision CSDPA"
+      filename: "section_h1_social_care_provision_csdpa.md"
+      requirements:
+        - "Provision under Chronically Sick and Disabled Persons Act 1970"
+        - "For under 18s only"
+        - "Five elements: Support required, Who provides, Ratio, Frequency, Duration"
+        
+    - name: "Section H2 - Other Social Care Provision"
+      filename: "section_h2_other_social_care_provision.md"
+      requirements:
+        - "Other social care provision reasonably required"
+        - "Five elements: Support required, Who provides, Ratio, Frequency, Duration"
+        
+    - name: "Section I - Placement"
+      filename: "section_i_placement.md"
+      requirements:
+        - "Name of placement setting"
+        - "Type (daily/weekly, residential/termly residential)"
+        - "Include dual placements if applicable"
+        
+    - name: "Section J - Direct Payments"
+      filename: "section_j_direct_payments.md"
+      requirements:
+        - "Details of direct payments"
+        - "Arrangements for direct payment"
+        
+    - name: "Section K - Advice and Information"
+      filename: "section_k_advice_and_information.md"
+      requirements:
+        - "Table format: Advice Requested, Date Received, Who From, Appended"
+        - "Include medical advice, EP, social care"
+        - "Include Y9+ preparation for adulthood if applicable"
+        
+    - name: "Sign Off"
+      filename: "sign_off.md"
+      requirements:
+        - "Local authority officer name (SURNAME, FIRST NAME)"
+        - "Digital signature"
+        - "Date (CCYY-MM-DD format)"
+
+# Provision specification guidance
+provision_elements:
+  - "Support required"
+  - "Who will provide it (qualification/required level of expertise)"
+  - "Staff/student ratio (e.g. 6:1 groupwork, or 2:1 support, 1:1 etc)"
+  - "How often – daily, weekly, termly"
+  - "How long for each time – hours should usually be specified"
+
+# Language and formatting requirements
+language_requirements:
+  - "Use professional, clear language throughout"
+  - "Avoid jargon where possible"
+  - "Be specific and purposeful"
+  - "Child/young person-centered approach"
+  - "Use format specified for names, dates, etc."

@@ -1,7 +1,7 @@
 # MAD - Multi-Agentic Document Generator
 *Make Awesome Documents with AI*
 
-An automated system for generating structured documents from source materials using AI agents. The system reads your source files and creates documents following the template you specify in guidance.md.
+An automated system for generating structured documents from source materials using AI agents. The system reads your source files and creates documents following the template you specify in guidance.yaml.
 
 ## Overview
 
@@ -9,13 +9,13 @@ This system uses Microsoft's AutoGen framework with MagenticOne orchestration to
 
 ### Document Generation (writer.py)
 Two specialized AI agents work together:
-- **FileSurfer**: Reads source documents and extracts relevant information
-- **DocumentWriter**: Creates structured documents following your template
+- **FileSurfer**: Reads source documents and extracts relevant information (read-only)
+- **DocumentWriter**: Creates structured documents following your template (can save and delete files)
 
 ### Document Validation (validator.py)
 Two specialized AI agents assess quality:
-- **FileSurfer**: Reads validation rules and generated documents
-- **QualityAssessor**: Analyzes compliance and generates feedback
+- **FileSurfer**: Reads validation rules and generated documents (read-only)
+- **QualityAssessor**: Analyzes compliance and generates feedback (can save feedback and delete files)
 
 ### Automated Feedback Loop (main.py)
 An intelligent orchestrator that:
@@ -26,27 +26,31 @@ An intelligent orchestrator that:
 
 ## How It Works
 
-The system is driven by two key files:
-- **guidance.md**: Defines what document to create (structure, sections, requirements)
-- **validationguidance.md**: Defines how to validate the document (rules, criteria, quality standards)
+The system is driven by configuration files in the `instructions/` directory:
+- **guidance.yaml**: Defines what document to create (structure, sections, requirements)
+- **validation_guidance.yaml**: Defines how to validate the document (rules, criteria, quality standards)
+- **writer_prompts.yaml**: Prompts for document generation with agent capabilities
+- **validator_prompts.yaml**: Prompts for validation with agent capabilities
 
 Simply replace these files with your own templates to generate different document types!
 
 ## Features
 
 ### Document Generation
-- **Template-Driven**: Follows the structure defined in guidance.md
+- **Template-Driven**: Follows the structure defined in guidance.yaml
 - **Section-Based Output**: Each section saved as a separate file for flexible updates
 - **Multiple Source Formats**: Processes PDFs, text files, and other documents
 - **Professional Formatting**: Generates clean, formatted markdown documents
 - **Intelligent Processing**: AI agents understand context and requirements
+- **Clear Agent Capabilities**: Explicit declarations prevent tool confusion
 
 ### Quality Validation
-- **Automated Compliance Checking**: Validates against rules in validationguidance.md
+- **Automated Compliance Checking**: Validates against rules in validation_guidance.yaml
 - **Multi-Level Issue Detection**: Customizable severity levels
 - **Detailed Feedback Report**: Generates actionable feedback with specific recommendations
 - **Compliance Scoring**: Provides quantitative assessment of document quality
-- **Rule-Based Validation**: All rules defined in markdown, not hardcoded
+- **Rule-Based Validation**: All rules defined in YAML, not hardcoded
+- **File Structure Validation**: Checks for missing, unexpected, or misnamed files
 
 ## Prerequisites
 
@@ -110,7 +114,7 @@ python writer.py
 ```
 
 The writer will:
-1. Read guidance.md to understand document structure
+1. Read instructions/guidance.yaml to understand document structure
 2. Process all source documents in the docs folder
 3. Generate document sections as specified
 4. Save each section as a separate file in the `output/` folder
@@ -123,7 +127,7 @@ python validator.py
 ```
 
 The validator will:
-1. Read validation rules from `validationguidance.md`
+1. Read validation rules from `instructions/validation_guidance.yaml`
 2. Analyze all document sections in the `output/` folder
 3. Check compliance with your requirements
 4. Generate a detailed `feedback.md` report in the `output/` folder
@@ -162,20 +166,20 @@ When using the automated feedback loop (main.py):
 ## Customizing for Different Document Types
 
 ### Example: Technical Documentation
-1. Create `guidance.md` with sections like:
+1. Create `instructions/guidance.yaml` with sections like:
    - Overview
    - Architecture
    - API Reference
    - Examples
    - Troubleshooting
 
-2. Create `validationguidance.md` with rules like:
+2. Create `instructions/validation_guidance.yaml` with rules like:
    - All code examples must be tested
    - API endpoints must include request/response examples
    - Architecture diagrams required
 
 ### Example: Research Papers
-1. Create `guidance.md` with sections like:
+1. Create `instructions/guidance.yaml` with sections like:
    - Abstract (max 250 words)
    - Introduction
    - Literature Review
@@ -184,20 +188,20 @@ When using the automated feedback loop (main.py):
    - Discussion
    - Conclusion
 
-2. Create `validationguidance.md` with rules like:
+2. Create `instructions/validation_guidance.yaml` with rules like:
    - Abstract word limit enforcement
    - Citation format checking
    - Statistical significance requirements
 
 ### Example: Business Reports
-1. Create `guidance.md` with sections like:
+1. Create `instructions/guidance.yaml` with sections like:
    - Executive Summary
    - Market Analysis
    - Financial Projections
    - Risk Assessment
    - Recommendations
 
-2. Create `validationguidance.md` with rules like:
+2. Create `instructions/validation_guidance.yaml` with rules like:
    - Financial data accuracy
    - Risk mitigation strategies required
    - Executive summary page limit
@@ -206,14 +210,14 @@ When using the automated feedback loop (main.py):
 
 - The system processes documents based entirely on your guidance files
 - Each section is saved independently, allowing individual updates
-- All requirements and rules are defined in markdown, not in code
+- All requirements and rules are defined in YAML files, not in code
 - The AI agents adapt to any document type based on your templates
 
 ## Troubleshooting
 
 - **Missing environment variables**: Ensure all Azure OpenAI credentials are set in `.env`
 - **No documents found**: Check that source documents are in the `docs/` folder
-- **Template missing**: Ensure `guidance.md` and `validationguidance.md` are in the root directory
+- **Template missing**: Ensure guidance and validation files are in the `instructions/` directory
 - **API errors**: Verify your Azure OpenAI endpoint and API key are correct
 
 ## Recent Updates
@@ -226,11 +230,20 @@ When using the automated feedback loop (main.py):
 - **Bug Fixes**: Resolved section duplication and improved error handling
 - **Dependency Updates**: Support for latest AI models including o4-mini
 
-### Key Files Added
+### Version 2.1 Improvements (Latest)
+- **Agent Capability Management**: Added explicit declarations to prevent tool confusion
+- **Restructured Configuration**: All prompts and instructions moved to `instructions/` directory
+- **YAML Format**: Converted all configuration files from markdown to structured YAML
+- **Clear Tool Distribution**: FileSurfer is read-only, DocumentWriter and QualityAssessor can save/delete
+- **Enhanced Error Prevention**: Orchestrator now knows exactly which agent has which tools
+
+### Key Files Added/Updated
 - `config.py` - Central configuration management
-- `utils.py` - Shared utilities to reduce code duplication
-- `prompts/writer_prompts.yaml` - Customizable writer agent prompts
-- `prompts/validator_prompts.yaml` - Customizable validator agent prompts
+- `utils.py` - Shared utilities with updated prompt loading
+- `instructions/writer_prompts.yaml` - Writer prompts with agent capabilities
+- `instructions/validator_prompts.yaml` - Validator prompts with agent capabilities
+- `instructions/guidance.yaml` - Document structure definition (converted from .md)
+- `instructions/validation_guidance.yaml` - Validation rules (converted from .md)
 - `requirements-dev.txt` - Development dependencies including security tools
 
 ### File Management Features (Latest Update)

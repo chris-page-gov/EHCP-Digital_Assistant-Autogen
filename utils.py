@@ -255,7 +255,7 @@ def load_prompts(prompt_file: str, logger: Optional[logging.Logger] = None) -> D
     Load prompts from a YAML file.
     
     Args:
-        prompt_file: Name of the YAML file in the prompts directory (e.g., 'writer_prompts.yaml')
+        prompt_file: Name of the YAML file (e.g., 'writer_prompts.yaml')
         logger: Optional logger instance
     
     Returns:
@@ -263,7 +263,16 @@ def load_prompts(prompt_file: str, logger: Optional[logging.Logger] = None) -> D
     """
     import yaml
     
-    prompt_path = config.PROMPTS_DIR / prompt_file
+    # Try new instructions directory first
+    prompt_path = config.INSTRUCTIONS_DIR / prompt_file
+    
+    # Fall back to old prompts directory if file doesn't exist (for migration)
+    if not prompt_path.exists() and hasattr(config, 'OLD_PROMPTS_DIR'):
+        old_path = config.OLD_PROMPTS_DIR / prompt_file
+        if old_path.exists():
+            prompt_path = old_path
+            if logger:
+                logger.warning(f"Loading prompt from old location: {old_path}")
     
     if not prompt_path.exists():
         error_msg = f"Prompt file not found: {prompt_path}"

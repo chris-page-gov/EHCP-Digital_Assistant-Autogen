@@ -158,10 +158,10 @@ async def main():
     # Check environment
     check_environment_variables(logger)
     
-    # Load prompts
+    # Load prompts from new instructions directory
     try:
-        prompts = load_prompts('validator_prompts.yaml', logger)
-        logger.info("Prompts loaded successfully")
+        prompts = load_prompts(config.VALIDATOR_PROMPTS_FILE.name, logger)
+        logger.info("Prompts loaded successfully from instructions directory")
     except Exception as e:
         logger.error(f"Failed to load prompts: {e}")
         print(f"ERROR: Failed to load prompts: {e}")
@@ -239,9 +239,13 @@ async def main():
     print("\n>>> Starting Document Validation <<<")
     logger.info("Starting document validation")
     
-    # Create the task
+    # Create the task with agent capabilities context
     document_files_str = ', '.join([f.name for f in document_files])
-    task = prompts['validation_task_template'].format(document_files=document_files_str)
+    agent_context = prompts.get('agent_capabilities_context', '')
+    task = prompts['validation_task_template'].format(
+        agent_capabilities_context=agent_context,
+        document_files=document_files_str
+    )
     
     validation_exit_code = config.EXIT_SUCCESS  # Default to success
     

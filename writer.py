@@ -165,10 +165,10 @@ async def main():
     # Check environment
     check_environment_variables(logger)
     
-    # Load prompts
+    # Load prompts from new instructions directory
     try:
-        prompts = load_prompts('writer_prompts.yaml', logger)
-        logger.info("Prompts loaded successfully")
+        prompts = load_prompts(config.WRITER_PROMPTS_FILE.name, logger)
+        logger.info("Prompts loaded successfully from instructions directory")
     except Exception as e:
         logger.error(f"Failed to load prompts: {e}")
         print(f"ERROR: Failed to load prompts: {e}")
@@ -230,17 +230,25 @@ async def main():
         print(f"Absolute path: {feedback_path.absolute()}")
         logger.info(f"Feedback detected at {feedback_path.absolute()} - switching to fix mode")
         
-        # Create task for fixing issues
+        # Create task for fixing issues with agent capabilities context
         pdf_files_str = ', '.join([pdf.name for pdf in pdf_files])
-        task = prompts['fix_mode_task_template'].format(pdf_files=pdf_files_str)
+        agent_context = prompts.get('agent_capabilities_context', '')
+        task = prompts['fix_mode_task_template'].format(
+            agent_capabilities_context=agent_context,
+            pdf_files=pdf_files_str
+        )
     else:
         # Auto-generate the document request
         print("\n>>> Starting Document Generation <<<")
         logger.info("Starting document generation")
         
-        # Create the task for new document generation
+        # Create the task for new document generation with agent capabilities context
         pdf_files_str = ', '.join([pdf.name for pdf in pdf_files])
-        task = prompts['generation_mode_task_template'].format(pdf_files=pdf_files_str)
+        agent_context = prompts.get('agent_capabilities_context', '')
+        task = prompts['generation_mode_task_template'].format(
+            agent_capabilities_context=agent_context,
+            pdf_files=pdf_files_str
+        )
     
     exit_code = config.EXIT_SUCCESS  # Default to success
     

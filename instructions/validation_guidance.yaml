@@ -1,0 +1,295 @@
+# EHCP Validation Guidance
+# This document outlines comprehensive validation rules for assessing EHCP documents
+
+overview: "Comprehensive validation rules for assessing the quality, accuracy, and compliance of Education, Health and Care Plan (EHCP) documents"
+
+# File structure validation rules
+file_structure_validation:
+  expected_files:
+    - filename: "personal_details.md"
+      description: "Contains both personal details AND main contact details"
+    - filename: "section_a1_summary_of_history.md"
+      description: "Child's history (max 500 words)"
+    - filename: "section_a2_views_interests_aspirations.md"
+      description: "Views, interests, strengths, and aspirations"
+    - filename: "section_b_communication_and_interaction.md"
+      description: "Communication and interaction needs"
+    - filename: "section_b_cognition_and_learning.md"
+      description: "Cognition and learning needs"
+    - filename: "section_b_social_emotional_mental_health.md"
+      description: "Social, emotional and mental health needs"
+    - filename: "section_b_sensory_physical_needs.md"
+      description: "Sensory and/or physical needs"
+    - filename: "section_c_health_care_needs.md"
+      description: "Health care needs related to SEN"
+    - filename: "section_d_social_care_needs.md"
+      description: "Social care needs"
+    - filename: "section_e_outcomes.md"
+      description: "ALL outcomes consolidated in one file"
+    - filename: "section_f_special_educational_provision.md"
+      description: "ALL special educational provisions consolidated"
+    - filename: "section_g_health_care_provision.md"
+      description: "Health care provision"
+    - filename: "section_h1_social_care_provision_csdpa.md"
+      description: "Social care under CSDPA 1970"
+    - filename: "section_h2_other_social_care_provision.md"
+      description: "Other social care provision"
+    - filename: "section_i_placement.md"
+      description: "Placement details"
+    - filename: "section_j_direct_payments.md"
+      description: "Direct payments information"
+    - filename: "section_k_advice_and_information.md"
+      description: "Professional advice gathered"
+    - filename: "sign_off.md"
+      description: "Local authority sign-off"
+
+  system_files_to_ignore:
+    - "feedback.md"
+    - "loop_report.json"
+    - "*.log"
+
+  naming_rules:
+    - "No duplicate files - Flag as CRITICAL if multiple versions exist"
+    - "No unexpected files - Flag as MAJOR if files don't match expected patterns"
+    - "Correct naming - All files must be lowercase with underscores, ending in .md"
+    - "No placeholder files - Flag as CRITICAL if files like 'unnamed_section.md' exist"
+
+  common_errors:
+    - error_type: "Split sections"
+      description: "Section E outcomes or Section F provisions split into multiple files"
+    - error_type: "Wrong names"
+      description: "Files like 'main_contact_details.md' instead of being in personal_details.md"
+    - error_type: "Missing consolidation"
+      description: "Multiple outcome files instead of single section_e_outcomes.md"
+    - error_type: "Typos in names"
+      description: "e.g., 'section_a1_summary_history.md' missing 'of'"
+
+# Section-specific validation rules
+section_validation_rules:
+  personal_details:
+    required_elements:
+      - "Child/young person's full name"
+      - "Date of birth (format: YYYY-MM-DD)"
+      - "Sex and ethnicity"
+      - "Main contact details (parent/carer name, relationship, email, phone, address)"
+      - "Current education setting"
+      - "GP/key health professional details"
+      - "NHS number (if available)"
+      - "Social care status"
+      - "Looked after child status (current and historical)"
+    quality_checks:
+      - "All required fields must be populated (no placeholders like [INSERT])"
+      - "Contact details must be complete and formatted correctly"
+      - "Professional services must be clearly identified"
+
+  section_a1:
+    strict_requirements:
+      - "MUST NOT exceed 500 words (3000 characters)"
+      - "Must include brief overview of child's circumstances"
+      - "Must include proposed future learning and development"
+      - "Must include communication preferences and engagement methods"
+    quality_indicators:
+      - "Concise and focused content"
+      - "No unnecessary repetition"
+      - "Clear, professional language"
+      - "Child-centered perspective"
+
+  section_a2:
+    content_requirements:
+      - "Should be approximately one page (500 words/3000 characters)"
+      - "Must clearly state how information was collected"
+      - "Must identify if someone provided information on child's behalf"
+    subsections:
+      views: "Must reflect child/young person's perspective"
+      interests: "Specific and purposeful (avoid generic statements)"
+      strengths: "Only strengths (no descriptions of needs)"
+      aspirations: "Child's ambitions; parent views if appropriate"
+
+  section_b_all:
+    structure_validation:
+      - "Must cover all four areas (even if stating 'no identified needs')"
+      - "Each need must be clearly described with impact explained"
+      - "Needs must link to provisions in Section F"
+    quality_checks:
+      - "Professional terminology used appropriately"
+      - "Specific rather than generic descriptions"
+      - "Clear explanation of impact on learning"
+
+  section_c_health:
+    requirements:
+      - "Only health needs related to SEN"
+      - "Clear description of each health need"
+      - "Impact on education must be explained"
+      - "If no needs, must explicitly state: 'Child or young person has no identified special educational needs in this area'"
+
+  section_d_social:
+    requirements:
+      - "Only social care needs related to SEN or disability"
+      - "Clear impact description"
+      - "Must relate to educational context"
+      - "If no needs, must explicitly state this"
+
+  section_e_outcomes:
+    smart_criteria:
+      specific: "Clear and well-defined"
+      measurable: "Progress can be monitored with clear metrics"
+      achievable: "Realistic given the provisions"
+      relevant: "Appropriate for the child's abilities"
+      time_bound: "Clear timeframe specified"
+    additional_requirements:
+      - "Personal and child-centered (not service-focused)"
+      - "Based on achievement, independence, participation in society, health"
+      - "Must clearly link to identified needs"
+      - "Must be underpinned by specified provisions"
+
+  section_f_provision:
+    five_mandatory_elements:
+      - element: "Support required"
+        description: "What specific support/intervention"
+      - element: "Provider qualification"
+        description: "Who provides it and required expertise"
+      - element: "Staff/student ratio"
+        description: "e.g., 1:1, 2:1, 6:1 group work"
+      - element: "Frequency"
+        description: "Daily, weekly, termly (must be specific)"
+      - element: "Duration"
+        description: "Hours must be specified"
+    quality_validation:
+      - "Every need in Section B must have corresponding provision"
+      - "Provisions must be specific and quantifiable"
+      - "No vague terms like 'regular support' or 'as needed'"
+
+  section_g_health_provision:
+    requirements:
+      - "Must address all needs identified in Section C"
+      - "Same five elements as Section F"
+      - "Clear specification of therapy/medical support"
+      - "Distinguish between education and health funding"
+
+  section_h_social_provision:
+    structure:
+      h1: "Provision under Chronically Sick and Disabled Persons Act 1970"
+      h2: "Other social care provision related to SEN"
+    requirements:
+      - "Must address all needs in Section D"
+      - "Clear specification of support type and frequency"
+
+  section_i_placement:
+    required_information:
+      - "Type of institution (mainstream/special/other)"
+      - "Specific school/setting name"
+      - "Any special arrangements or resources"
+      - "Transport arrangements if applicable"
+
+  sections_j_k:
+    validation:
+      - "Clear statement on direct payments (yes/no and details)"
+      - "List of all professionals who provided advice"
+      - "Summary of key recommendations from advice"
+
+# Golden thread validation
+golden_thread_validation:
+  description: "Clear connections between needs, provisions, and outcomes"
+  requirements:
+    - "Every identified need must have corresponding provision"
+    - "Every provision must link to specific outcomes"
+    - "Outcomes must be achievable through the stated provisions"
+    - "No provisions without corresponding needs"
+    - "No outcomes without supporting provisions"
+
+# Cross-section consistency checks
+cross_section_consistency:
+  information_consistency:
+    - "Child's name must be consistent throughout"
+    - "Date of birth must match across sections"
+    - "School/placement information must align"
+    - "Professional involvement must be consistent"
+  logical_consistency:
+    - "Severity of needs should match level of provision"
+    - "Outcomes should be proportionate to provisions"
+    - "No contradictions between sections"
+
+# Language and quality standards
+language_quality_standards:
+  professional_requirements:
+    - "Person-first language (e.g., 'child with autism' not 'autistic child')"
+    - "Positive and respectful tone"
+    - "Avoid jargon where possible"
+    - "Clear explanations of technical terms"
+  prohibited_content:
+    - "Generic or copied text"
+    - "Placeholder text (e.g., [INSERT], [TO BE COMPLETED])"
+    - "Discriminatory or judgmental language"
+    - "Unnecessary medical details unrelated to education"
+
+# Validation severity levels
+severity_levels:
+  critical:
+    description: "Must fix - document invalid without resolution"
+    examples:
+      - "Missing required sections"
+      - "Section A1 exceeding 500 words"
+      - "Missing provision elements (any of the 5 required)"
+      - "Broken golden thread"
+      - "Outcomes not meeting SMART criteria"
+      - "Placeholder text remaining"
+      - "Missing expected files"
+
+  major:
+    description: "Should fix - significant quality issues"
+    examples:
+      - "Inconsistent information between sections"
+      - "Vague or non-specific provisions"
+      - "Generic outcomes"
+      - "Missing impact descriptions for needs"
+      - "Poor professional language"
+      - "Unexpected files in output directory"
+      - "Incorrect file naming"
+
+  minor:
+    description: "Consider fixing - quality improvements"
+    examples:
+      - "Formatting inconsistencies"
+      - "Minor grammatical errors"
+      - "Overly technical language"
+      - "Slightly verbose sections"
+
+# Feedback report structure
+feedback_report_structure:
+  sections:
+    - name: "Executive Summary"
+      content:
+        - "Overall compliance status"
+        - "Number of critical/major/minor issues"
+        - "Key strengths identified"
+        
+    - name: "File Structure Analysis"
+      content:
+        - "List of expected files that are missing"
+        - "List of unexpected files found"
+        - "File naming issues identified"
+        - "Recommendations for file cleanup/deletion"
+        
+    - name: "Section-by-Section Analysis"
+      content:
+        - "Compliance with specific rules"
+        - "Issues found with examples"
+        - "Specific line references where applicable"
+        
+    - name: "Golden Thread Analysis"
+      content:
+        - "Mapping of needs to provisions to outcomes"
+        - "Gaps or misalignments identified"
+        
+    - name: "Recommendations"
+      content:
+        - "Prioritized list of improvements"
+        - "Specific suggestions for each issue"
+        - "Files to delete or rename"
+        
+    - name: "Compliance Scores"
+      content:
+        - "Score for each section (0–100%)"
+        - "Overall document score"
+        - "Breakdown by validation category"
+        - "File structure compliance score"

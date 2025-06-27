@@ -115,10 +115,19 @@ SEPARATOR_STANDARD = "=" * 80
 SEPARATOR_ITERATION = "#" * 80
 SEPARATOR_MINOR = "-" * 80
 
-# External Configuration Paths (for future implementation)
-PROMPTS_DIR = Path("./prompts")
-WRITER_PROMPTS_FILE = PROMPTS_DIR / "writer_prompts.yaml"
-VALIDATOR_PROMPTS_FILE = PROMPTS_DIR / "validator_prompts.yaml"
+# Directory Configuration
+INSTRUCTIONS_DIR = Path("./instructions")
+
+# Instruction File Paths
+GUIDANCE_FILE = INSTRUCTIONS_DIR / "guidance.yaml"
+VALIDATION_GUIDANCE_FILE = INSTRUCTIONS_DIR / "validation_guidance.yaml"
+WRITER_PROMPTS_FILE = INSTRUCTIONS_DIR / "writer_prompts.yaml"
+VALIDATOR_PROMPTS_FILE = INSTRUCTIONS_DIR / "validator_prompts.yaml"
+
+# Legacy Paths (for migration)
+OLD_PROMPTS_DIR = Path("./prompts")
+OLD_GUIDANCE_FILE = Path("./guidance.md")
+OLD_VALIDATION_FILE = Path("./validationguidance.md")
 
 # Security Configuration
 # Valid patterns for Python executable paths (for subprocess security)
