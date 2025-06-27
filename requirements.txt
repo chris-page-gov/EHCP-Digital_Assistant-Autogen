@@ -1,0 +1,22 @@
+# MAD - Multi-Agentic Document Generator Dependencies
+# All versions pinned for security and reproducibility
+
+# Core dependencies
+python-dotenv==1.1.0
+nest-asyncio==1.6.0
+PyYAML==6.0.1     # For loading prompt configuration files
+
+# AutoGen framework
+# Using latest versions to support newer models like o4-mini
+autogen-agentchat>=0.4.0
+autogen-core>=0.4.0
+autogen-ext[openai,magentic-one,file-surfer]>=0.4.0
+
+# Security tools
+pip-audit==2.7.3  # For dependency vulnerability scanning
+safety==3.2.3     # Additional security vulnerability checks
+bandit==1.7.9     # Security linter for Python code
+
+# Optional but recommended security dependencies
+# cryptography==42.0.8  # For secure handling of secrets (if needed)
+# python-jose==3.3.0    # For JWT token handling (if needed)
