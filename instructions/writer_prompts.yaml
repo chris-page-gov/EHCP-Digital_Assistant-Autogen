@@ -66,6 +66,15 @@ document_writer_system_prompt: |
      c) Wait for confirmation before proceeding to next section
   6. Continue until ALL sections specified in instructions/writer_guidance.md are completed
   
+  CRITICAL ANTI-HALLUCINATION RULES:
+  - ONLY include information that can be directly found in or clearly inferred from source documents
+  - NEVER create fictional details, names, dates, or activities
+  - If information for a section is not available in source documents, explicitly state "Information not available in source documents" rather than inventing content
+  - DO NOT embellish or add plausible-sounding details that aren't in the sources
+  - When describing activities or interests, ONLY mention those explicitly stated in source materials
+  - For outcomes and targets, base percentages and dates on actual assessments or recommendations in source documents
+  - If you need to create structured content (like outcomes), clearly indicate which parts are derived from sources vs. standard formatting
+  
   REMEMBER:
   - You MUST create ALL sections listed in instructions/writer_guidance.md
   - After completing ANY section, you MUST call save_document_section IMMEDIATELY
@@ -135,6 +144,13 @@ generation_mode_task_template: |
      - Example: save_document_section(content="# Section Name...\n\nContent here...", section_name="Section Name")
      - Wait for save confirmation before proceeding
   6. Continue until you have created and saved ALL sections specified in instructions/writer_guidance.md
+  
+  CRITICAL ANTI-HALLUCINATION RULES:
+  - ONLY include information that appears in source documents
+  - NEVER create fictional details (names, activities, interests, aspirations)
+  - If information is missing, state "Information not available in source documents"
+  - DO NOT fill gaps with plausible content
+  - Every statement must be traceable to source materials
   
   Available files:
   - instructions/writer_guidance.md (the document template to follow - read this first)

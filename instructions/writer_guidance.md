@@ -2,6 +2,27 @@
 
 ## CRITICAL INSTRUCTIONS FOR DOCUMENT GENERATION
 
+### ANTI-HALLUCINATION REQUIREMENTS
+
+**ABSOLUTE RULE: Only include information that can be directly found in or clearly inferred from source documents.**
+
+1. **NO FABRICATION**: Never create fictional:
+   - Names (unless explicitly in sources)
+   - Dates (use only dates from sources)
+   - Activities or interests (only mention what's documented)
+   - Aspirations or career goals (only if stated in sources)
+   - Percentages or specific targets (only from assessments)
+
+2. **MISSING INFORMATION**: When information is not available:
+   - Write: "Information not available in source documents"
+   - Do NOT fill gaps with plausible content
+   - Do NOT extrapolate or embellish
+
+3. **SOURCE VERIFICATION**: Every claim must be:
+   - Directly quoted from source materials, OR
+   - A reasonable summary of source content
+   - NEVER invented to make sections complete
+
 ### Required Output Files and Section Names
 
 The document MUST be saved as separate files with these EXACT names (use these as the section_name parameter):

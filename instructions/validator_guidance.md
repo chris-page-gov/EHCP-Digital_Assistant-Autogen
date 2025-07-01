@@ -3,6 +3,35 @@
 ## Overview
 This document outlines comprehensive validation rules for assessing the quality, accuracy, and compliance of Education, Health and Care Plan (EHCP) documents. The validator system uses these rules to analyze EHCP sections and generate feedback.
 
+## Content Verification and Anti-Hallucination Rules
+
+### CRITICAL: Source Document Verification
+All content MUST be verifiable against source documents. The validator should check for:
+
+1. **Hallucinated Content** (CRITICAL severity):
+   - Names not found in source documents
+   - Activities, interests, or aspirations not mentioned in sources
+   - Dates or events not documented
+   - Career goals or specific preferences not in sources
+   - Any detailed claims that cannot be traced to source materials
+
+2. **Embellished Content** (MAJOR severity):
+   - Exaggerated descriptions beyond source material
+   - Added qualifiers or adjectives not in sources
+   - Specific percentages or metrics not from assessments
+   - Terminology variations that change meaning
+
+3. **Missing Source Indicators** (MAJOR severity):
+   - Sections that should state "Information not available in source documents"
+   - Content that appears generated rather than sourced
+   - Suspicious level of detail for areas typically sparse in assessments
+
+### Validation Approach
+- Flag any content that seems too specific or detailed without source verification
+- Check for common hallucination patterns (career aspirations, specific hobbies, detailed preferences)
+- Verify professional names and dates against expected patterns
+- Look for sections with suspiciously complete information
+
 ## File Structure Validation
 
 ### Expected Files
@@ -104,11 +133,18 @@ All EHCP documents must contain the following sections. Missing sections should 
 - Must clearly state how information was collected
 - Must identify if someone provided information on child's behalf
 
+**CRITICAL ANTI-HALLUCINATION CHECKS for Section A2:**
+- **RED FLAGS**: Career aspirations (teacher, doctor, etc.) not in sources
+- **RED FLAGS**: Specific hobbies (creative writing, art club, etc.) not documented
+- **RED FLAGS**: Detailed preferences (fantasy books, painting) without source
+- **REQUIRED**: If no views/interests documented, must state "Information not available in source documents"
+- **VERIFY**: Any specific activity mentioned must appear in source materials
+
 **Sub-sections validation:**
-- **Views:** Must reflect child/young person's perspective
-- **Interests:** Specific and purposeful (avoid generic statements)
-- **Strengths:** Only strengths (no descriptions of needs)
-- **Aspirations:** Child's ambitions; parent views if appropriate
+- **Views:** Must reflect child/young person's perspective FROM SOURCES
+- **Interests:** Specific and purposeful FROM DOCUMENTED EVIDENCE
+- **Strengths:** Only strengths MENTIONED IN ASSESSMENTS
+- **Aspirations:** Child's ambitions ONLY IF STATED IN SOURCES
 
 ### Section B – Special Educational Needs
 **Structure validation:**
