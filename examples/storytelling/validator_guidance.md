@@ -1,41 +1,41 @@
-# Storytelling/Novel Validation Guidance
+Storytelling/Novel Validation Guidance
 
-## Overview
+Overview
 This document outlines comprehensive validation rules for assessing the quality, coherence, and completeness of creative writing projects. The validator system uses these rules to analyze story development documents and provide constructive feedback.
 
-## File Structure Validation
+File Structure Validation
 
-### Expected Files
+Expected Files
 The following files MUST exist in the output directory. Missing files should be flagged as CRITICAL errors:
 
-1. **title_and_metadata.md** - Basic story information and classification
-2. **story_premise.md** - Core concept and conflict
-3. **character_profiles.md** - All major character details consolidated
-4. **world_building.md** - Setting and world rules consolidated
-5. **plot_structure.md** - Three-act breakdown and plot points
-6. **chapter_outline.md** - Chapter-by-chapter breakdown
-7. **themes_and_motifs.md** - Thematic elements and symbols
-8. **dialogue_and_voice.md** - Voice guidelines and examples
-9. **opening_chapter.md** - Complete first chapter
-10. **key_scenes.md** - Pivotal scene treatments
-11. **story_arc_tracking.md** - Character and plot progression
-12. **revision_notes.md** - Areas for improvement
+1. title_and_metadata.md - Basic story information and classification
+2. story_premise.md - Core concept and conflict
+3. character_profiles.md - All major character details consolidated
+4. world_building.md - Setting and world rules consolidated
+5. plot_structure.md - Three-act breakdown and plot points
+6. chapter_outline.md - Chapter-by-chapter breakdown
+7. themes_and_motifs.md - Thematic elements and symbols
+8. dialogue_and_voice.md - Voice guidelines and examples
+9. opening_chapter.md - Complete first chapter
+10. key_scenes.md - Pivotal scene treatments
+11. story_arc_tracking.md - Character and plot progression
+12. revision_notes.md - Areas for improvement
 
-### System Files (Should be Ignored)
-- **feedback.md** - Validation feedback report
-- **loop_report.json** - Automated loop runner report
+System Files (Should be Ignored)
+- feedback.md - Validation feedback report
+- loop_report.json - Automated loop runner report
 - Any log files (*.log)
 
-### File Naming Validation Rules
-1. **No duplicate files** - Flag as CRITICAL if character profiles split across files
-2. **Correct consolidation** - All world-building must be in one file
-3. **No working files** - Flag draft_chapter.md or similar as MAJOR errors
-4. **Consistent naming** - All lowercase with underscores
+File Naming Validation Rules
+1. No duplicate files - Flag as CRITICAL if character profiles split across files
+2. Correct consolidation - All world-building must be in one file
+3. No working files - Flag draft_chapter.md or similar as MAJOR errors
+4. Consistent naming - All lowercase with underscores
 
-## Section-Specific Validation Rules
+Section-Specific Validation Rules
 
-### Title and Metadata
-**Required Elements:**
+Title and Metadata
+Required Elements:
 - Working title (not placeholder like "Untitled")
 - Primary genre specified
 - Target audience clearly defined
@@ -45,39 +45,39 @@ The following files MUST exist in the output directory. Missing files should be 
 - One-line pitch ≤25 words
 - Elevator pitch ≤50 words
 
-**Quality Checks:**
+Quality Checks:
 - Genre and audience align
 - Comps are recent (within 5 years) and relevant
 - Pitches are compelling and clear
 - Word count appropriate for genre/audience
 
-**Severity Levels:**
+Severity Levels:
 - CRITICAL: Missing title, genre, or audience
 - MAJOR: No comps, pitches exceed limits
 - MINOR: Comps outdated, pitches could be stronger
 
-### Story Premise
-**Must Include:**
+Story Premise
+Must Include:
 - Logline following "When [inciting incident], [protagonist] must [action] or else [stakes]" format
 - Clear central conflict (internal and external)
 - Specific, compelling stakes
 - Unique selling point that differentiates
 - Thematic statement (what the story is really about)
 
-**Validation Rules:**
+Validation Rules:
 - Logline must identify protagonist, conflict, and stakes
 - Stakes must feel significant and personal
 - Theme connects to plot, not just tacked on
 - USP actually unique, not generic
 
-**Common Issues:**
+Common Issues:
 - Vague stakes ("save the world")
 - Missing internal conflict
 - Theme doesn't connect to plot
 - Generic USP
 
-### Character Profiles
-**For Protagonist - Required:**
+Character Profiles
+For Protagonist - Required:
 - Complete physical and biographical details
 - Clear starting point (flaws/misconceptions)
 - Specific external goal
@@ -86,293 +86,301 @@ The following files MUST exist in the output directory. Missing files should be 
 - Unique voice/mannerisms
 - Complete character arc mapped
 
-**For Antagonist - Required:**
+For Antagonist - Required:
 - Believable motivation (they're the hero of their story)
 - Direct opposition to protagonist's goal
 - Comparable power/resources to protagonist
 - Some sympathetic quality
 
-**Supporting Characters (3-5 minimum):**
+Supporting Characters (3-5 minimum):
 - Clear role in protagonist's journey
 - Distinct from each other
 - Own goals (not just helping protagonist)
 
-**Quality Indicators:**
+Quality Indicators:
 - Characters feel three-dimensional
-- Clear growth arcs for major characters
-- Diverse cast (perspectives, backgrounds)
-- Authentic dialogue examples
+- Distinct voices for each
+- Believable relationships
+- Growth arcs make sense
 
-**Red Flags:**
-- Mary Sue/Gary Stu protagonists
-- Cardboard villains
-- Token diversity
-- All characters sound the same
+Red Flags:
+- Mary Sue/Gary Stu protagonist
+- Mustache-twirling villain
+- Interchangeable supporting cast
+- No character growth
 
-### World Building
-**Essential Components:**
-- Time and place clearly established
+World Building
+Essential Elements:
+- Time period and location clearly defined
 - Consistent rules (physical, social, magical)
-- Sensory details for major locations
-- Cultural/social context
-- Technology level appropriate
-- Economic system makes sense
+- Sensory details bring world alive
+- Cultural elements feel authentic
+- Technology/magic limitations clear
 
-**For Speculative Fiction - Additional:**
-- Magic/technology rules clearly defined
+For Speculative Fiction:
+- Magic/tech rules clearly defined
 - Limitations and costs established
-- Consistent application throughout
-- Avoids breaking own rules
+- Internal consistency maintained
+- Avoids convenient solutions
 
-**Validation Checks:**
-- No anachronisms (unless intentional)
-- Geography makes sense
-- Social structures believable
-- Details enhance rather than overwhelm
+Quality Checks:
+- World serves story (not overwhelming it)
+- Details relevant to plot
+- Consistent throughout
+- Unique elements that enhance story
 
-### Plot Structure
-**Three-Act Breakdown Must Include:**
+Plot Structure
+Three-Act Requirements:
+- Act 1 (25%): Clear setup, inciting incident at right spot
+- Act 2 (50%): Rising action, midpoint reversal
+- Act 3 (25%): Climax and resolution
 
-**Act 1 (25%):**
-- Opening status quo
+Major Plot Points Must Include:
+- Opening that hooks
 - Inciting incident (10-15% mark)
-- Clear debate/refusal period
-- Break into Act 2 (25% mark)
+- First plot point (25% mark)
+- Midpoint reversal (50% mark)
+- Dark night/all is lost (75% mark)
+- Climax answers story question
+- Resolution provides closure
 
-**Act 2 (50%):**
-- Fun and games sequence
-- B-story introduction
-- Midpoint shift (50% mark)
-- Escalating complications
-- Dark night moment
+Subplot Validation:
+- 2-3 subplots that enhance main plot
+- Each has beginning, middle, end
+- Don't overwhelm main story
 
-**Act 3 (25%):**
-- Climax building from everything before
-- Resolution addressing all threads
-- New equilibrium
+Chapter Outline
+For First 5 Chapters - Detailed Requirements:
+- Clear chapter goals
+- Scene-by-scene breakdown
+- POV clearly marked
+- Conflict in every chapter
+- Hooks and cliffhangers
+- Word count targets
 
-**Quality Checks:**
-- Each plot point clearly identified
-- Subplots mapped and integrated
-- Cause-and-effect logic throughout
-- No convenient coincidences
-- Proper setup for all payoffs
-
-### Chapter Outline
-**Each Chapter Must Have:**
-- Clear purpose advancing plot
-- Identified POV character
-- Specific setting/time
-- Beginning/middle/end structure
-- Emotional arc for POV character
-- Hook or cliffhanger ending
-
-**Overall Structure Validation:**
-- Chapter lengths relatively consistent
-- POV changes follow pattern (if multiple)
+Overall Outline Checks:
+- Pacing appropriate to genre
 - Rising tension throughout
-- Breather chapters after intense ones
-- No filler chapters
+- No sagging middle
+- Chapters end with questions
 
-**Quality Issues:**
-- Chapters that don't advance story
-- Inconsistent POV patterns
-- All chapters same length/structure
-- No variety in pacing
+Themes and Motifs
+Primary Theme Requirements:
+- Clearly stated, not vague
+- Demonstrated through plot
+- Character arcs support theme
+- Not preachy or heavy-handed
 
-### Themes and Motifs
-**Primary Theme Requirements:**
-- Clearly stated and understood
-- Woven throughout plot naturally
-- Explored through multiple characters
-- Resolved or addressed by ending
+Motif Validation:
+- Symbols enhance meaning
+- Used consistently
+- Not overdone
+- Support rather than distract
 
-**Supporting Elements:**
-- 2-3 secondary themes that support primary
-- Recurring motifs/symbols identified
-- Motifs have clear meaning/purpose
-- Not heavy-handed or preachy
-
-**Validation Checks:**
-- Theme emerges from story, not forced
-- Different perspectives on theme shown
-- Symbols enhance rather than distract
-- Thematic resolution satisfying
-
-### Dialogue and Voice
-**Narrative Voice Must:**
+Dialogue and Voice
+Narrative Voice Must:
 - Match genre expectations
-- Remain consistent throughout
+- Remain consistent
 - Suit target audience
-- Feel fresh/engaging
+- Create atmosphere
 
-**Character Differentiation:**
-- Each major character speaks uniquely
-- Dialogue reflects background/education
-- Age-appropriate language
-- Emotional state affects speech
+Character Dialogue Requirements:
+- Each character sounds unique
+- Age-appropriate speech
+- Avoids info-dumping
+- Subtext when needed
+- Period/setting appropriate
 
-**Technical Requirements:**
-- Natural flow and rhythm
-- Subtext present (not all on-the-nose)
-- Proper balance of dialogue/action
-- Varied dialogue tags and beats
+Red Flags:
+- All characters sound same
+- Modern slang in historical
+- Wooden/unnatural dialogue
+- On-the-nose exposition
 
-### Opening Chapter
-**First Page Must:**
-- Hook reader immediately
-- Establish genre/tone
-- Introduce protagonist or POV
-- Create questions
-- Ground in setting
+Opening Chapter
+Must Include:
+- Hook in first line/paragraph
+- Character introduction that intrigues
+- World establishment without info-dump
+- Tone matches genre
+- Conflict/tension introduced
+- Ends with reason to continue
 
-**Full Chapter Requirements:**
-- 2,500-5,000 words typically
-- End with compelling reason to continue
-- Establish normal before change
-- Hint at central conflict
-- Voice matches throughout
+Length: 2000-3000 words
 
-**Common Opening Problems:**
-- Starting with weather/waking up
-- Too much backstory
-- Passive protagonist
-- Unclear genre signals
-- Boring normal world
+Quality Markers:
+- Would reader buy based on this?
+- Character voice established
+- Setting comes alive
+- Story question posed
 
-### Key Scenes
-**Required Scenes (minimum 5):**
-1. Inciting incident - fully developed
-2. Crossing threshold - commitment shown
-3. Midpoint reversal - game changer
-4. Dark night - emotional bottom
-5. Climax - everything comes together
+Key Scenes
+Each Pivotal Scene Must Have:
+- Clear purpose in story
+- Specific setting details
+- Emotional arc mapped
+- Conflict/tension
+- Consequence/change
+- Memorable moments
 
-**Each Scene Must:**
-- Serve clear story purpose
-- Change something significant
-- Have emotional impact
-- Include sensory details
-- Feel inevitable yet surprising
+Required Scenes:
+1. Inciting Incident - disrupts status quo
+2. Midpoint - changes everything
+3. Dark Night - lowest point
+4. Climax - final confrontation
+5. Resolution - new normal
 
-### Story Arc Tracking
-**Character Arc Tracking:**
-- Starting point → End point clear
-- Major turning points identified
-- Relationships evolution mapped
-- Internal change demonstrated
+Story Arc Tracking
+Plot Arc Must Show:
+- Steady rising action
+- Logical cause/effect
+- Appropriate pacing
+- No plot holes
 
-**Plot Thread Management:**
-- All threads introduced are resolved
-- Foreshadowing tracked to payoff
-- Questions raised are answered
-- No dropped storylines
+Character Arc Tracking:
+- Starting beliefs/flaws
+- Catalyst moments
+- Gradual change
+- Believable growth
+- Satisfying endpoint
 
-**Pacing Analysis:**
-- Action/reflection balance
-- Tension peaks and valleys
-- Scene variety (action/dialogue/description)
-- Chapter length variation
+Relationship Tracking:
+- How relationships evolve
+- Conflicts and resolutions
+- Support main plot
 
-### Revision Notes
-**Must Include:**
+Revision Notes
+Should Include:
 - Identified plot holes
 - Character inconsistencies
 - Pacing issues
 - World-building gaps
 - Dialogue problems
+- POV violations
 
-**Revision Plan Should:**
-- Prioritize by impact
-- Be specific and actionable
-- Include timeline
-- Reference feedback received
+Quality of Analysis:
+- Specific, not vague
+- Actionable suggestions
+- Prioritized by importance
+- Shows understanding of story
 
-## Cross-Section Validation
+Creative Standards Validation
 
-### Story Coherence
-1. **Character-Plot Integration**
-   - Character arcs drive plot forward
-   - Plot events force character growth
-   - No passive protagonists
-
-2. **World-Plot Consistency**
-   - World rules applied consistently
-   - Setting affects plot appropriately
-   - No convenient world-breaking
-
-3. **Theme-Story Alignment**
-   - Theme emerges from events
-   - Multiple perspectives explored
-   - Resolution addresses theme
-
-### Genre Expectations
-**Must Meet Genre Conventions:**
-- Romance: Clear HEA/HFN
-- Mystery: Fair play with clues
-- Thriller: Escalating danger
-- Fantasy: Consistent magic system
-- Literary: Character depth priority
-
-## Severity Level Definitions
-
-### CRITICAL (Must Fix)
-- Missing key story files
-- No clear protagonist or conflict
-- Inconsistent world rules that break story
-- Plot holes that undermine logic
-- No character growth/change
-- Opening chapter missing or weak
-- No stakes or consequences
-
-### MAJOR (Should Fix)
-- Weak character motivations
-- Predictable plot with no surprises
-- Theme heavy-handed or missing
-- Dialogue all sounds the same
-- Pacing seriously flawed
-- Key scenes lack impact
-- Genre expectations not met
-
-### MINOR (Consider Fixing)
-- Some scenes could be stronger
-- Minor character inconsistencies
-- Occasional pacing hiccups
-- Some dialogue could be tightened
-- World details could be richer
-- Themes could be more subtle
-- Some clichés present
-
-## Quality Indicators
-
-### Strong Story Elements
-- Original premise with fresh angle
-- Complex, flawed protagonist
-- High personal stakes
-- Surprising yet inevitable plot turns
-- Rich, consistent world
-- Natural thematic exploration
-- Distinctive voice
-- Emotional resonance
-
-### Professional Readiness
-- All structural elements present
-- Character arcs complete
-- World-building thorough
+Story Logic
+- Events follow cause/effect
+- Character actions believable
+- No deus ex machina
 - Plot holes addressed
-- Consistent voice/style
-- Genre expectations met
-- Ready for beta readers
-- Clear revision plan
+- Consistency maintained
 
-## Final Assessment Checklist
-- [ ] All required files present and properly named
-- [ ] Core story elements strong (character, plot, setting)
-- [ ] Genre conventions satisfied
-- [ ] Opening hooks effectively
-- [ ] Key scenes deliver impact
-- [ ] Character arcs complete and satisfying
-- [ ] World consistent and immersive
-- [ ] Themes naturally integrated
-- [ ] Voice distinctive and appropriate
-- [ ] Ready for next development stage
+Emotional Engagement
+- Stakes feel real
+- Characters relatable
+- Tension maintained
+- Satisfying payoffs
+- Reader investment
+
+Genre Expectations
+- Follows genre conventions
+- Delivers genre promises
+- Appropriate content/tone
+- Meets audience needs
+
+Originality
+- Fresh take on familiar
+- Unique voice/perspective
+- Surprising yet inevitable
+- Avoids clichés
+
+Cross-Document Validation
+
+Consistency Checks
+- Character details match throughout
+- World rules consistent
+- Timeline makes sense
+- No contradictions
+- Terminology consistent
+
+Story Cohesion
+- All elements support core story
+- Themes reflected throughout
+- Subplots enhance main plot
+- Character arcs align with plot
+- Proper setup/payoff
+
+Validation Severity Levels
+
+Critical Errors (Must Fix)
+- Missing core story elements
+- Protagonist without clear goal
+- No conflict or stakes
+- Inconsistent world rules
+- Plot holes in main story
+- Opening chapter missing
+- No character growth
+
+Major Issues (Should Fix)
+- Weak stakes
+- Clichéd plot/characters
+- Pacing problems
+- Inconsistent voice
+- Poor chapter hooks
+- Themes heavy-handed
+- Dialogue issues
+
+Minor Issues (Consider Fixing)
+- Some scenes lack tension
+- Minor character inconsistencies
+- Occasional POV slips
+- Some telling vs. showing
+- Minor pacing hiccups
+- Overused words/phrases
+
+Feedback Report Structure
+
+The validator should generate feedback.md with:
+
+1. Story Overview Assessment
+   - Core concept strength
+   - Market viability
+   - Genre fit
+   - Overall readiness level
+
+2. File Structure Analysis
+   - Missing required files
+   - Consolidation issues
+   - Naming problems
+
+3. Story Foundation Review
+   - Premise effectiveness
+   - Character depth
+   - World coherence
+   - Plot structure
+
+4. Writing Craft Assessment
+   - Voice consistency
+   - Dialogue quality
+   - Pacing analysis
+   - Opening effectiveness
+
+5. Detailed Section Feedback
+   - Section-by-section analysis
+   - Specific examples
+   - Line references where needed
+
+6. Priority Revision List
+   - Critical fixes
+   - Major improvements
+   - Minor polishing
+   - Suggested timeline
+
+7. Strengths to Preserve
+   - What's working well
+   - Unique elements
+   - Strong moments
+
+8. Market Readiness Score
+   - Concept strength (0-100)
+   - Execution quality (0-100)
+   - Overall readiness (0-100)
+   - Next steps recommendation
