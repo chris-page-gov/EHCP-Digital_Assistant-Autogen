@@ -1,0 +1,304 @@
+# CloudSync API Specification
+# Version 2.0.0
+
+openapi: 3.0.0
+info:
+  title: CloudSync API
+  description: Real-time file synchronization service API
+  version: 2.0.0
+  contact:
+    email: api-support@cloudsync.io
+    
+servers:
+  - url: https://api.cloudsync.io/v2
+    description: Production server
+  - url: https://sandbox.cloudsync.io/v2
+    description: Sandbox server
+
+paths:
+  /auth/token:
+    post:
+      summary: Generate access token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                client_id:
+                  type: string
+                client_secret:
+                  type: string
+                grant_type:
+                  type: string
+                  enum: [client_credentials, refresh_token]
+      responses:
+        200:
+          description: Token generated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access_token:
+                    type: string
+                  token_type:
+                    type: string
+                  expires_in:
+                    type: integer
+                  refresh_token:
+                    type: string
+
+  /files:
+    get:
+      summary: List files
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: folder_id
+          in: query
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+            maximum: 200
+      responses:
+        200:
+          description: File list retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  files:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/File'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+
+    post:
+      summary: Upload file
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                folder_id:
+                  type: string
+                conflict_resolution:
+                  type: string
+                  enum: [replace, rename, skip]
+                  default: rename
+      responses:
+        201:
+          description: File uploaded successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/File'
+
+  /files/{file_id}:
+    get:
+      summary: Get file metadata
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: file_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: File metadata retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/File'
+
+    delete:
+      summary: Delete file
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: file_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        204:
+          description: File deleted successfully
+
+  /files/{file_id}/download:
+    get:
+      summary: Download file
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: file_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: File content
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+
+  /sync/status:
+    get:
+      summary: Get sync status
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: Sync status retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  syncing:
+                    type: boolean
+                  pending_uploads:
+                    type: integer
+                  pending_downloads:
+                    type: integer
+                  last_sync:
+                    type: string
+                    format: date-time
+                  errors:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/SyncError'
+
+  /webhooks:
+    post:
+      summary: Register webhook
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                url:
+                  type: string
+                  format: uri
+                events:
+                  type: array
+                  items:
+                    type: string
+                    enum: [file.created, file.updated, file.deleted, sync.completed]
+                secret:
+                  type: string
+      responses:
+        201:
+          description: Webhook registered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Webhook'
+
+components:
+  schemas:
+    File:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        size:
+          type: integer
+        mime_type:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        folder_id:
+          type: string
+        checksum:
+          type: string
+        permissions:
+          type: object
+          properties:
+            read:
+              type: boolean
+            write:
+              type: boolean
+            delete:
+              type: boolean
+
+    Pagination:
+      type: object
+      properties:
+        page:
+          type: integer
+        limit:
+          type: integer
+        total:
+          type: integer
+        total_pages:
+          type: integer
+
+    SyncError:
+      type: object
+      properties:
+        file_id:
+          type: string
+        error_code:
+          type: string
+        message:
+          type: string
+        occurred_at:
+          type: string
+          format: date-time
+
+    Webhook:
+      type: object
+      properties:
+        id:
+          type: string
+        url:
+          type: string
+        events:
+          type: array
+          items:
+            type: string
+        created_at:
+          type: string
+          format: date-time
+        active:
+          type: boolean
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
