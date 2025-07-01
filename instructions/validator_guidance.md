@@ -77,22 +77,22 @@ These files are created by the system and should NOT be validated as document se
 ## Required Sections
 All EHCP documents must contain the following sections. Missing sections should be flagged as critical errors:
 
-1. **Personal Details** – Child/young person information, contacts, and services
-2. **Section A1** – Summary of history
-3. **Section A2** – Views, interests, strengths, and aspirations
-4. **Section B** – Special Educational Needs (4 subsections):
+1. **Personal Details** - Child/young person information, contacts, and services
+2. **Section A1** - Summary of history
+3. **Section A2** - Views, interests, strengths, and aspirations
+4. **Section B** - Special Educational Needs (4 subsections):
    - Communication and interaction
    - Cognition and learning
    - Social, emotional and mental health
    - Sensory and/or physical needs
-5. **Section C** – Health care needs
-6. **Section D** – Social care needs
-7. **Section E** – Outcomes
-8. **Section F** – Special educational provision
-9. **Section G** – Health care provision
-10. **Section H1 & H2** – Social care provision
-11. **Section I** – Placement details
-12. **Section J & K** – Direct payments and advice gathered
+5. **Section C** - Health care needs
+6. **Section D** - Social care needs
+7. **Section E** - Outcomes
+8. **Section F** - Special educational provision
+9. **Section G** - Health care provision
+10. **Section H1 & H2** - Social care provision
+11. **Section I** - Placement details
+12. **Section J & K** - Direct payments and advice gathered
 
 ## Section-Specific Validation Rules
 
@@ -113,7 +113,7 @@ All EHCP documents must contain the following sections. Missing sections should 
 - Contact details must be complete and formatted correctly
 - Professional services must be clearly identified
 
-### Section A1 – Summary of History
+### Section A1 - Summary of History
 **Strict requirements:**
 - MUST NOT exceed 500 words (3000 characters)
 - Must include:
@@ -127,7 +127,7 @@ All EHCP documents must contain the following sections. Missing sections should 
 - Clear, professional language
 - Child-centered perspective
 
-### Section A2 – Views, Interests, Strengths, and Aspirations
+### Section A2 - Views, Interests, Strengths, and Aspirations
 **Content requirements:**
 - Should be approximately one page (500 words/3000 characters)
 - Must clearly state how information was collected
@@ -146,7 +146,7 @@ All EHCP documents must contain the following sections. Missing sections should 
 - **Strengths:** Only strengths MENTIONED IN ASSESSMENTS
 - **Aspirations:** Child's ambitions ONLY IF STATED IN SOURCES
 
-### Section B – Special Educational Needs
+### Section B - Special Educational Needs
 **Structure validation:**
 - Must cover all four areas (even if stating "no identified needs")
 - Each need must be clearly described with impact explained
@@ -157,22 +157,22 @@ All EHCP documents must contain the following sections. Missing sections should 
 - Specific rather than generic descriptions
 - Clear explanation of impact on learning
 
-### Section C – Health Care Needs
+### Section C - Health Care Needs
 **Requirements:**
 - Only health needs related to SEN
 - Clear description of each health need
 - Impact on education must be explained
 - If no needs, must explicitly state: "Child or young person has no identified special educational needs in this area"
 
-### Section D – Social Care Needs
+### Section D - Social Care Needs
 **Requirements:**
 - Only social care needs related to SEN or disability
 - Clear impact description
 - Must relate to educational context
 - If no needs, must explicitly state this
 
-### Section E – Outcomes
-**SMART Criteria – ALL outcomes must be:**
+### Section E - Outcomes
+**SMART Criteria - ALL outcomes must be:**
 - **Specific:** Clear and well-defined
 - **Measurable:** Progress can be monitored with clear metrics
 - **Achievable:** Realistic given the provisions
@@ -185,41 +185,41 @@ All EHCP documents must contain the following sections. Missing sections should 
 - Must clearly link to identified needs
 - Must be underpinned by specified provisions
 
-### Section F – Special Educational Provision
+### Section F - Special Educational Provision
 **Five mandatory elements for EACH provision:**
-1. **Support required** – What specific support/intervention
-2. **Provider qualification** – Who provides it and required expertise
-3. **Staff/student ratio** – e.g., 1:1, 2:1, 6:1 group work
-4. **Frequency** – Daily, weekly, termly (must be specific)
-5. **Duration** – Hours must be specified
+1. **Support required** - What specific support/intervention
+2. **Provider qualification** - Who provides it and required expertise
+3. **Staff/student ratio** - e.g., 1:1, 2:1, 6:1 group work
+4. **Frequency** - Daily, weekly, termly (must be specific)
+5. **Duration** - Hours must be specified
 
 **Quality validation:**
 - Every need in Section B must have corresponding provision
 - Provisions must be specific and quantifiable
 - No vague terms like "regular support" or "as needed"
 
-### Section G – Health Care Provision
+### Section G - Health Care Provision
 **Requirements:**
 - Must address all needs identified in Section C
 - Same five elements as Section F
 - Clear specification of therapy/medical support
 - Distinguish between education and health funding
 
-### Section H1 & H2 – Social Care Provision
+### Section H1 & H2 - Social Care Provision
 **Structure:**
 - H1: Provision under Chronically Sick and Disabled Persons Act 1970
 - H2: Other social care provision related to SEN
 - Must address all needs in Section D
 - Clear specification of support type and frequency
 
-### Section I – Placement
+### Section I - Placement
 **Required information:**
 - Type of institution (mainstream/special/other)
 - Specific school/setting name
 - Any special arrangements or resources
 - Transport arrangements if applicable
 
-### Section J & K – Direct Payments and Advice
+### Section J & K - Direct Payments and Advice
 **Validation:**
 - Clear statement on direct payments (yes/no and details)
 - List of all professionals who provided advice
@@ -227,7 +227,7 @@ All EHCP documents must contain the following sections. Missing sections should 
 
 ## Golden Thread Validation
 
-The validator must check for the "golden thread" – clear connections between:
+The validator must check for the "golden thread" - clear connections between:
 1. **Needs** (Sections B, C, D) →
 2. **Provisions** (Sections F, G, H) →
 3. **Outcomes** (Section E)
@@ -331,7 +331,7 @@ The validator should generate `feedback.md` with:
    - Files to delete or rename
 
 6. **Compliance Scores**
-   - Score for each section (0–100%)
+   - Score for each section (0-100%)
    - Overall document score
    - Breakdown by validation category
    - File structure compliance score

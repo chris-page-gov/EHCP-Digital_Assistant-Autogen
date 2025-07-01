@@ -3,14 +3,14 @@
 ## Genre: Techno-thriller with sci-fi elements
 
 ## Logline
-A marine biologist must race against a powerful corporation to uncover what her sister really discovered in the deepest part of the ocean—before it's weaponized or destroys us all.
+A marine biologist must race against a powerful corporation to uncover what her sister really discovered in the deepest part of the ocean--before it's weaponized or destroys us all.
 
 ## Three-Act Structure
 
 ### Act 1 - The Call to the Depths
-**Opening**: Elena teaching a university class about deep-sea mysteries when she receives her sister's research journal in the mail—5 years after her death.
+**Opening**: Elena teaching a university class about deep-sea mysteries when she receives her sister's research journal in the mail--5 years after her death.
 
-**Inciting Incident**: The journal contains coordinates and cryptic notes about "Project Leviathan" and "They're not extinct—they're waiting."
+**Inciting Incident**: The journal contains coordinates and cryptic notes about "Project Leviathan" and "They're not extinct--they're waiting."
 
 **Plot Point 1**: Elena discovers her sister's death was staged. Security footage shows Dr. Chen at the dive site. Elena decides to mount her own expedition.
 
@@ -21,7 +21,7 @@ A marine biologist must race against a powerful corporation to uncover what her 
 - Chen's forces attack, forcing them deeper into uncharted waters
 - Dr. Yuki reveals she helped design secret deep-sea mining equipment
 
-**Midpoint**: Elena discovers the truth—an ancient, intelligent species lives in the deepest trenches. Her sister was trying to protect them from Chen's mining operation.
+**Midpoint**: Elena discovers the truth--an ancient, intelligent species lives in the deepest trenches. Her sister was trying to protect them from Chen's mining operation.
 
 ### Act 2B - Rising Pressure
 - The Collector leaves clues leading to Elena's sister's hidden research
@@ -36,11 +36,11 @@ A marine biologist must race against a powerful corporation to uncover what her 
 - Race to Chen's underwater facility to stop the mining operation
 - Jake leads rescue mission for his daughter while Elena goes deeper
 - Elena communicates with the creature's matriarch using her sister's research
-- Chen reveals he knew about the creatures all along—he's harvesting their bio-luminescent organs for military applications
-- The Collector is revealed as Elena's sister—survived but transformed by creature symbiosis
+- Chen reveals he knew about the creatures all along--he's harvesting their bio-luminescent organs for military applications
+- The Collector is revealed as Elena's sister--survived but transformed by creature symbiosis
 - Final confrontation in the abyssal trench
 
-**Climax**: Elena must choose between destroying Chen's facility (killing her transformed sister) or allowing the creatures to attack humanity. She finds a third option—expose everything to the world.
+**Climax**: Elena must choose between destroying Chen's facility (killing her transformed sister) or allowing the creatures to attack humanity. She finds a third option--expose everything to the world.
 
 **Resolution**: The creatures retreat deeper after Chen's operation is destroyed. Elena's sister chooses to go with them as humanity's ambassador. The world must now face the reality that we're not alone on Earth.
 
@@ -48,7 +48,7 @@ A marine biologist must race against a powerful corporation to uncover what her 
 1. Elena/Jake romance complicated by trust issues and his PTSD
 2. Rosa's redemption arc from smuggler to hero
 3. Yuki's guilt over her role in creating the technology
-4. The creatures' perspective—they're not monsters but protectors
+4. The creatures' perspective--they're not monsters but protectors
 5. Corporate conspiracy involving multiple governments
 
 ## Themes
@@ -60,7 +60,7 @@ A marine biologist must race against a powerful corporation to uncover what her 
 
 ## Key Scenes
 1. Opening classroom scene establishing Elena's expertise and passion
-2. First encounter with the creatures—beautiful but terrifying
+2. First encounter with the creatures--beautiful but terrifying
 3. Jake's underwater panic attack during crucial mission
 4. Elena's sister's video logs revealing the truth
 5. Communication breakthrough with the creatures

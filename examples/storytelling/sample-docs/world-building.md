@@ -103,21 +103,21 @@
 - Black market for "impossible" deep-sea specimens
 
 ## Rules of the World
-1. Pressure is the ultimate barrier—and weapon
+1. Pressure is the ultimate barrier--and weapon
 2. The deeper you go, the stranger physics becomes
 3. Bioluminescence is the universal language
 4. The ocean remembers everything
 5. Symbiosis is survival
-6. Sound travels—and reveals
+6. Sound travels--and reveals
 7. The abyss changes those who enter it
 
 ## Historical Context
-- 1960: First Mariana Trench dive encounters "anomalies"—classified
+- 1960: First Mariana Trench dive encounters "anomalies"--classified
 - 1995: Deep-sea mining treaties signed with hidden clauses
 - 2015: Elena's sister's first creature contact
 - 2020: Chen founds Abyssal Mining with government backing
 - 2029: Sister's supposed death
-- 2034: Present day—creature patience exhausted
+- 2034: Present day--creature patience exhausted
 
 ## Cultural Elements
 ### Sailor Legends (containing truth)

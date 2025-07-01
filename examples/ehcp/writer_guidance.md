@@ -130,11 +130,11 @@ The document MUST be saved as separate files with these EXACT names (use these a
 
 ### Interests
 
-*All these sections should be as purposeful and specific as possible – forming a starting point for the rest of the plan. The ‘interest’ section is designed to help professionals working with the child or young person/ their parent or carer, to build trust. Statements like “X cares about spending time with their friends, and likes to play guitar” are helpful. Bland statements like “X has a lovely smile” should be avoided.*
+*All these sections should be as purposeful and specific as possible - forming a starting point for the rest of the plan. The ‘interest’ section is designed to help professionals working with the child or young person/ their parent or carer, to build trust. Statements like “X cares about spending time with their friends, and likes to play guitar” are helpful. Bland statements like “X has a lovely smile” should be avoided.*
 
 ### Strengths
 
-*ALL strengths should be included in this section – descriptions of need belong in Sections B (special educational need), C (health needs), D (social care needs).*
+*ALL strengths should be included in this section - descriptions of need belong in Sections B (special educational need), C (health needs), D (social care needs).*
 
 ### Aspirations
 
@@ -149,23 +149,23 @@ The document MUST be saved as separate files with these EXACT names (use these a
 Children and young people with speech, language and communication needs (SLCN) have difficulty in communicating with others.  
 *More information: SEND Code of Practice, paragraphs 6.28-6.29.*
 
-#### B – Special Educational Needs
+#### B - Special Educational Needs
 
 [Section B describes a child or young person’s special educational needs. The special educational provision described in Section F must directly link to the needs described in this section. It is a legal requirement to list all identified needs. It is best practice to describe briefly the impact the needs are having on a child/young person, to maintain the golden thread between need, provision and outcomes.  
 If there are no needs in this category, please enter ‘Child/Young person has no identified special educational needs in this area’.]
 
-#### F – Special Educational Provision
+#### F - Special Educational Provision
 
 [Section F must be specified for each and every need specified in section B. It should be clear how the provision will support achievement of the outcomes.  
 Five prompts for plan writers to consider as they draft this section of the EHCP include:  
 - Support required  
 - Who will provide it (qualification/required level of expertise)  
 - Staff/student ratio (e.g. 6:1 groupwork, or 2:1 support, 1:1 etc)  
-- How often – daily, weekly, termly  
-- How long for each time – hours should usually be specified.  
+- How often - daily, weekly, termly  
+- How long for each time - hours should usually be specified.  
 Therapy provision that educates or trains is placed in Section F.]
 
-#### E – Outcomes
+#### E - Outcomes
 
 [Paragraph 9.66 of the SEND Code of Practice describes an outcome as the benefit or difference made to an individual as a result of an intervention.  
 It is a clear goal which is stretching but achievable, which is underpinned by the provision linked to it. It should be personal and not expressed from a service perspective; and it should be specific, measurable, achievable, realistic and time bound (SMART).  
@@ -174,7 +174,7 @@ It is important that outcomes are written in ways that enable:
 - outcomes to be evaluated  
 - decisions about future needs and provision to be made.  
 Outcomes sought will be based on achievement (education, employment), independence, participating in society (e.g. friendships, hobbies), being as healthy as possible in adulthood.  
-Where an outcome covers more than one need, please use identical text – paragraphs 20-21 in the supporting guidance refers.]
+Where an outcome covers more than one need, please use identical text - paragraphs 20-21 in the supporting guidance refers.]
 
 ---
 
@@ -183,22 +183,22 @@ Where an outcome covers more than one need, please use identical text – paragr
 Support for learning difficulties may be required when children and young people learn at a slower pace than their peers, even with appropriate differentiation.  
 *More information: SEND Code of Practice, paragraphs 6.30-6.31.*
 
-#### B – Special Educational Needs
+#### B - Special Educational Needs
 
 [Section B describes a child or young person’s special educational needs. The special educational provision described in Section F must directly link to the needs described in this section. It is a legal requirement to list all identified needs. It is best practice to describe briefly the impact the needs are having.  
 If there are no needs in this category, please enter ‘Child/Young person has no identified special educational needs in this area’.]
 
-#### F – Special Educational Provision
+#### F - Special Educational Provision
 
 [Section F must be specified for each and every need specified in section B. It should be clear how the provision will support achievement of the outcomes.  
 Five prompts for plan writers to consider as they draft this section of the EHCP include:  
 - Support required  
 - Who will provide it (qualification/required level of expertise)  
 - Staff/student ratio (e.g. 6:1 groupwork, or 2:1 support, 1:1 etc)  
-- How often – daily, weekly, termly  
-- How long for each time – hours should usually be specified.]
+- How often - daily, weekly, termly  
+- How long for each time - hours should usually be specified.]
 
-#### E – Outcomes
+#### E - Outcomes
 
 [Paragraph 9.66 of the SEND Code of Practice describes an outcome as the benefit or difference made to an individual as a result of an intervention.  
 It is a clear goal which is stretching but achievable, which is underpinned by the provision linked to it. It should be personal and not expressed from a service perspective; and it should be specific, measurable, achievable, realistic and time bound (SMART).  
@@ -215,23 +215,23 @@ Outcomes sought will be based on achievement (education, employment), independen
 Children and young people may experience a wide range of social, emotional and mental health difficulties which manifest themselves in many ways. These may include becoming withdrawn or isolated, or finding it hard to manage emotions.  
 *More information: SEND Code of Practice, paragraphs 6.32-6.33.*
 
-#### B – Special Educational Needs
+#### B - Special Educational Needs
 
 [Section B describes a child or young person’s special educational needs. The special educational provision described in Section F must directly link to the needs described in this section. It is a legal requirement to list all identified needs. It is best practice to describe briefly the impact the needs are having.  
 If there are no needs in this category, please enter ‘Child or Young person has no identified special educational needs in this area’.]
 
-#### F – Special Educational Provision
+#### F - Special Educational Provision
 
 [Section F must be specified for each and every need specified in section B. It should be clear how the provision will support achievement of the outcomes.  
 Five prompts for plan writers to consider as they draft this section of the EHCP include:  
 - Support required  
 - Who will provide it (qualification/required level of expertise)  
 - Staff/student ratio (e.g. 6:1 groupwork, or 2:1 support, 1:1 etc)  
-- How often – daily, weekly, termly  
-- How long for each time – hours should usually be specified.  
+- How often - daily, weekly, termly  
+- How long for each time - hours should usually be specified.  
 Therapy provision that educates or trains is placed in Section F.]
 
-#### E – Outcomes
+#### E - Outcomes
 
 [Paragraph 9.66 of the SEND Code of Practice describes an outcome as the benefit or difference made to an individual as a result of an intervention.  
 It is a clear goal which is stretching but achievable, which is underpinned by the provision linked to it. It should be personal and not expressed from a service perspective; and it should be specific, measurable, achievable, realistic and time bound (SMART).  
@@ -248,23 +248,23 @@ Outcomes sought will be based on achievement (education, employment), independen
 Some children and young people require special educational provision because they have a disability which prevents or hinders them from making use of the educational facilities generally provided.  
 *More information: SEND Code of Practice, paragraphs 6.34-6.35.*
 
-#### B – Special Educational Needs
+#### B - Special Educational Needs
 
 [Section B describes a child or young person’s special educational needs. The special educational provision described in Section F must directly link to the needs described in this section. It is a legal requirement to list all identified needs. It is best practice to describe briefly the impact the needs are having.  
 If there are no needs in this category, please enter ‘Child or young person has no identified special educational needs in this area’.]
 
-#### F – Special Educational Provision
+#### F - Special Educational Provision
 
 [Section F must be specified for each and every need specified in section B. It should be clear how the provision will support achievement of the outcomes.  
 Five prompts for plan writers to consider as they draft this section of the EHCP include:  
 - Support required  
 - Who will provide it (qualification/required level of expertise)  
 - Staff/student ratio (e.g. 6:1 groupwork, or 2:1 support, 1:1 etc)  
-- How often – daily, weekly, termly  
-- How long for each time – hours should usually be specified.  
+- How often - daily, weekly, termly  
+- How long for each time - hours should usually be specified.  
 Therapy provision that educates or trains is placed in Section F.]
 
-#### E – Outcomes
+#### E - Outcomes
 
 [Paragraph 9.66 of the SEND Code of Practice describes an outcome as the benefit or difference made to an individual as a result of an intervention.  
 It is a clear goal which is stretching but achievable, which is underpinned by the provision linked to it. It should be personal and not expressed from a service perspective; and it should be specific, measurable, achievable, realistic and time bound (SMART).  
@@ -278,22 +278,22 @@ Outcomes sought will be based on achievement (education, employment), independen
 
 ## Sections C (Health Care Needs) and G (Health Care Provision)
 
-### C – Health Care Needs Which Relate to Their Special Educational Needs
+### C - Health Care Needs Which Relate to Their Special Educational Needs
 
 [This section should capture the child or young person’s health care needs related to their SEN.  
 If there are no needs in this category, please enter ‘Child or young person has no identified special educational needs in this area’.]
 
-### G – Health Care Provision Reasonably Required
+### G - Health Care Provision Reasonably Required
 
 [Section G must specify the health provision needed to meet the health needs in Section C.  
 Five prompts for plan writers to consider as they draft this section of the EHCP include:  
 - Support required  
 - Who will provide it (qualification/required level of expertise)  
 - Staff/student ratio (e.g. 6:1 groupwork, or 2:1 support, 1:1 etc)  
-- How often – daily, weekly, termly  
-- How long for each time – hours must be specified]
+- How often - daily, weekly, termly  
+- How long for each time - hours must be specified]
 
-### E – Outcomes
+### E - Outcomes
 
 [Paragraph 9.66 of the SEND Code of Practice describes an outcome as the benefit or difference made to an individual as a result of an intervention.  
 It is a clear goal which is stretching but achievable, which is underpinned by the provision linked to it. It should be personal and not expressed from a service perspective; and it should be specific, measurable, achievable, realistic and time bound (SMART).  
@@ -307,32 +307,32 @@ Outcomes sought will be based on achievement (education, employment), independen
 
 ## Sections D (Social Care Needs) and H1/H2 (Social Care Provision)
 
-### D – Social Care Needs
+### D - Social Care Needs
 
 [This section should detail the social care needs identified, and the impact of those needs on the child/young person.  
 If there are no needs in this category, please enter ‘Child or young person has no identified special educational needs in this area’.]
 
-### H1 – Social Care Provision (Under 18, Chronically Sick and Disabled Persons Act 1970)
+### H1 - Social Care Provision (Under 18, Chronically Sick and Disabled Persons Act 1970)
 
 [Any social care provision which must be made for a child or young person under 18 resulting from section 2 of the Chronically Sick and Disabled Persons Act 1970.  
 Five prompts for plan writers to consider as they draft this section of the EHCP include:  
 - Support required  
 - Who will provide it (qualification/required level of expertise)  
 - Staff/student ratio (e.g. 6:1 groupwork, or 2:1 support, 1:1 etc)  
-- How often – daily, weekly, termly  
-- How long for each time – hours should usually be specified]
+- How often - daily, weekly, termly  
+- How long for each time - hours should usually be specified]
 
-### H2 – Other Social Care Provision
+### H2 - Other Social Care Provision
 
 [Any other social care provision reasonably required by the learning difficulties or disabilities which result in the child/young person having SEN.  
 Five prompts for plan writers to consider as they draft this section of the EHCP include:  
 - Support required  
 - Who will provide it (qualification/required level of expertise)  
 - Staff/student ratio (e.g. 6:1 groupwork, or 2:1 support, 1:1 etc)  
-- How often – daily, weekly, termly  
-- How long for each time – hours should usually be specified]
+- How often - daily, weekly, termly  
+- How long for each time - hours should usually be specified]
 
-### E – Outcomes
+### E - Outcomes
 
 [Paragraph 9.66 of the SEND Code of Practice describes an outcome as the benefit or difference made to an individual as a result of an intervention.  
 It is a clear goal which is stretching but achievable, which is underpinned by the provision linked to it. It should be personal and not expressed from a service perspective; and it should be specific, measurable, achievable, realistic and time bound (SMART).  
@@ -344,7 +344,7 @@ Outcomes sought will be based on achievement (education, employment), independen
 
 ---
 
-## I – Placement
+## I - Placement
 
 - **Name:** [Placement setting]
 - **Type:** [List setting type, including whether it is daily or weekly, residential or termly residential placement]
@@ -353,14 +353,14 @@ Outcomes sought will be based on achievement (education, employment), independen
 
 ---
 
-## J – Direct Payments
+## J - Direct Payments
 
 - **Details:**  
 - **Arrangements for direct payment:**  
 
 ---
 
-## K – The Advice and Information Gathered During the EHC Needs Assessment
+## K - The Advice and Information Gathered During the EHC Needs Assessment
 
 | Advice and Information Requested | Date Received | Who From | Appended |
 |----------------------------------|--------------|----------|----------|
@@ -379,7 +379,7 @@ Outcomes sought will be based on achievement (education, employment), independen
 
 ## Sign-off
 
-- **Local authority officer – name:** [SURNAME, FIRST NAME (OPTIONAL MIDDLE NAME/INITIAL)]
-- **Local authority officer – signature:** [INSERT DIGITAL SIGNATURE]
+- **Local authority officer - name:** [SURNAME, FIRST NAME (OPTIONAL MIDDLE NAME/INITIAL)]
+- **Local authority officer - signature:** [INSERT DIGITAL SIGNATURE]
 - **Date:** [CCYY-MM-DD]
 
