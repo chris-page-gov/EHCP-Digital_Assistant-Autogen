@@ -225,9 +225,14 @@ Edit `config.py` for more options:
 
 ```
 mad-document-generator/
-├── docs/                    # Your source documents go here
-├── output/                  # Generated documents appear here
-├── instructions/            # Active template files
+├── output/                  # Working directory - contains everything
+│   ├── instructions/        # Active template files
+│   │   ├── writer_prompts.yaml
+│   │   ├── validator_prompts.yaml
+│   │   ├── writer_guidance.md
+│   │   └── validator_guidance.md
+│   ├── docs/                # Your source documents go here
+│   └── *.md                 # Generated document sections
 ├── examples/               # Pre-built templates with sample docs
 │   ├── business-report/
 │   │   ├── sample-docs/    # Example source materials
@@ -243,10 +248,12 @@ mad-document-generator/
 └── requirements.txt        # Python dependencies
 ```
 
-### Important Notes About the docs/ Folder
+### Important Notes About the Output Folder Structure
 
-- The `docs/` folder is your **working directory** for source materials
-- Before running MAD, place your source documents (PDFs, text files, etc.) here
+- The `output/` folder is the **main working directory** for AI agents
+- All files (instructions, docs, and generated content) are kept together for simpler navigation
+- The `output/docs/` folder is where you place your source documents (PDFs, text files, etc.)
+- The `output/instructions/` folder contains your templates and validation rules
 - Each template includes `sample-docs/` you can copy to `docs/` to try it out
 - **Clear the docs/ folder** between different projects to avoid mixing documents
 
@@ -291,6 +298,11 @@ pip install -r requirements.txt --upgrade
 - Ensure all 4 template files are copied to `instructions/`
 - Check file names match exactly
 - Verify source documents are in `docs/`
+
+**FileSurfer Can't Find Files**
+- Fixed in latest version! The system now provides clear path context to agents
+- If issues persist, check logs for "WORKING DIRECTORY CONTEXT" entries
+- Ensure all paths in prompts use relative format (e.g., "docs/file.pdf")
 
 ### Getting Help
 

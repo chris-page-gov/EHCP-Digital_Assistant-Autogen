@@ -23,7 +23,8 @@ import config
 
 # Import shared utilities
 from utils import (
-    setup_logging, parse_feedback_issues, ensure_directories
+    setup_logging, parse_feedback_issues, ensure_directories,
+    read_validation_status, has_critical_issues_in_feedback
 )
 
 # Use same Python as this script - this ensures venv is used if active
@@ -229,19 +230,49 @@ def main():
         # Run validator.py
         validator_exit_code = run_subprocess("validator.py", "Document Validator")
         
-        # Parse feedback
+        # Parse feedback and validation status
         feedback_path = config.OUTPUT_DIR / config.DEFAULT_FEEDBACK_FILENAME
+        status_path = config.OUTPUT_DIR / config.VALIDATION_STATUS_FILENAME
         
-        # Check if feedback file exists
-        if not feedback_path.exists() and validator_exit_code == config.EXIT_SUCCESS:
-            logger.warning("Validator returned success but no feedback file was generated")
-            print("\n[WARNING] Validator completed but feedback file was not generated")
-            print("This may indicate an issue with the agent calling save_feedback")
-            # Treat as error since we need feedback to continue
-            validator_exit_code = config.EXIT_ERROR
+        # Try to read structured validation status first
+        validation_status = read_validation_status(status_path, logger)
         
-        has_critical_issues = validator_exit_code == config.EXIT_VALIDATION_FAILED
-        issue_counts = parse_feedback_issues(feedback_path, logger) if feedback_path.exists() else None
+        if validation_status:
+            # Use structured status if available
+            has_critical_issues = validation_status.get('has_critical_issues', False)
+            issue_counts = validation_status.get('issue_counts', {'critical': 0, 'major': 0, 'minor': 0})
+            
+            # Override validator exit code based on structured status
+            if validation_status.get('validation_passed', False):
+                validator_exit_code = config.EXIT_SUCCESS
+            else:
+                validator_exit_code = config.EXIT_VALIDATION_FAILED
+                
+            logger.info(f"Using structured validation status: {validation_status['overall_status']}")
+            logger.info(f"Critical issues: {has_critical_issues}, Issue counts: {issue_counts}")
+        else:
+            # Fall back to old method if no structured status
+            logger.warning("No validation_status.json found, falling back to feedback parsing")
+            
+            # Check if feedback file exists
+            if not feedback_path.exists() and validator_exit_code == config.EXIT_SUCCESS:
+                logger.warning("Validator returned success but no feedback file was generated")
+                print("\n[WARNING] Validator completed but feedback file was not generated")
+                print("This may indicate an issue with the agent calling save_feedback")
+                # Treat as error since we need feedback to continue
+                validator_exit_code = config.EXIT_ERROR
+            
+            # Parse feedback text as fallback
+            if feedback_path.exists():
+                has_critical_issues = has_critical_issues_in_feedback(feedback_path, logger)
+                issue_counts = parse_feedback_issues(feedback_path, logger)
+                
+                # Override exit code based on feedback parsing
+                if has_critical_issues:
+                    validator_exit_code = config.EXIT_VALIDATION_FAILED
+            else:
+                has_critical_issues = validator_exit_code == config.EXIT_VALIDATION_FAILED
+                issue_counts = None
         
         # Track iteration
         tracker.add_iteration(iteration, writer_exit_code, validator_exit_code, 

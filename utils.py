@@ -11,7 +11,7 @@ import logging
 from pathlib import Path
 from datetime import datetime
 import re
-from typing import Dict, Optional, Tuple
+from typing import Dict, Optional, Tuple, Any
 
 import dotenv
 import nest_asyncio
@@ -37,6 +37,39 @@ def ensure_directories(*directories: Path) -> None:
     """Create directories if they don't exist."""
     for directory in directories:
         directory.mkdir(exist_ok=True)
+
+
+def get_path_context(logger: Optional[logging.Logger] = None) -> str:
+    """
+    Generate a path context string for agents to understand file locations.
+    
+    Args:
+        logger: Optional logger instance for logging messages
+    
+    Returns:
+        String containing working directory and key path information
+    """
+    cwd = Path.cwd()
+    context = f"""
+WORKING DIRECTORY:
+- You are in: {cwd}
+- This is the output directory where all files are located
+
+DIRECTORY STRUCTURE:
+- instructions/ - Contains guidance and validation rules
+- docs/ - Contains source PDF documents  
+- *.md files - Document sections and feedback
+
+FILE ACCESS TIPS:
+- All files are in the current directory or subdirectories
+- Use simple relative paths:
+  * "instructions/writer_guidance.md"
+  * "docs/Felicia Bailey app A(2).pdf"
+  * "feedback.md"
+- To list current directory: use path "."
+- To list a subdirectory: use path "instructions" or "docs"
+"""
+    return context
 
 
 def setup_logging(log_prefix: str) -> Tuple[logging.Logger, Path]:
@@ -226,6 +259,39 @@ def has_critical_issues_in_feedback(feedback_path: Path, logger: Optional[loggin
         return False
 
 
+def read_validation_status(status_path: Path, logger: Optional[logging.Logger] = None) -> Optional[Dict[str, Any]]:
+    """
+    Read the structured validation status from JSON file.
+    
+    Args:
+        status_path: Path to the validation_status.json file
+        logger: Optional logger instance
+    
+    Returns:
+        Dictionary with validation status or None if file doesn't exist
+    """
+    import json
+    
+    try:
+        if not status_path.exists():
+            if logger:
+                logger.warning(f"Validation status file not found: {status_path}")
+            return None
+            
+        with open(status_path, 'r', encoding=config.FILE_ENCODING) as f:
+            status_data = json.load(f)
+            
+        if logger:
+            logger.info(f"Loaded validation status: {status_data}")
+            
+        return status_data
+        
+    except Exception as e:
+        if logger:
+            logger.error(f"Error reading validation status: {e}")
+        return None
+
+
 def run_with_error_handling(main_func, script_name: str):
     """
     Wrapper to run a main function with standard error handling.
@@ -263,8 +329,14 @@ def load_prompts(prompt_file: str, logger: Optional[logging.Logger] = None) -> D
     """
     import yaml
     
-    # Try new instructions directory first
-    prompt_path = config.INSTRUCTIONS_DIR / prompt_file
+    # Check if we're already in the output directory
+    cwd = Path.cwd()
+    if cwd.name == 'output' and cwd.parent.name == 'ehcp-somerset':
+        # We're already in output directory, use relative path
+        prompt_path = Path('instructions') / prompt_file
+    else:
+        # We're in the project root, use full path
+        prompt_path = config.INSTRUCTIONS_DIR / prompt_file
     
     # Fall back to old prompts directory if file doesn't exist (for migration)
     if not prompt_path.exists() and hasattr(config, 'OLD_PROMPTS_DIR'):

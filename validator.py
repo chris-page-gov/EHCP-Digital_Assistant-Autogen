@@ -11,6 +11,7 @@ Exit codes:
 """
 
 import asyncio
+import os
 from pathlib import Path
 import sys
 from typing import Annotated
@@ -27,7 +28,7 @@ import config
 from utils import (
     setup_logging, check_environment_variables, create_azure_client,
     ensure_directories, has_critical_issues_in_feedback, run_with_error_handling,
-    load_prompts
+    load_prompts, get_path_context
 )
 
 # Setup logging
@@ -52,6 +53,7 @@ async def save_feedback(
     ensure_directories(config.OUTPUT_DIR)
     
     try:
+        # Use full path to output directory
         output_path = config.OUTPUT_DIR / filename
         
         # Log the feedback being saved
@@ -81,6 +83,52 @@ async def save_feedback(
         return f"Error saving feedback: {str(e)}"
 
 
+async def save_validation_status(
+    overall_status: Annotated[str, "Overall validation status: 'PASS' or 'FAIL'"],
+    has_critical_issues: Annotated[bool, "Whether critical issues were found"],
+    issue_counts: Annotated[dict, "Dictionary with 'critical', 'major', 'minor' issue counts"],
+    empty_sections: Annotated[int, "Number of sections with empty/minimal content"],
+    summary: Annotated[str, "Brief summary of validation findings"]
+) -> str:
+    """Save structured validation status in JSON format for automated processing."""
+    logger.info(f"=== save_validation_status CALLED ===")
+    logger.info(f"Overall status: {overall_status}")
+    logger.info(f"Has critical issues: {has_critical_issues}")
+    logger.info(f"Issue counts: {issue_counts}")
+    
+    try:
+        import json
+        from datetime import datetime
+        
+        # Ensure output directory exists
+        ensure_directories(config.OUTPUT_DIR)
+        
+        # Create validation status data
+        status_data = {
+            "overall_status": overall_status,
+            "has_critical_issues": has_critical_issues,
+            "issue_counts": issue_counts,
+            "empty_sections": empty_sections,
+            "summary": summary,
+            "timestamp": datetime.now().isoformat(),
+            "validation_passed": overall_status == "PASS" and not has_critical_issues
+        }
+        
+        # Save as JSON in output directory
+        status_path = config.OUTPUT_DIR / config.VALIDATION_STATUS_FILENAME
+        with open(status_path, 'w', encoding=config.FILE_ENCODING) as f:
+            json.dump(status_data, f, indent=2)
+        
+        logger.info(f"Validation status saved to {status_path}")
+        logger.info(f"Status data: {json.dumps(status_data, indent=2)}")
+        return f"Validation status successfully saved to {config.VALIDATION_STATUS_FILENAME}"
+        
+    except Exception as e:
+        logger.error(f"Error saving validation status: {e}")
+        logger.error(f"Full traceback:", exc_info=True)
+        return f"Error saving validation status: {str(e)}"
+
+
 async def delete_file(
     filename: Annotated[str, "The name of the file to delete (e.g., 'incorrect_section.md')"]
 ) -> str:
@@ -89,15 +137,16 @@ async def delete_file(
     logger.info(f"Filename to delete: '{filename}'")
     
     try:
-        # Ensure we're only deleting files in the output directory
+        # Use full path to output directory
         file_path = config.OUTPUT_DIR / filename
         
-        # Security check - ensure the path is within output directory
+        # Security check - ensure the path doesn't go outside current directory
         try:
             resolved_path = file_path.resolve()
-            output_dir_resolved = config.OUTPUT_DIR.resolve()
+            current_dir_resolved = Path.cwd().resolve()
             
             # Check if the resolved path is within the output directory
+            output_dir_resolved = config.OUTPUT_DIR.resolve()
             if not str(resolved_path).startswith(str(output_dir_resolved)):
                 logger.error(f"Security violation: Attempted to delete file outside output directory: {resolved_path}")
                 return f"Error: Cannot delete files outside the output directory"
@@ -116,7 +165,7 @@ async def delete_file(
             return f"Error: {filename} is not a file"
         
         # Protect system files
-        protected_files = ["feedback.md", "loop_report.json"]
+        protected_files = ["feedback.md", "loop_report.json", config.VALIDATION_STATUS_FILENAME.lower()]
         if filename.lower() in protected_files:
             logger.error(f"Attempted to delete protected system file: {filename}")
             return f"Error: Cannot delete protected system file {filename}"
@@ -158,6 +207,10 @@ async def main():
     # Check environment
     check_environment_variables(logger)
     
+    # Stay in original directory and use full paths
+    logger.info(f"Working directory: {Path.cwd()}")
+    logger.info(f"Output directory: {config.OUTPUT_DIR}")
+    
     # Load prompts from new instructions directory
     try:
         prompts = load_prompts(config.VALIDATOR_PROMPTS_FILE.name, logger)
@@ -167,19 +220,15 @@ async def main():
         print(f"ERROR: Failed to load prompts: {e}")
         return config.EXIT_ERROR
     
-    # Check output directory
-    if not config.OUTPUT_DIR.exists():
-        print(f"[WARNING] Output directory not found at '{config.OUTPUT_DIR}'")
-        logger.warning(f"Output directory not found at '{config.OUTPUT_DIR}'")
-        ensure_directories(config.OUTPUT_DIR)
-        print(f"[OK] Created output directory at '{config.OUTPUT_DIR}'")
-    else:
-        print(f"[OK] Output directory found at '{config.OUTPUT_DIR}'")
+    # Working with output directory from project root
+    print(f"[OK] Working directory: {Path.cwd()}")
+    print(f"[OK] Output directory: {config.OUTPUT_DIR}")
     
-    # Check for document files to validate
+    # Check for document files to validate in output directory
     document_files = list(config.OUTPUT_DIR.glob(config.DOCUMENT_FILE_PATTERN))
-    # Exclude feedback.md from validation
-    document_files = [f for f in document_files if f.name != config.DEFAULT_FEEDBACK_FILENAME]
+    # Exclude feedback.md and validation_status.json from validation
+    excluded_files = {config.DEFAULT_FEEDBACK_FILENAME, config.VALIDATION_STATUS_FILENAME}
+    document_files = [f for f in document_files if f.name not in excluded_files]
     
     if not document_files:
         print("\n[WARNING] No document files found in output directory to validate!")
@@ -202,8 +251,10 @@ async def main():
     # Create feedback saving and file management tools
     save_feedback_tool = FunctionTool(save_feedback, description=config.TOOL_DESCRIPTIONS["save_feedback"])
     delete_file_tool = FunctionTool(delete_file, description=config.TOOL_DESCRIPTIONS["delete_file"])
+    save_validation_status_tool = FunctionTool(save_validation_status, description="Save structured validation status in JSON format for automated processing")
     logger.info(f"save_feedback tool created: {save_feedback_tool}")
     logger.info(f"delete_file tool created: {delete_file_tool}")
+    logger.info(f"save_validation_status tool created: {save_validation_status_tool}")
     logger.info(f"Tool description: {config.TOOL_DESCRIPTIONS.get('save_feedback', 'Not found')}")
     
     # Define agents (no UserProxy needed)
@@ -217,7 +268,7 @@ async def main():
     quality_assessor = AssistantAgent(
         name=config.AGENT_NAMES["quality_assessor"],
         model_client=model_client,
-        tools=[save_feedback_tool, delete_file_tool],
+        tools=[save_feedback_tool, delete_file_tool, save_validation_status_tool],
         system_message=prompts['quality_assessor_system_prompt']
     )
     
@@ -242,10 +293,44 @@ async def main():
     # Create the task with agent capabilities context
     document_files_str = ', '.join([f.name for f in document_files])
     agent_context = prompts.get('agent_capabilities_context', '')
+    
+    # Add working directory context
+    path_context = f"""
+WORKING DIRECTORY:
+- You are in: {Path.cwd()}
+- Output directory: {config.OUTPUT_DIR}
+
+DIRECTORY STRUCTURE:
+- {config.OUTPUT_DIR}/instructions/ - Contains guidance and validation rules
+- {config.OUTPUT_DIR}/docs/ - Contains source PDF documents  
+- {config.OUTPUT_DIR}/*.md files - Document sections and feedback
+
+FILE ACCESS:
+- Use full paths from project root, for example:
+  * "{config.OUTPUT_DIR}/instructions/validator_guidance.md"
+  * "{config.OUTPUT_DIR}/personal_details.md"
+  * "{config.OUTPUT_DIR}/feedback.md"
+- To list output directory: use path "{config.OUTPUT_DIR}"
+"""
+    
+    # Add explicit FileSurfer navigation instructions
+    filesurfer_instructions = f"""\n\nNAVIGATION TIPS FOR FILESURFER:
+- You are NOT in the output directory - use full paths
+- To list the output directory contents, use path "{config.OUTPUT_DIR}"
+- All document files are in: {config.OUTPUT_DIR}
+- Example paths: "{config.OUTPUT_DIR}/personal_details.md", "{config.OUTPUT_DIR}/instructions/validator_guidance.md"
+"""
+    
     task = prompts['validation_task_template'].format(
-        agent_capabilities_context=agent_context,
+        agent_capabilities_context=agent_context + "\n" + path_context + filesurfer_instructions,
         document_files=document_files_str
     )
+    
+    # Log the task for debugging
+    logger.debug("=" * 80)
+    logger.debug("TASK SENT TO AGENTS:")
+    logger.debug(task)
+    logger.debug("=" * 80)
     
     validation_exit_code = config.EXIT_SUCCESS  # Default to success
     

@@ -11,6 +11,7 @@ Exit codes:
 """
 
 import asyncio
+import os
 from pathlib import Path
 import sys
 from typing import Annotated
@@ -27,7 +28,7 @@ import config
 from utils import (
     setup_logging, check_environment_variables, create_azure_client,
     ensure_directories, sanitize_filename, run_with_error_handling,
-    load_prompts
+    load_prompts, get_path_context
 )
 
 # Setup logging
@@ -63,7 +64,8 @@ async def save_document_section(
         # Sanitize filename
         filename = f"{sanitize_filename(section_name)}.md"
         
-        output_path = config.OUTPUT_DIR / filename
+        # Since we're already in the output directory, just use the filename
+        output_path = Path(filename)
         
         # Check if file already exists
         if output_path.exists():
@@ -102,18 +104,18 @@ async def delete_file(
     logger.info(f"Filename to delete: '{filename}'")
     
     try:
-        # Ensure we're only deleting files in the output directory
-        file_path = config.OUTPUT_DIR / filename
+        # Since we're already in the output directory, just use the filename
+        file_path = Path(filename)
         
-        # Security check - ensure the path is within output directory
+        # Security check - ensure the path doesn't go outside current directory
         try:
             resolved_path = file_path.resolve()
-            output_dir_resolved = config.OUTPUT_DIR.resolve()
+            current_dir_resolved = Path.cwd().resolve()
             
-            # Check if the resolved path is within the output directory
-            if not str(resolved_path).startswith(str(output_dir_resolved)):
-                logger.error(f"Security violation: Attempted to delete file outside output directory: {resolved_path}")
-                return f"Error: Cannot delete files outside the output directory"
+            # Check if the resolved path is within the current directory
+            if not str(resolved_path).startswith(str(current_dir_resolved)):
+                logger.error(f"Security violation: Attempted to delete file outside current directory: {resolved_path}")
+                return f"Error: Cannot delete files outside the current directory"
         except Exception as e:
             logger.error(f"Error resolving path: {e}")
             return f"Error: Invalid file path"
@@ -165,6 +167,19 @@ async def main():
     # Check environment
     check_environment_variables(logger)
     
+    # Change working directory to output for simpler navigation
+    original_dir = Path.cwd()
+    os.chdir(config.OUTPUT_DIR)
+    logger.info(f"Changed working directory from {original_dir} to {Path.cwd()}")
+    
+    # Log working directory for agents
+    current_dir = Path.cwd()
+    logger.info(f"Current working directory: {current_dir}")
+    logger.info(f"Relative paths from output directory:")
+    logger.info(f"  - Instructions: instructions/")
+    logger.info(f"  - Docs: docs/")
+    logger.info(f"  - Document files: *.md")
+    
     # Load prompts from new instructions directory
     try:
         prompts = load_prompts(config.WRITER_PROMPTS_FILE.name, logger)
@@ -174,9 +189,8 @@ async def main():
         print(f"ERROR: Failed to load prompts: {e}")
         return config.EXIT_ERROR
     
-    # Ensure output directory exists
-    ensure_directories(config.OUTPUT_DIR)
-    print(f"[OK] Output directory ready at '{config.OUTPUT_DIR}'")
+    # We're already in the output directory
+    print(f"[OK] Working in output directory: {Path.cwd()}")
     logger.info(f"Output directory ready at '{config.OUTPUT_DIR}'")
     
     # Setup LLM client
@@ -214,7 +228,8 @@ async def main():
     
     print("\n--- Document Writer System Ready ---")
     print("Available PDF documents in docs folder:")
-    docs_dir = config.DOCS_DIR
+    # We're now in the output directory, so docs is a subdirectory
+    docs_dir = Path('docs')
     pdf_files = list(docs_dir.glob(config.PDF_FILE_PATTERN))
     for pdf in pdf_files:
         print(f"  - {pdf.name}")
@@ -222,8 +237,8 @@ async def main():
     
     print(config.SEPARATOR_MINOR)
     
-    # Check if feedback.md exists
-    feedback_path = config.OUTPUT_DIR / config.DEFAULT_FEEDBACK_FILENAME
+    # Check if feedback.md exists - we're already in output directory
+    feedback_path = Path(config.DEFAULT_FEEDBACK_FILENAME)
     if feedback_path.exists():
         print("\n>>> FEEDBACK DETECTED - Switching to Fix Mode <<<")
         print(f"Found feedback at: {feedback_path}")
@@ -233,10 +248,27 @@ async def main():
         # Create task for fixing issues with agent capabilities context
         pdf_files_str = ', '.join([pdf.name for pdf in pdf_files])
         agent_context = prompts.get('agent_capabilities_context', '')
+        
+        # Add working directory context
+        path_context = get_path_context()
+        
+        # Add explicit FileSurfer navigation instructions
+        filesurfer_instructions = """\n\nNAVIGATION TIPS FOR FILESURFER:
+- If you have trouble finding a file, first list the directory contents
+- All paths are relative to the working directory
+- Use paths like "instructions/writer_guidance.md", "docs/filename.pdf"
+"""
+        
         task = prompts['fix_mode_task_template'].format(
-            agent_capabilities_context=agent_context,
+            agent_capabilities_context=agent_context + "\n" + path_context + filesurfer_instructions,
             pdf_files=pdf_files_str
         )
+        
+        # Log the task for debugging
+        logger.debug("=" * 80)
+        logger.debug("TASK SENT TO AGENTS (Fix Mode):")
+        logger.debug(task)
+        logger.debug("=" * 80)
     else:
         # Auto-generate the document request
         print("\n>>> Starting Document Generation <<<")
@@ -245,10 +277,27 @@ async def main():
         # Create the task for new document generation with agent capabilities context
         pdf_files_str = ', '.join([pdf.name for pdf in pdf_files])
         agent_context = prompts.get('agent_capabilities_context', '')
+        
+        # Add working directory context
+        path_context = get_path_context()
+        
+        # Add explicit FileSurfer navigation instructions
+        filesurfer_instructions = """\n\nNAVIGATION TIPS FOR FILESURFER:
+- If you have trouble finding a file, first list the directory contents
+- All paths are relative to the working directory  
+- Use paths like "instructions/writer_guidance.md", "docs/filename.pdf"
+"""
+        
         task = prompts['generation_mode_task_template'].format(
-            agent_capabilities_context=agent_context,
+            agent_capabilities_context=agent_context + "\n" + path_context + filesurfer_instructions,
             pdf_files=pdf_files_str
         )
+        
+        # Log the task for debugging
+        logger.debug("=" * 80)
+        logger.debug("TASK SENT TO AGENTS (Generation Mode):")
+        logger.debug(task)
+        logger.debug("=" * 80)
     
     exit_code = config.EXIT_SUCCESS  # Default to success
     

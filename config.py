@@ -9,14 +9,15 @@ from pathlib import Path
 MAX_ITERATIONS = 5
 ITERATION_DELAY_SECONDS = 2
 POST_WRITER_DELAY_SECONDS = 1
-SUBPROCESS_TIMEOUT_SECONDS = 900  # 15 minutes timeout for subprocesses
+SUBPROCESS_TIMEOUT_SECONDS = 3600  # 60 minutes timeout for subprocesses
 
 # Paths
 LOGS_DIR = Path("./logs")
 OUTPUT_DIR = Path("./output")
-DOCS_DIR = Path("./docs")
+DOCS_DIR = OUTPUT_DIR / "docs"
 LOOP_REPORT_PATH = OUTPUT_DIR / "loop_report.json"
 DEFAULT_FEEDBACK_FILENAME = "feedback.md"
+VALIDATION_STATUS_FILENAME = "validation_status.json"
 
 # Logging
 DATE_FORMAT = '%Y-%m-%d_%H-%M-%S'
@@ -78,7 +79,7 @@ PASS_STATUS_PATTERNS = [
 EXIT_SUCCESS = 0
 EXIT_VALIDATION_FAILED = 1
 EXIT_ERROR = 2
-EXIT_FIX_MODE = 2
+EXIT_FIX_MODE = 3
 EXIT_USER_INTERRUPT = 130
 
 # Agent Configuration
@@ -116,7 +117,7 @@ SEPARATOR_ITERATION = "#" * 80
 SEPARATOR_MINOR = "-" * 80
 
 # Directory Configuration
-INSTRUCTIONS_DIR = Path("./instructions")
+INSTRUCTIONS_DIR = OUTPUT_DIR / "instructions"
 
 # Instruction File Paths
 WRITER_GUIDANCE_FILE = INSTRUCTIONS_DIR / "writer_guidance.md"
