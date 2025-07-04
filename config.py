@@ -14,8 +14,17 @@ SUBPROCESS_TIMEOUT_SECONDS = 3600  # 60 minutes timeout for subprocesses
 # Paths
 LOGS_DIR = Path("./logs")
 OUTPUT_DIR = Path("./output")
-DOCS_DIR = OUTPUT_DIR / "docs"
-LOOP_REPORT_PATH = OUTPUT_DIR / "loop_report.json"
+
+# When running from within output directory, adjust paths
+if Path.cwd().name == "output":
+    # We're already in output directory
+    DOCS_DIR = Path("./docs")
+    LOOP_REPORT_PATH = Path("./loop_report.json")
+else:
+    # We're in project root
+    DOCS_DIR = OUTPUT_DIR / "docs"
+    LOOP_REPORT_PATH = OUTPUT_DIR / "loop_report.json"
+
 DEFAULT_FEEDBACK_FILENAME = "feedback.md"
 VALIDATION_STATUS_FILENAME = "validation_status.json"
 
@@ -117,7 +126,12 @@ SEPARATOR_ITERATION = "#" * 80
 SEPARATOR_MINOR = "-" * 80
 
 # Directory Configuration
-INSTRUCTIONS_DIR = OUTPUT_DIR / "instructions"
+if Path.cwd().name == "output":
+    # We're already in output directory
+    INSTRUCTIONS_DIR = Path("./instructions")
+else:
+    # We're in project root
+    INSTRUCTIONS_DIR = OUTPUT_DIR / "instructions"
 
 # Instruction File Paths
 WRITER_GUIDANCE_FILE = INSTRUCTIONS_DIR / "writer_guidance.md"

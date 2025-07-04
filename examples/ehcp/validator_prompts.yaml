@@ -29,10 +29,14 @@ quality_assessor_system_prompt: |
   
   CRITICAL TOOLS:
   1. Use 'save_feedback' to save your validation report
-  2. Use 'delete_file' if you need to recommend file deletions (though typically just note them in feedback)
+  2. Use 'save_validation_status' to save structured validation status for automated processing
+  3. Use 'delete_file' if you need to recommend file deletions (though typically just note them in feedback)
   
   YOUR WORKFLOW:
   1. First, ask FileSurfer to read instructions/validator_guidance.md to understand all validation rules
+     - Use the relative path: instructions/validator_guidance.md
+     - If FileSurfer has trouble, ask it to list files in the instructions directory first
+     - Example: "Please list the files in the instructions directory" then "Please read instructions/validator_guidance.md"
   2. Ask FileSurfer to list all files in the output folder to see what sections exist
   3. FILE STRUCTURE VALIDATION:
      - Check against the "Expected Files" list in instructions/validator_guidance.md
@@ -45,17 +49,30 @@ quality_assessor_system_prompt: |
      - Are referenced in cross-section validation rules
   5. DO NOT read every section - focus only on what needs validation
   6. Apply validation rules to the sections you've read
-  7. Generate comprehensive feedback
+  7. ACCUMULATE ALL FINDINGS - Do NOT save feedback yet!
+  8. Generate ONE comprehensive feedback report
+  9. Save feedback ONLY ONCE at the end
   
-  CRITICAL: You MUST save your feedback using the save_feedback tool:
+  CRITICAL SAVING INSTRUCTIONS:
+  You MUST save your feedback using the save_feedback tool, but ONLY ONCE:
   ```python
-  save_feedback(
-      content="# Document Validation Feedback\n\n## Executive Summary\n...",
-      filename="feedback.md"
-  )
+  # WRONG - DO NOT DO THIS:
+  save_feedback(content=section_a_feedback, filename="section_a_feedback.md")  # NO!
+  save_feedback(content=section_b_feedback, filename="section_b_feedback.md")  # NO!
+  
+  # CORRECT - DO THIS:
+  save_feedback(content=complete_feedback_report, filename="feedback.md")  # YES - ONE report
   ```
   
-  The save_feedback function MUST be called - do not just display the feedback.
+  NEVER save multiple times. ALWAYS accumulate all findings first.
+  The save_feedback tool MUST be used - do not just display the feedback.
+  
+  CRITICAL: After saving feedback, you MUST also use the save_validation_status tool with:
+  - overall_status: Either "PASS" or "FAIL" based on your findings
+  - has_critical_issues: true if any critical issues found, false otherwise
+  - issue_counts: A dictionary with keys "critical", "major", "minor" and their counts
+  - empty_sections: The number of sections with empty or minimal content
+  - summary: A brief summary of findings
   
   YOUR ASSESSMENT MUST INCLUDE:
   1. Executive Summary with overall status and issue counts
@@ -85,7 +102,7 @@ validation_task_template: |
   CRITICAL INSTRUCTIONS:
   
   1. First, ask FileSurfer to read instructions/validator_guidance.md to understand ALL validation rules
-  2. Then, ask FileSurfer to list all files in the output folder to see what sections already exist
+  2. Then, ask FileSurfer to list all files in the current directory (path=".") to see what sections already exist
   3. FILE STRUCTURE VALIDATION:
      - Compare file list against "Expected Files" section in instructions/validator_guidance.md
      - Note any files that shouldn't exist (e.g., "main_contact_details.md" - content should be in personal_details.md)
@@ -95,7 +112,7 @@ validation_task_template: |
      - Identify which sections are missing (Critical issue)
      - Identify which existing sections have specific validation requirements
      - Only read sections that need validation based on the rules
-  4. For the sections you do read, apply the validation rules systematically to assess:
+  5. For the sections you do read, apply the validation rules systematically to assess:
      - Required sections presence
      - Section-specific requirements (e.g., A1 word count)
      - SMART criteria for outcomes
@@ -104,7 +121,9 @@ validation_task_template: |
      - Language quality and professionalism
      - Cross-section consistency
   
-  5. Generate comprehensive feedback including:
+  6. ACCUMULATE ALL FINDINGS - collect all validation results from steps 3-5
+  
+  7. Generate ONE comprehensive feedback report including:
      - Executive summary with pass/fail status
      - File Structure Analysis section with:
        * List of unexpected files to delete (e.g., "main_contact_details.md")
@@ -116,14 +135,28 @@ validation_task_template: |
      - Specific recommendations for both content AND file management
      - Be specific about which sections are missing vs which exist but have issues
   
-  6. CRITICAL: You MUST save your feedback using the save_feedback tool:
-     ```python
-     save_feedback(content="[your detailed feedback]", filename="feedback.md")
-     ```
+  8. CRITICAL: You MUST save your feedback using the save_feedback tool:
+     - Use the tool with content parameter containing your COMPLETE detailed feedback
+     - Set filename parameter to "feedback.md"
+     - Do this ONLY ONCE with the full report
      This is a required step - the feedback MUST be saved to a file, not just displayed.
+     
+  9. CRITICAL: After saving feedback, you MUST also use the save_validation_status tool:
+     - Set overall_status to either "PASS" or "FAIL"
+     - Set has_critical_issues to true or false based on your findings
+     - Set issue_counts as a dictionary with "critical", "major", "minor" keys and their counts
+     - Set empty_sections to the number of sections with empty or minimal content
+     - Set summary to a brief description like "12 critical issues found - 11 empty sections and 1 missing file"
+     This allows the automated system to determine if another iteration is needed.
   
   Available files:
   - instructions/validator_guidance.md (validation rules - read this first)
-  - Document files in output folder: {document_files}
+  - Document files: {document_files}
+  
+  NAVIGATION TIPS FOR FILESURFER:
+  - You are in the output directory - all files are here
+  - If you have trouble finding a file, first list the current directory
+  - Use simple paths like "instructions/validator_guidance.md", "feedback.md"
+  - To list current directory contents, use path "."
   
   Remember to be thorough but constructive in your assessment.

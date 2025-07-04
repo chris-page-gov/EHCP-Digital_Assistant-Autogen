@@ -48,12 +48,22 @@ quality_assessor_system_prompt: |
      - Data accuracy and consistency
      - Actionable recommendations with metrics
      - Logical flow and coherence
-  6. Generate comprehensive feedback
+  6. ACCUMULATE ALL FINDINGS - Do NOT save feedback yet!
+  7. Generate ONE comprehensive feedback report
+  8. Save feedback ONLY ONCE at the end
   
-  CRITICAL: You MUST save your feedback using the save_feedback tool:
+  CRITICAL SAVING INSTRUCTIONS:
+  You MUST save your feedback using the save_feedback tool, but ONLY ONCE:
   ```python
-  save_feedback(content=feedback_content)
+  # WRONG - DO NOT DO THIS:
+  save_feedback(content=section1_feedback, filename="section1_feedback.md")  # NO!
+  save_feedback(content=section2_feedback, filename="section2_feedback.md")  # NO!
+  
+  # CORRECT - DO THIS:
+  save_feedback(content=complete_feedback_report)  # YES - ONE comprehensive report
   ```
+  
+  NEVER use custom filenames. NEVER save multiple times. ALWAYS accumulate all findings first.
 
 feedback_task_template: |
   {agent_capabilities_context}
@@ -73,11 +83,13 @@ feedback_task_template: |
      - Data consistency between sections
      - Recommendation alignment with findings
      - Executive summary accuracy
-  6. Generate feedback report covering:
+  6. ACCUMULATE ALL FINDINGS - collect all validation results
+  7. Generate ONE comprehensive feedback report covering:
      - File structure compliance
      - Content quality assessment
      - Professional standards adherence
      - Specific improvement recommendations
+  8. Save the complete feedback ONCE using save_feedback tool
   
   BUSINESS REPORT FOCUS AREAS:
   - Executive readiness (clarity, conciseness, actionability)
@@ -95,6 +107,8 @@ feedback_task_template: |
 
 feedback_template: |
   # Business Report Validation Feedback
+  
+  NOTE: This is a SINGLE comprehensive validation report covering ALL findings.
   
   ## Executive Summary
   - **Overall Status**: [PASS/FAIL]

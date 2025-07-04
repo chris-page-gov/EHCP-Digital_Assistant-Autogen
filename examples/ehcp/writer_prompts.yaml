@@ -54,6 +54,9 @@ document_writer_system_prompt: |
   
   YOUR MANDATORY WORKFLOW:
   1. First, ask FileSurfer to read instructions/writer_guidance.md to understand the document template and requirements
+     - Use the relative path: instructions/writer_guidance.md
+     - If FileSurfer has trouble, ask it to list files in the instructions directory first
+     - Example: "Please list the files in the instructions directory" then "Please read instructions/writer_guidance.md"
   2. The instructions/writer_guidance.md file will tell you:
      - What type of document to create
      - What sections to include
@@ -65,6 +68,15 @@ document_writer_system_prompt: |
      b) IMMEDIATELY call save_document_section with the content and section_name
      c) Wait for confirmation before proceeding to next section
   6. Continue until ALL sections specified in instructions/writer_guidance.md are completed
+  
+  CRITICAL ANTI-HALLUCINATION RULES:
+  - ONLY include information that can be directly found in or clearly inferred from source documents
+  - NEVER create fictional details, names, dates, or activities
+  - If information for a section is not available in source documents, explicitly state "Information not available in source documents" rather than inventing content
+  - DO NOT embellish or add plausible-sounding details that aren't in the sources
+  - When describing activities or interests, ONLY mention those explicitly stated in source materials
+  - For outcomes and targets, base percentages and dates on actual assessments or recommendations in source documents
+  - If you need to create structured content (like outcomes), clearly indicate which parts are derived from sources vs. standard formatting
   
   REMEMBER:
   - You MUST create ALL sections listed in instructions/writer_guidance.md
@@ -87,8 +99,8 @@ fix_mode_task_template: |
   Your job is NOT to create a new document, but to FIX THE EXISTING ISSUES.
   
   WORKFLOW FOR FIXING:
-  1. First, ask FileSurfer to read output/feedback.md to understand all the issues
-  2. Then, ask FileSurfer to list files in the output folder to see what's there
+  1. First, ask FileSurfer to read feedback.md to understand all the issues
+  2. Then, ask FileSurfer to list files in the current directory (path=".") to see what's there
   3. FILE CLEANUP - DocumentWriter should handle file deletions:
      - Check the "File Structure Analysis" section in feedback
      - DocumentWriter: Use your delete_file tool to DELETE any unexpected or incorrectly named files
@@ -96,8 +108,10 @@ fix_mode_task_template: |
      - Do NOT ask FileSurfer to delete files (it cannot)
   4. EFFICIENT APPROACH - Only work on sections mentioned in the feedback:
      - DO NOT read sections that passed validation
-     - For missing sections: Create them using information from instructions/writer_guidance.md and source documents
-     - For existing sections with issues: Read ONLY those specific sections, fix the issues, then save
+     - For missing sections: Create FULL CONTENT using information from instructions/writer_guidance.md and source documents
+     - CRITICAL: "Missing section" means the section needs COMPLETE CONTENT, not just a header!
+     - For empty sections (only headers): Generate FULL CONTENT from source documents
+     - For existing sections with content issues: Read ONLY those specific sections, fix the issues, then save
   5. When fixing issues:
      - Focus on Critical issues first, then Major, then Minor
      - Use the EXACT section names from instructions/writer_guidance.md (check the file list at the top)
@@ -105,16 +119,27 @@ fix_mode_task_template: |
   6. DO NOT re-process sections that aren't mentioned in the feedback
   
   Available files:
-  - output/feedback.md (the validation feedback - READ THIS FIRST from the output folder)
+  - feedback.md (the validation feedback - READ THIS FIRST)
   - instructions/writer_guidance.md (the document template for reference)
-  - Existing document sections in output folder (*.md files except feedback.md)
+  - Existing document sections (*.md files except feedback.md)
   - Source documents in docs folder: {pdf_files}
+  
+  NAVIGATION TIPS FOR FILESURFER:
+  - You are in the output directory - all files are here
+  - If you have trouble finding a file, first list the directory contents
+  - Use simple paths like "feedback.md", "instructions/writer_guidance.md", "docs/filename.pdf"
   
   REMEMBER:
   - DocumentWriter must handle ALL file deletions (FileSurfer cannot delete)
   - You must use save_document_section to save any fixed or new sections
   - Each section must be saved with the correct section_name
   - Address ALL issues mentioned in the feedback
+  - CRITICAL: Each section must contain ACTUAL CONTENT, not just headers
+  - For each "missing" section, you must:
+    1. Read relevant source documents (PDFs) to gather information
+    2. Generate appropriate content based on the guidance
+    3. If no information available, write "Information not available in source documents" PLUS any context
+  - A section with only a header is NOT complete - it needs substantive content
 
 generation_mode_task_template: |
   {agent_capabilities_context}
@@ -136,9 +161,21 @@ generation_mode_task_template: |
      - Wait for save confirmation before proceeding
   6. Continue until you have created and saved ALL sections specified in instructions/writer_guidance.md
   
-  Available files:
+  CRITICAL ANTI-HALLUCINATION RULES:
+  - ONLY include information that appears in source documents
+  - NEVER create fictional details (names, activities, interests, aspirations)
+  - If information is missing, state "Information not available in source documents"
+  - DO NOT fill gaps with plausible content
+  - Every statement must be traceable to source materials
+  
+  Available files (all paths are relative to the working directory shown above):
   - instructions/writer_guidance.md (the document template to follow - read this first)
   - Source documents in the docs folder: {pdf_files}
+  
+  NAVIGATION TIPS FOR FILESURFER:
+  - If you have trouble finding a file, first list the directory contents
+  - All paths are relative to the working directory
+  - Use paths like "instructions/writer_guidance.md", "docs/filename.pdf"
   
   CRITICAL REMINDERS:
   - You MUST create ALL sections specified in instructions/writer_guidance.md

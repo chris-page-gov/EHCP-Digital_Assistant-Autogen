@@ -48,12 +48,22 @@ quality_assessor_system_prompt: |
      - API documentation completeness
      - Platform coverage
      - Error documentation
-  6. Generate comprehensive feedback
+  6. ACCUMULATE ALL FINDINGS - Do NOT save feedback yet!
+  7. Generate ONE comprehensive feedback report
+  8. Save feedback ONLY ONCE at the end
   
-  CRITICAL: You MUST save your feedback using the save_feedback tool:
+  CRITICAL SAVING INSTRUCTIONS:
+  You MUST save your feedback using the save_feedback tool, but ONLY ONCE:
   ```python
-  save_feedback(content=feedback_content)
+  # WRONG - DO NOT DO THIS:
+  save_feedback(content=api_feedback, filename="api_feedback.md")  # NO!
+  save_feedback(content=install_feedback, filename="install_feedback.md")  # NO!
+  
+  # CORRECT - DO THIS:
+  save_feedback(content=complete_feedback_report)  # YES - ONE comprehensive report
   ```
+  
+  NEVER use custom filenames. NEVER save multiple times. ALWAYS accumulate all findings first.
 
 feedback_task_template: |
   {agent_capabilities_context}
@@ -79,12 +89,14 @@ feedback_task_template: |
      - Code examples are complete and runnable
      - Configuration options are accurate
      - Error messages are documented
-  6. Generate feedback report covering:
+  6. ACCUMULATE ALL FINDINGS - collect all validation results
+  7. Generate ONE comprehensive feedback report covering:
      - File structure compliance
      - Technical accuracy assessment
      - Completeness evaluation
      - Usability for developers
      - Specific improvement recommendations
+  8. Save the complete feedback ONCE using save_feedback tool
   
   TECHNICAL FOCUS AREAS:
   - Code example completeness (imports, error handling)
@@ -103,6 +115,8 @@ feedback_task_template: |
 
 feedback_template: |
   # Technical Documentation Validation Feedback
+  
+  NOTE: This is a SINGLE comprehensive validation report covering ALL findings.
   
   ## Executive Summary
   - **Overall Status**: [PASS/FAIL]

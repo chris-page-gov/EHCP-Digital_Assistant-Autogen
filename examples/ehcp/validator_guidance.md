@@ -73,6 +73,28 @@ Common File Errors to Check
 - Wrong names: Files like "main_contact_details.md" instead of being in personal_details.md
 - Missing consolidation: Multiple outcome files instead of single section_e_outcomes.md
 - Typos in names: e.g., "section_a1_summary_history.md" missing "of"
+- Empty sections: Files containing only headers with no content (CRITICAL error)
+- Minimal content: Sections with less than 50 characters of actual content beyond the header (CRITICAL error)
+
+Content Validation Rules
+
+Empty Content Check (CRITICAL)
+Each section file MUST contain substantive content beyond just the header. The validator must:
+1. Check file size - files under 100 bytes are likely empty
+2. Verify content exists after the header line
+3. Count actual content characters (excluding header and whitespace)
+4. Flag as CRITICAL if section contains:
+   - Only a header with no body content
+   - Less than 50 characters of actual content
+   - Only "Information not available" without attempting to provide any context
+5. Exception: Section A2 may legitimately contain only "Information not available in source documents" if views were not gathered
+
+Minimum Content Requirements
+- Personal Details: Must have at least name, DOB, and one contact
+- Section A1: Must have substantive history (minimum 100 words)
+- Section B subsections: Must describe the need even if brief
+- Sections C-K: Must have content or explicit statement why not applicable
+- Sign-off: Must have authority details and date
 
 Required Sections
 All EHCP documents must contain the following sections. Missing sections should be flagged as critical errors:

@@ -321,7 +321,7 @@ FILE ACCESS:
 - Example paths: "{config.OUTPUT_DIR}/personal_details.md", "{config.OUTPUT_DIR}/instructions/validator_guidance.md"
 """
     
-    task = prompts['validation_task_template'].format(
+    task = prompts['feedback_task_template'].format(
         agent_capabilities_context=agent_context + "\n" + path_context + filesurfer_instructions,
         document_files=document_files_str
     )
