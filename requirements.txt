@@ -1,22 +1,17 @@
-# MAD - Multi-Agentic Document Generator Dependencies
-# All versions pinned for security and reproducibility
+# Core Autogen framework
+pyautogen~=0.2.20
 
-# Core dependencies
-python-dotenv==1.1.0
-nest-asyncio==1.6.0
-PyYAML==6.0.1     # For loading prompt configuration files
+# For handling .env files to store API keys
+python-dotenv
 
-# AutoGen framework
-# Using latest versions to support newer models like o4-mini
-autogen-agentchat>=0.4.0
-autogen-core>=0.4.0
-autogen-ext[openai,magentic-one,file-surfer]>=0.4.0
+# For reading PDF source documents
+pypdf
 
-# Security tools
-pip-audit==2.7.3  # For dependency vulnerability scanning
-safety==3.2.3     # Additional security vulnerability checks
-bandit==1.7.9     # Security linter for Python code
+# For making a custom API call (if you were to use the tool-based approach)
+# It's good practice to keep it even if not currently used by the primary method.
+requests
 
-# Optional but recommended security dependencies
-# cryptography==42.0.8  # For secure handling of secrets (if needed)
-# python-jose==3.3.0    # For JWT token handling (if needed)
+# LiteLLM is the underlying library Autogen uses for all LLM API calls.
+# While it's a sub-dependency of Autogen, explicitly listing it can sometimes
+# help with dependency resolution and makes its role in the project clear.
+litellm

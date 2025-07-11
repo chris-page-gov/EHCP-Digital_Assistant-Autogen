@@ -1,392 +1,88 @@
-# MAD - Multi-Agentic Document Generator
-
-[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
-[![AutoGen](https://img.shields.io/badge/AutoGen-0.4.0+-green.svg)](https://github.com/microsoft/autogen)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-
-**Make Awesome Documents with AI** - An intelligent document generation system that uses multiple AI agents to create structured, validated documents from your source materials.
-
-## 🎯 What is MAD?
-
-MAD is an automated document generation system that:
-- 📚 Reads your source materials (PDFs, text files, markdown, etc.)
-- 🤖 Uses AI agents to understand and extract information
-- 📝 Generates structured documents following your templates
-- ✅ Validates output quality and completeness
-- 🔄 Automatically fixes issues through feedback loops
-
-Perfect for creating:
-- 📊 Business reports and analysis documents
-- 📖 Technical documentation and API guides
-- ✍️ Story development and creative writing plans
-- 🎓 Educational plans and assessments (EHCP)
-- 📋 Any structured document you can define!
-
-## 🚀 Quick Start
-
-### Prerequisites
-- Python 3.11 or higher
-- Azure OpenAI API access (or compatible endpoint)
-
-### Installation
-
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/yourusername/mad-document-generator.git
-   cd mad-document-generator
-   ```
-
-2. **Install dependencies**
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-3. **Set up environment variables**
-   ```bash
-   cp "sample .env" .env
-   # Edit .env with your Azure OpenAI credentials
-   ```
-
-4. **Choose a template**
-   ```bash
-   # List available templates
-   ls examples/
-   
-   # Copy a template to the output folder (e.g., business report)
-   cp examples/business-report/*.yaml examples/business-report/*.md output/instructions/
-   ```
-
-5. **Add your source documents**
-   ```bash
-   # Copy sample documents to try it out
-   cp examples/business-report/sample-docs/* output/docs/
-   
-   # Or add your own documents
-   cp your-documents/* output/docs/
-   ```
-
-6. **Run MAD**
-   ```bash
-   python main.py
-   ```
-
-That's it! MAD will generate your documents in the `output/` folder.
-
-## 🎪 Try Examples
-
-Want to see MAD in action? Try any of these examples:
-
-```bash
-# Business Report Example
-cp examples/business-report/*.yaml examples/business-report/*.md output/instructions/
-cp examples/business-report/sample-docs/* output/docs/
-python main.py
-
-# Technical Documentation Example  
-cp examples/technical-documentation/*.yaml examples/technical-documentation/*.md output/instructions/
-cp examples/technical-documentation/sample-docs/* output/docs/
-python main.py
-
-# Story Development Example
-cp examples/storytelling/*.yaml examples/storytelling/*.md output/instructions/
-cp examples/storytelling/sample-docs/* output/docs/
-python main.py
-
-# EHCP (Educational Health Care Plan) Example
-cp examples/ehcp/*.yaml examples/ehcp/*.md output/instructions/
-cp examples/ehcp/sample-docs/* output/docs/
-python main.py
-```
-
-After seeing the example output, clear the `output/docs/` folder and add your own materials!
-
-## 📋 Available Templates
-
-### Business Report
-Professional business analysis and reporting
-- Executive summaries
-- Market analysis
-- Financial reporting
-- Strategic recommendations
-
-### Technical Documentation
-Comprehensive technical guides
-- API documentation
-- Installation guides
-- Troubleshooting sections
-- Code examples
-
-### Storytelling/Novel Development
-Creative writing project planning
-- Character profiles
-- Plot structures
-- World building
-- Chapter outlines
-
-### EHCP (Education, Health and Care Plan)
-UK special educational needs documentation
-- Needs assessments
-- Outcome planning
-- Provision specifications
-- Support requirements
-
-[See all templates →](examples/)
-
-## 🏗️ How It Works
-
-### The MAD Architecture
-
-```
-┌─────────────┐     ┌──────────────┐     ┌─────────────┐
-│   Source    │────▶│  FileSurfer  │────▶│  Document   │
-│ Documents   │     │    Agent     │     │   Writer    │
-└─────────────┘     └──────────────┘     │    Agent    │
-                                         └──────┬──────┘
-                                                │
-                                                ▼
-┌─────────────┐     ┌──────────────┐     ┌─────────────┐
-│  Validated  │◀────│   Quality    │◀────│  Feedback   │
-│  Documents  │     │  Assessor    │     │    Loop     │
-└─────────────┘     └──────────────┘     └─────────────┘
-```
-
-1. **FileSurfer Agent** reads your source documents (PDFs, text, etc.)
-2. **DocumentWriter Agent** creates structured content following your template
-3. **QualityAssessor Agent** validates against your rules
-4. **Feedback Loop** automatically fixes any issues (up to 5 iterations)
-5. **Final Output** is saved as markdown files (one per section)
-
-### Key Features
-
-- 🔄 **Automated Feedback Loop**: Iteratively improves documents until they pass validation
-- 📏 **Template-Based**: Define your document structure once, use it repeatedly
-- 🎯 **Validation Rules**: Ensure quality and completeness
-- 🛠️ **Extensible**: Create custom templates for any document type
-- 🤝 **Multi-Agent**: Specialized agents for different tasks
-- 📂 **Section-Based Output**: Each section saved separately for flexible editing
-
-## 📝 Creating Custom Templates
-
-### Template Structure
-
-Each template consists of 4 files in the `output/instructions/` folder:
-
-1. **writer_guidance.md** - Document structure and requirements
-2. **validator_guidance.md** - Quality rules and validation criteria  
-3. **writer_prompts.yaml** - AI prompts for content generation
-4. **validator_prompts.yaml** - AI prompts for quality assessment
-
-### Creating Your Own Template
-
-1. **Start with an existing template:**
-   ```bash
-   cp -r examples/business-report examples/my-template
-   ```
-
-2. **Edit the guidance files to define your document:**
-   - `writer_guidance.md`: Specify sections, content requirements, formatting
-   - `validator_guidance.md`: Define quality standards and validation rules
-
-3. **Update the prompt files:**
-   - Adjust AI instructions for your domain
-   - Customize agent behaviors
-
-4. **Test with sample documents:**
-   ```bash
-   cp examples/my-template/*.yaml examples/my-template/*.md output/instructions/
-   python main.py
-   ```
-
-[Full template guide →](examples/README.md)
-
-## 🔧 Configuration
-
-### Environment Variables (.env)
-
-```bash
-# Azure OpenAI Configuration (REQUIRED)
-AZURE_OPENAI_API_KEY=your-api-key-here
-AZURE_OPENAI_ENDPOINT=https://your-resource.openai.azure.com/
-AZURE_OPENAI_MODEL_NAME=your-deployment-name
-AZURE_OPENAI_API_VERSION=2024-12-01-preview
-
-# Optional Settings
-MAX_ITERATIONS=5          # Maximum improvement cycles
-SUBPROCESS_TIMEOUT_SECONDS=3600  # Process timeout (60 minutes)
-LOG_LEVEL=INFO           # Logging detail level
-```
-
-See `sample .env` for detailed setup instructions.
-
-### Advanced Configuration
-
-Edit `config.py` for more options:
-- File paths and patterns
-- Timeout settings
-- Agent parameters
-- Validation thresholds
-- Issue severity patterns
-
-## 📁 Project Structure
-
-```
-mad-document-generator/
-├── output/                      # Main working directory
-│   ├── instructions/            # Active template files
-│   │   ├── writer_prompts.yaml
-│   │   ├── validator_prompts.yaml
-│   │   ├── writer_guidance.md
-│   │   └── validator_guidance.md
-│   ├── docs/                    # Your source documents go here
-│   ├── *.md                     # Generated document sections
-│   ├── feedback.md              # Validation feedback
-│   ├── validation_status.json   # Validation results
-│   └── loop_report.json         # Iteration history
-├── examples/                    # Pre-built templates
-│   ├── business-report/
-│   ├── technical-documentation/
-│   ├── storytelling/
-│   └── ehcp/
-├── logs/                        # Application logs
-├── main.py                      # Main application (feedback loop)
-├── writer.py                    # Document generation module
-├── validator.py                 # Quality validation module
-├── config.py                    # Configuration settings
-├── utils.py                     # Shared utilities
-├── requirements.txt             # Python dependencies
-└── sample .env                  # Environment template
-```
-
-### Important Notes
-
-- The `output/` folder contains everything agents need in one place
-- Place source documents in `output/docs/` 
-- Templates go in `output/instructions/`
-- Each document section is saved as a separate `.md` file
-- Clear `output/docs/` between different projects
-
-## 🔄 The Feedback Loop
-
-MAD's intelligent feedback loop ensures high-quality output:
-
-1. **Generation**: Writer creates initial document
-2. **Validation**: Validator checks against rules
-3. **Feedback**: Issues identified with severity levels
-4. **Revision**: Writer fixes issues based on feedback
-5. **Repeat**: Up to 5 iterations until validation passes
-
-Monitor progress in `output/loop_report.json`.
-
-## 🤝 Contributing
-
-We welcome contributions! Here's how you can help:
-
-### Adding New Templates
-1. Create a new folder in `examples/`
-2. Add the 4 required template files
-3. Include sample documents
-4. Submit a pull request
-
-### Improving Core Features
-- Check existing issues
-- Propose enhancements
-- Submit pull requests
-
-### Reporting Issues
-- Use issue templates
-- Include error messages
-- Provide minimal examples
-
-## 🐛 Troubleshooting
-
-### Common Issues
-
-**Authentication Errors**
-```bash
-# Test your Azure OpenAI configuration
-python -c "from utils import check_environment_variables; check_environment_variables()"
-```
-
-**Missing Dependencies**
-```bash
-pip install -r requirements.txt --upgrade
-```
-
-**Template Not Working**
-- Ensure all 4 template files are in `output/instructions/`
-- Check file names match exactly
-- Verify source documents are in `output/docs/`
-
-**Validator Creates Multiple Feedback Files**
-- Fixed in latest version!
-- Ensure you're using the latest `validator_prompts.yaml`
-- The system now creates one comprehensive `feedback.md`
-
-**Path Issues**
-- The system now handles paths correctly
-- Writer and validator work from the output directory
-- All paths are relative from output/
-
-### Debug Mode
-
-Enable debug logging:
-```bash
-# In .env file
-LOG_LEVEL=DEBUG
-```
-
-Check logs in the `logs/` folder for detailed information.
-
-### Getting Help
-
-- 📖 Check the [technical documentation](CLAUDE.md)
-- 🐛 [Report issues](https://github.com/yourusername/mad-document-generator/issues)
-- 💬 Join discussions
-- 📧 Contact maintainers
-
-## 🔒 Security
-
-- API keys stored locally in `.env` (never committed)
-- File operations sandboxed to project directories
-- No external data transmission except to your AI provider
-- Input validation on all file operations
-- Regular dependency updates
-
-## 📊 Performance
-
-- Document generation: 2-5 minutes typical
-- Validation: 1-2 minutes per iteration
-- Supports documents up to 100MB total
-- Handles 50+ page PDFs efficiently
-- Concurrent processing for better performance
-
-## 🗺️ Roadmap
-
-- [ ] Web interface for non-technical users
-- [ ] Support for more AI providers (OpenAI, Anthropic, etc.)
-- [ ] Real-time collaboration features
-- [ ] Cloud deployment options
-- [ ] Plugin system for custom processors
-- [ ] Direct Word/Google Docs export
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🙏 Acknowledgments
-
-- Built with [AutoGen](https://github.com/microsoft/autogen) and MagenticOne
-- Powered by Azure OpenAI
-- Thanks to all contributors and early users
-
-## 🚨 Known Issues
-
-- Validator may occasionally create individual section feedback files instead of one comprehensive report
-- Some AI models may not follow the accumulation instructions perfectly
-- Working on enforcing single feedback file generation
-
----
-
-**Ready to generate awesome documents?** [Get started now!](#-quick-start)
-
-*Made with ❤️ by the MAD community*
+### AutoGen Document Summarization & Validation Engine
+
+This project demonstrates a sophisticated multi-agent system built with Microsoft's AutoGen framework. It automates the process of generating summary documents from a collection of source PDFs, followed by a rigorous, iterative validation and correction cycle.
+The system is designed as two collaborating multi-agent teams: a Writer Team and a Validator Team. This "dual-loop" architecture ensures that the final output not only meets the initial requirements but is also refined based on a strict set of quality and accuracy rules until it passes validation.
+
+
+## Key Features
+**Multi-Agent Collaboration:** Utilizes two distinct agent teams (Writer and Validator) that communicate and pass tasks between each other.
+**Sequential Document Generation:** Builds a final document section-by-section (e.g., Section 1, Section 2, etc.), ensuring each part is validated before starting the next.
+**Iterative Refinement:** If a generated section fails validation, it is passed back to the Writer team with specific feedback for correction. This loop continues until the section passes or max retries are reached.
+**Tool-Augmented Agents:** Agents are equipped with tools to perform real-world tasks like reading PDF and Markdown files and saving output to the filesystem.
+**Multi-Model Integration:** Demonstrates how to integrate and use multiple LLM models within a single workflow. A primary model (e.g., GPT-4) handles general tasks, while a specialist model (e.g., "o3") can be queried for specific knowledge.
+**Robust Error Handling:** Implements exponential backoff for API rate limiting (429 errors) and transient errors, making the system more reliable.
+**Structured Logging:** Generates two types of logs for each run, timestamped to prevent overwrites:
+   - full_run_[timestamp].log: A complete, verbose log of the entire agent conversation.
+   - loop_trace_[timestamp].log: A high-level log tracking key milestones, timings, and final token/cost summaries.
+
+
+## Project Structure
+.
+├── docs/               # Input: Place your source PDF documents here.
+├── instructions/       # Input: Configuration files for agent guidance.
+│   ├── writer_guidance_s1.md
+│   └── validation_guidance_s1.md
+├── logs/               # Output: Contains all generated log files.
+├── outputs/            # Output: Generated documents and feedback reports.
+├── .env                # Input: Your secret API keys and endpoints.
+├── main.py             # Main application entry point and orchestrator.
+├── writer.py           # Defines the Writer agent team.
+├── validator.py        # Defines the Validator agent team.
+├── utils.py            # Contains shared tool functions and utilities.
+├── requirements.txt    # Lists all Python package dependencies.
+└── README.md           # This file.
+
+
+## Getting Started
+# 1. Prerequisites
+- Python 3.10+
+- An Azure OpenAI account with at least two model deployments (a primary model like GPT-4 and your specialist "o3" model).
+- Access to a terminal or command prompt.
+- Git (for cloning the repository).
+# 2. Installation
+**1. Clone the repository:**
+git clone <your-repository-url>
+cd autogen-doc-summarizer
+
+**2. Create a virtual environment (recommended):**
+python -m venv venv
+source venv/bin/activate  # On Windows, use `venv\Scripts\activate`
+
+**3. Install the required packages:**
+pip install -r requirements.txt
+
+
+# 3. Configuration
+**1. Set up your API Keys in .env:**
+Create a file named .env in the root of the project directory. Copy the contents of .env.example (or the structure below) and fill in your actual Azure OpenAI credentials.
+
+# Primary Model Credentials (e.g., GPT-4)
+AZURE_OPENAI_API_KEY="YOUR_PRIMARY_API_KEY"
+AZURE_OPENAI_ENDPOINT="https://YOUR_PRIMARY_ENDPOINT.openai.azure.com/"
+AZURE_OPENAI_MODEL_NAME="YOUR_PRIMARY_DEPLOYMENT_NAME"
+AZURE_OPENAI_API_VERSION="2023-07-01-preview"
+
+# Specialist "o3" Model Credentials
+O3_AZURE_OPENAI_API_KEY="YOUR_O3_API_KEY"
+O3_AZURE_OPENAI_ENDPOINT="https://YOUR_O3_ENDPOINT.openai.azure.com/"
+O3_AZURE_OPENAI_MODEL_NAME="YOUR_O3_DEPLOYMENT_NAME"
+O3_AZURE_OPENAI_API_VERSION="2023-07-01-preview"
+
+**2. Add Source Documents:**
+Place one or more PDF files into the docs/ directory. These will be the source material for the writer agents.
+
+**3. Review Guidance Documents:**
+Inspect the writer_guidance_sX.md and validation_guidance_sX.md files in the instructions/ directory. These files control the behavior, structure, and quality criteria for the agents. Modify them to suit your specific needs.
+
+## How to Run the Application
+Once the installation and configuration are complete, you can run the entire process with a single command from the project's root directory:
+
+python main.py 
+
+
+You can monitor the progress in your terminal. As the application runs, it will create:
+Sectional outputs (output_s1.md, etc.) in the outputs/ folder.
+Feedback reports (feedback_s1.md, etc.) in the outputs/ folder.
+Two new log files in the logs/ folder for that specific run.
+
+At the end of the run, check the loop_trace_[timestamp].log for a summary of the total time taken and the token/cost usage.

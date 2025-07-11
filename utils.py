@@ -1,368 +1,233 @@
-"""
-Shared utilities for the document generation system.
-
-This module contains common functionality used across writer.py, validator.py, and main.py
-to reduce code duplication and improve maintainability.
-"""
-
 import os
-import sys
-import logging
-from pathlib import Path
-from datetime import datetime
 import re
-from typing import Dict, Optional, Tuple, Any
-
-import dotenv
-import nest_asyncio
-from autogen_ext.models.openai import AzureOpenAIChatCompletionClient
-
-import config
+import pypdf
+import logging
+from typing import List, Dict, Any
 
 
-# Load environment variables once
-dotenv.load_dotenv()
-nest_asyncio.apply()
+# Define base directories
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DOCS_DIR = os.path.join(BASE_DIR, "docs")
+PROCESSED_DOCS_DIR = os.path.join(BASE_DIR, "processed_docs")
+OUTPUTS_DIR = os.path.join(BASE_DIR, "outputs")
+INSTRUCTIONS_DIR = os.path.join(BASE_DIR, "instructions")
+LOGS_DIR = os.path.join(BASE_DIR, "logs")
 
-# Azure OpenAI Configuration (loaded once)
-AZURE_CONFIG = {
-    "api_key": os.getenv("AZURE_OPENAI_API_KEY"),
-    "endpoint": os.getenv("AZURE_OPENAI_ENDPOINT"),
-    "model_name": os.getenv("AZURE_OPENAI_MODEL_NAME"),
-    "api_version": os.getenv("AZURE_OPENAI_API_VERSION", config.DEFAULT_API_VERSION)
-}
+# --- Tool Functions ---
 
-
-def ensure_directories(*directories: Path) -> None:
-    """Create directories if they don't exist."""
-    for directory in directories:
-        directory.mkdir(exist_ok=True)
-
-
-def get_path_context(logger: Optional[logging.Logger] = None) -> str:
+def read_markdown_file(filepath: str) -> str:
     """
-    Generate a path context string for agents to understand file locations.
-    
+    Reads the content of a markdown file.
     Args:
-        logger: Optional logger instance for logging messages
-    
+        filepath (str): The path to the markdown file.
     Returns:
-        String containing working directory and key path information
-    """
-    cwd = Path.cwd()
-    context = f"""
-WORKING DIRECTORY:
-- You are in: {cwd}
-- This is the output directory where all files are located
-
-DIRECTORY STRUCTURE:
-- instructions/ - Contains guidance and validation rules
-- docs/ - Contains source PDF documents  
-- *.md files - Document sections and feedback
-
-FILE ACCESS TIPS:
-- All files are in the current directory or subdirectories
-- Use simple relative paths:
-  * "instructions/writer_guidance.md"
-  * "docs/Felicia Bailey app A(2).pdf"
-  * "feedback.md"
-- To list current directory: use path "."
-- To list a subdirectory: use path "instructions" or "docs"
-"""
-    return context
-
-
-def setup_logging(log_prefix: str) -> Tuple[logging.Logger, Path]:
-    """
-    Setup logging configuration with file and console handlers.
-    
-    Args:
-        log_prefix: Prefix for the log filename (e.g., 'document_session', 'validation')
-    
-    Returns:
-        Tuple of (logger instance, log file path)
-    """
-    ensure_directories(config.LOGS_DIR)
-    
-    log_filename = config.LOGS_DIR / f"{log_prefix}_{datetime.now().strftime(config.DATE_FORMAT)}.log"
-    
-    logging.basicConfig(
-        level=getattr(logging, config.LOG_LEVEL),
-        format=config.LOG_FORMAT,
-        handlers=[
-            logging.FileHandler(log_filename),
-            logging.StreamHandler(sys.stdout)
-        ],
-        force=True  # Reconfigure logging even if already configured
-    )
-    
-    logger = logging.getLogger(log_prefix)
-    return logger, log_filename
-
-
-def check_environment_variables(logger: Optional[logging.Logger] = None) -> None:
-    """
-    Check for required environment variables and exit if missing.
-    
-    Args:
-        logger: Optional logger instance for logging messages
-    """
-    required_vars = {}
-    for var in config.REQUIRED_ENV_VARS:
-        required_vars[var] = os.getenv(var)
-    
-    missing_vars = [var for var, val in required_vars.items() if val is None]
-    
-    if missing_vars:
-        error_msg = f"Missing environment variables: {', '.join(missing_vars)}"
-        if logger:
-            logger.error(error_msg)
-        print(f"ERROR: The following environment variables are not set: {', '.join(missing_vars)}")
-        print("Please set them in your environment or in a .env file.")
-        sys.exit(1)
-    
-    if logger:
-        logger.info("Azure OpenAI environment variables found")
-    print("[OK] Azure OpenAI environment variables found.")
-
-
-def create_azure_client(logger: Optional[logging.Logger] = None) -> AzureOpenAIChatCompletionClient:
-    """
-    Create and return configured Azure OpenAI client.
-    
-    Args:
-        logger: Optional logger instance for logging messages
-    
-    Returns:
-        Configured AzureOpenAIChatCompletionClient instance
-    """
-    client = AzureOpenAIChatCompletionClient(
-        model=AZURE_CONFIG["model_name"],
-        azure_endpoint=AZURE_CONFIG["endpoint"],
-        api_version=AZURE_CONFIG["api_version"],
-        api_key=AZURE_CONFIG["api_key"],
-        azure_deployment=AZURE_CONFIG["model_name"]
-    )
-    
-    if logger:
-        logger.info("Azure OpenAI Client configured")
-    print("[OK] Azure OpenAI Client configured.")
-    
-    return client
-
-
-def sanitize_filename(name: str) -> str:
-    """
-    Sanitize a string to be used as a filename.
-    
-    Args:
-        name: The string to sanitize
-    
-    Returns:
-        Sanitized filename safe for filesystem use
-    """
-    # Remove special characters, keep only alphanumeric, spaces, and hyphens
-    filename = re.sub(config.SPECIAL_CHAR_PATTERN, '', name.lower())
-    # Replace spaces and multiple hyphens with single underscore
-    filename = re.sub(config.SPACE_HYPHEN_PATTERN, config.REPLACEMENT_CHAR, filename)
-    return filename
-
-
-def parse_feedback_issues(feedback_path: Path, logger: Optional[logging.Logger] = None) -> Dict[str, int]:
-    """
-    Parse feedback.md to extract issue counts.
-    
-    Args:
-        feedback_path: Path to the feedback.md file
-        logger: Optional logger instance
-    
-    Returns:
-        Dictionary with issue counts for 'critical', 'major', and 'minor'
+        str: The content of the file.
     """
     try:
-        content = feedback_path.read_text(encoding=config.FILE_ENCODING)
-        
-        issue_counts = {
-            'critical': 0,
-            'major': 0,
-            'minor': 0
-        }
-        
-        # Patterns to match different formats of issue reporting
-        patterns = config.ISSUE_PATTERNS
-        
-        for issue_type, type_patterns in patterns.items():
-            for pattern in type_patterns:
-                match = re.search(pattern, content, re.IGNORECASE)
-                if match:
-                    issue_counts[issue_type] = int(match.group(1))
-                    break
-        
-        return issue_counts
-        
+        with open(filepath, 'r', encoding='utf-8') as f:
+            return f.read()
+    except FileNotFoundError:
+        return f"Error: File not found at {filepath}"
     except Exception as e:
-        if logger:
-            logger.error(f"Error parsing feedback issues: {e}")
-        return {'critical': -1, 'major': -1, 'minor': -1}
+        return f"Error reading file {filepath}: {e}"
 
-
-def has_critical_issues_in_feedback(feedback_path: Path, logger: Optional[logging.Logger] = None) -> bool:
+def read_pdf_file(filepath: str) -> str:
     """
-    Check if feedback contains critical issues.
-    
+    Reads the text content of a single PDF file.
     Args:
-        feedback_path: Path to the feedback.md file
-        logger: Optional logger instance
-    
+        filepath (str): The path to the PDF file.
     Returns:
-        True if critical issues found, False otherwise
+        str: The extracted text content of the PDF.
     """
     try:
-        content = feedback_path.read_text(encoding=config.FILE_ENCODING)
+        with open(filepath, 'rb') as f:
+            reader = pypdf.PdfReader(f)
+            text = ""
+            for page in reader.pages:
+                text += page.extract_text() or ""
+        return text
+    except FileNotFoundError:
+        return f"Error: PDF file not found at {filepath}"
+    except Exception as e:
+        return f"Error reading PDF file {filepath}: {e}"
+
+def list_files_in_directory(directory: str) -> List[str]:
+    """
+    Lists all files in a given directory.
+    Args:
+        directory (str): The path to the directory.
+    Returns:
+        List[str]: A list of filenames in the directory.
+    """
+    try:
+        return [os.path.join(directory, f) for f in os.listdir(directory) if os.path.isfile(os.path.join(directory, f))]
+    except FileNotFoundError:
+        return []
+
+def save_markdown_file(filepath: str, content: str) -> str:
+    """
+    Saves content to a markdown file.
+    Args:
+        filepath (str): The path to the file to be saved.
+        content (str): The content to write to the file.
+    Returns:
+        str: A confirmation message.
+    """
+    try:
+        os.makedirs(os.path.dirname(filepath), exist_ok=True)
+        with open(filepath, 'w', encoding='utf-8') as f:
+            f.write(content)
+        return f"Successfully saved file to {filepath}"
+    except Exception as e:
+        return f"Error saving file {filepath}: {e}"
+
+def parse_feedback_and_count_issues(feedback_content: str) -> Dict[str, int]:
+    """
+    Parses a feedback document to find a [FEEDBACK_SUMMARY] block and extract issue counts.
+    This is robust against formatting changes in the rest of the document.
+    """
+    counts = {"critical": 0, "major": 0, "minor": 0}
+    
+    try:
+        # Use regex to find the content within the [FEEDBACK_SUMMARY] block
+        # re.DOTALL allows '.' to match newline characters
+        summary_match = re.search(r"\[FEEDBACK_SUMMARY\](.*?)\[END_FEEDBACK_SUMMARY\]", feedback_content, re.DOTALL)
         
-        # Look for critical issues indicators
-        critical_patterns = config.CRITICAL_ISSUE_PATTERNS
+        if not summary_match:
+            print("Warning: [FEEDBACK_SUMMARY] block not found in feedback.md. Assuming 0 issues.")
+            return counts
+
+        summary_block = summary_match.group(1)
         
-        for pattern in critical_patterns:
-            match = re.search(pattern, content, re.IGNORECASE)
-            if match:
-                if match.groups():
-                    # If there's a number, check if it's > 0
-                    count = int(match.group(1))
-                    if count > 0:
-                        if logger:
-                            logger.info(f"Found {count} critical issues in feedback")
-                        return True
-                else:
-                    # Pattern matched without number (e.g., "CRITICAL issues found")
-                    if logger:
-                        logger.info("Found critical issues indicator in feedback")
-                    return True
+        # Use regex to find all "Key: Value" pairs within the block
+        # This is flexible to extra whitespace or different line endings
+        found_issues = re.findall(r"(\w+):\s*(\d+)", summary_block)
         
-        # Also check for explicit pass status
-        pass_patterns = config.PASS_STATUS_PATTERNS
-        
-        for pattern in pass_patterns:
-            if re.search(pattern, content, re.IGNORECASE):
-                if logger:
-                    logger.info("Validation passed - no critical issues found")
-                return False
-        
-        # If no clear indicators, log warning
-        if logger:
-            logger.warning("Could not determine validation status from feedback")
+        for key, value in found_issues:
+            key_lower = key.strip().lower()
+            if key_lower in counts:
+                counts[key_lower] = int(value.strip())
+                
+    except Exception as e:
+        print(f"Error parsing feedback summary block: {e}. Returning default counts.")
+        # Return the default counts in case of any parsing error
+        return {"critical": 0, "major": 0, "minor": 0}
+
+    return counts
+
+# def calculate_total_cost_and_tokens(agents: List[Any]) -> Dict[str, Any]:
+#     """
+#     Calculates the total cost and token usage across all agents.
+
+#     Args:
+#         agents (List[Any]): A list of Autogen agent objects.
+
+#     Returns:
+#         Dict[str, Any]: A dictionary containing total tokens, prompt tokens,
+#                         completion tokens, and the total cost.
+#     """
+#     total_cost = 0
+#     total_tokens = 0
+#     total_prompt_tokens = 0
+#     total_completion_tokens = 0
+
+#     # The oai_client is a class variable, so we access it from one of the agents
+#     # to get the cost. It's the same client for all.
+#     client = agents[0].client if agents else None
+
+#     if not client:
+#         return {
+#             "total_tokens": 0,
+#             "prompt_tokens": 0,
+#             "completion_tokens": 0,
+#             "total_cost": 0.0,
+#         }
+
+#     for agent in agents:
+#         if hasattr(agent, "client") and hasattr(agent.client, "total_cost"):
+#             total_cost += agent.client.total_cost
+
+#         # Accessing the "private" _oai_messages is the most reliable way to get all message histories
+#         if hasattr(agent, '_oai_messages'):
+#             for a, messages in agent._oai_messages.items():
+#                 for msg in messages:
+#                     if isinstance(msg, dict) and 'usage' in msg and msg['usage'] is not None:
+#                         usage = msg['usage']
+#                         total_prompt_tokens += usage.get("prompt_tokens", 0)
+#                         total_completion_tokens += usage.get("completion_tokens", 0)
+#                         total_tokens += usage.get("total_tokens", 0)
+    
+#     return {
+#         "total_tokens": total_tokens,
+#         "prompt_tokens": total_prompt_tokens,
+#         "completion_tokens": total_completion_tokens,
+#         "total_cost": round(total_cost, 4), # Round to 4 decimal places
+#     }
+
+def _clean_text(text: str) -> str:
+    """
+    Performs basic text cleaning. (Helper function, prefixed with _).
+    """
+    if not text:
+        return ""
+    cleaned_text = re.sub(r'\n{3,}', '\n\n', text)
+    lines = [line.strip() for line in cleaned_text.split('\n')]
+    return '\n'.join(lines)
+
+def preprocess_all_pdfs() -> bool:
+    """
+    Finds all PDFs in the DOCS_DIR, extracts clean text, and saves them
+    to PROCESSED_DOCS_DIR. This function orchestrates the pre-processing.
+
+    Returns:
+        bool: True if successful, False if a critical error occurred.
+    """
+    logging.info("--- Starting PDF Pre-processing ---")
+    
+    try:
+        if not os.path.exists(PROCESSED_DOCS_DIR):
+            os.makedirs(PROCESSED_DOCS_DIR)
+            logging.info(f"Created directory: '{PROCESSED_DOCS_DIR}'")
+
+        if not os.path.exists(DOCS_DIR):
+            logging.error(f"Source directory '{DOCS_DIR}' not found. Cannot pre-process PDFs.")
+            return False
+
+        pdf_files: List[str] = [f for f in os.listdir(DOCS_DIR) if f.lower().endswith('.pdf')]
+
+        if not pdf_files:
+            logging.warning(f"No PDF files found in '{DOCS_DIR}'. Pre-processing step will be skipped.")
+            return True # Not an error, just nothing to do.
+
+        logging.info(f"Found {len(pdf_files)} PDF(s) to process.")
+
+        for pdf_file in pdf_files:
+            pdf_path = os.path.join(DOCS_DIR, pdf_file)
+            logging.info(f"Processing '{os.path.basename(pdf_path)}'...")
+            
+            reader = pypdf.PdfReader(pdf_path)
+            extracted_text = ""
+            for page in reader.pages:
+                page_text = page.extract_text()
+                if page_text:
+                    extracted_text += page_text + "\n\n"
+
+            if not extracted_text.strip():
+                logging.warning(f"No text extracted from '{pdf_path}'. Skipping.")
+                continue
+
+            cleaned_content = _clean_text(extracted_text)
+            
+            output_filename = os.path.basename(pdf_path) + ".txt"
+            output_path = os.path.join(PROCESSED_DOCS_DIR, output_filename)
+
+            with open(output_path, 'w', encoding='utf-8') as f:
+                f.write(cleaned_content)
+            logging.info(f"Successfully saved cleaned text to '{output_path}'")
+
+        logging.info("--- PDF Pre-processing Finished ---")
+        return True
+
+    except Exception as e:
+        logging.critical(f"A critical error occurred during PDF pre-processing: {e}")
         return False
-        
-    except Exception as e:
-        if logger:
-            logger.error(f"Error parsing feedback: {e}")
-        return False
-
-
-def read_validation_status(status_path: Path, logger: Optional[logging.Logger] = None) -> Optional[Dict[str, Any]]:
-    """
-    Read the structured validation status from JSON file.
-    
-    Args:
-        status_path: Path to the validation_status.json file
-        logger: Optional logger instance
-    
-    Returns:
-        Dictionary with validation status or None if file doesn't exist
-    """
-    import json
-    
-    try:
-        if not status_path.exists():
-            if logger:
-                logger.warning(f"Validation status file not found: {status_path}")
-            return None
-            
-        with open(status_path, 'r', encoding=config.FILE_ENCODING) as f:
-            status_data = json.load(f)
-            
-        if logger:
-            logger.info(f"Loaded validation status: {status_data}")
-            
-        return status_data
-        
-    except Exception as e:
-        if logger:
-            logger.error(f"Error reading validation status: {e}")
-        return None
-
-
-def run_with_error_handling(main_func, script_name: str):
-    """
-    Wrapper to run a main function with standard error handling.
-    
-    Args:
-        main_func: The async main function to run
-        script_name: Name of the script for logging purposes
-    """
-    import asyncio
-    
-    try:
-        exit_code = asyncio.run(main_func())
-        sys.exit(exit_code if exit_code is not None else config.EXIT_SUCCESS)
-    except KeyboardInterrupt:
-        print(f"\n{script_name} terminated by user.")
-        logging.info(f"{script_name} terminated by user")
-        sys.exit(config.EXIT_USER_INTERRUPT)  # Standard exit code for Ctrl+C
-    except Exception as e:
-        error_msg = f"Unexpected error in {script_name}: {e}"
-        print(error_msg)
-        logging.error(error_msg, exc_info=True)
-        sys.exit(config.EXIT_ERROR)  # Use consistent error code
-
-
-def load_prompts(prompt_file: str, logger: Optional[logging.Logger] = None) -> Dict[str, str]:
-    """
-    Load prompts from a YAML file.
-    
-    Args:
-        prompt_file: Name of the YAML file (e.g., 'writer_prompts.yaml')
-        logger: Optional logger instance
-    
-    Returns:
-        Dictionary of prompt names to prompt texts
-    """
-    import yaml
-    
-    # Check if we're already in the output directory
-    cwd = Path.cwd()
-    if cwd.name == 'output' and cwd.parent.name == 'ehcp-somerset':
-        # We're already in output directory, use relative path
-        prompt_path = Path('instructions') / prompt_file
-    else:
-        # We're in the project root, use full path
-        prompt_path = config.INSTRUCTIONS_DIR / prompt_file
-    
-    # Fall back to old prompts directory if file doesn't exist (for migration)
-    if not prompt_path.exists() and hasattr(config, 'OLD_PROMPTS_DIR'):
-        old_path = config.OLD_PROMPTS_DIR / prompt_file
-        if old_path.exists():
-            prompt_path = old_path
-            if logger:
-                logger.warning(f"Loading prompt from old location: {old_path}")
-    
-    if not prompt_path.exists():
-        error_msg = f"Prompt file not found: {prompt_path}"
-        if logger:
-            logger.error(error_msg)
-        raise FileNotFoundError(error_msg)
-    
-    try:
-        with open(prompt_path, 'r', encoding=config.FILE_ENCODING) as f:
-            prompts = yaml.safe_load(f)
-        
-        if logger:
-            logger.info(f"Loaded {len(prompts)} prompts from {prompt_file}")
-        
-        return prompts
-    
-    except Exception as e:
-        error_msg = f"Error loading prompts from {prompt_file}: {e}"
-        if logger:
-            logger.error(error_msg)
-        raise RuntimeError(error_msg)

@@ -1,157 +1,111 @@
 """
-Configuration settings for MAD - Multi-Agentic Document Generator.
-Central location for all configurable values used throughout the system.
+Configuration settings for the Multi-Agentic Document (MAD) system.
+This file centralizes all paths, constants, and patterns used across the project.
 """
 
 from pathlib import Path
 
-# System Configuration
-MAX_ITERATIONS = 5
-ITERATION_DELAY_SECONDS = 2
-POST_WRITER_DELAY_SECONDS = 1
-SUBPROCESS_TIMEOUT_SECONDS = 3600  # 60 minutes timeout for subprocesses
+# --- Base Directories ---
+# This assumes config.py is in the project's root directory.
+PROJECT_ROOT = Path(__file__).parent
+OUTPUT_DIR = PROJECT_ROOT / "output"
+LOGS_DIR = PROJECT_ROOT / "logs"
 
-# Paths
-LOGS_DIR = Path("./logs")
-OUTPUT_DIR = Path("./output")
+# Standard locations for instruction and source document files.
+# The orchestrator will ensure these exist and are populated.
+INSTRUCTIONS_DIR = OUTPUT_DIR / "instructions"
+DOCS_DIR = OUTPUT_DIR / "docs"
 
-# When running from within output directory, adjust paths
-if Path.cwd().name == "output":
-    # We're already in output directory
-    DOCS_DIR = Path("./docs")
-    LOOP_REPORT_PATH = Path("./loop_report.json")
-else:
-    # We're in project root
-    DOCS_DIR = OUTPUT_DIR / "docs"
-    LOOP_REPORT_PATH = OUTPUT_DIR / "loop_report.json"
+# --- File Definitions ---
+# Prompts and guidance files are now expected to be in the INSTRUCTIONS_DIR
+WRITER_PROMPTS_FILE = INSTRUCTIONS_DIR / "writer_prompts.yaml"
+VALIDATOR_PROMPTS_FILE = INSTRUCTIONS_DIR / "validator_prompts.yaml"
 
+# Default names for feedback and status files, saved in OUTPUT_DIR
 DEFAULT_FEEDBACK_FILENAME = "feedback.md"
 VALIDATION_STATUS_FILENAME = "validation_status.json"
+LOOP_REPORT_PATH = OUTPUT_DIR / "loop_report.json"
 
-# Logging
-DATE_FORMAT = '%Y-%m-%d_%H-%M-%S'
-LOG_FORMAT = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-LOG_LEVEL = "INFO"
-LOG_PREVIEW_LENGTH = 100
+# --- Process Control ---
+MAX_ITERATIONS = 5
+SUBPROCESS_TIMEOUT_SECONDS = 600  # 10 minutes (kept for reference, not used by new main.py)
+ITERATION_DELAY_SECONDS = 3
+POST_WRITER_DELAY_SECONDS = 2
+MAX_CHAT_ROUNDS = 100 # New setting to prevent runaway conversations
 
-# Azure OpenAI
-DEFAULT_API_VERSION = "2024-12-01-preview"
-
-# File Patterns
-DOCUMENT_FILE_PATTERN = "*.md"
-PDF_FILE_PATTERN = "*.pdf"
-FILE_ENCODING = "utf-8"
-
-# Filename Sanitization
-SPECIAL_CHAR_PATTERN = r'[^\w\s-]'
-SPACE_HYPHEN_PATTERN = r'[-\s]+'
-REPLACEMENT_CHAR = '_'
-
-# Issue Parsing Patterns
-ISSUE_PATTERNS = {
-    'critical': [
-        r'Critical:\s*(\d+)', 
-        r'Critical\s+Issues\s+Identified:\s*(\d+)',
-        r'Critical\s+Issues:\s*\[(\d+)\]'
-    ],
-    'major': [
-        r'Major:\s*(\d+)', 
-        r'Major\s+Issues\s+Identified:\s*(\d+)',
-        r'Major\s+Issues:\s*\[(\d+)\]'
-    ],
-    'minor': [
-        r'Minor:\s*(\d+)', 
-        r'Minor\s+Issues\s+Identified:\s*(\d+)',
-        r'Minor\s+Issues:\s*\[(\d+)\]'
-    ]
-}
-
-# Validation Status Patterns
-CRITICAL_ISSUE_PATTERNS = [
-    r'Critical:\s*(\d+)',
-    r'Critical\s+Issues\s+Identified:\s*(\d+)',
-    r'CRITICAL\s+issues?\s+found',
-    r'Status:\s*FAIL',
-    r'Overall\s+Status:\s*FAIL',
-    r'Overall\s+Compliance\s+Status:\s*\*\*FAIL\*\*',
-    r'Critical\s+Issues:\s*\[(\d+)\]'
-]
-
-PASS_STATUS_PATTERNS = [
-    r'Status:\s*PASS',
-    r'Overall\s+Status:\s*PASS',
-    r'Critical:\s*0',
-    r'No\s+critical\s+issues'
-]
-
-# Exit Codes
+# --- Exit Codes ---
 EXIT_SUCCESS = 0
 EXIT_VALIDATION_FAILED = 1
 EXIT_ERROR = 2
-EXIT_FIX_MODE = 3
+# EXIT_FIX_MODE = 2 # No longer needed; logic is now internal
 EXIT_USER_INTERRUPT = 130
 
-# Agent Configuration
+# --- Agent and Team Configuration ---
 AGENT_NAMES = {
+    "user_proxy": "UserProxy",
     "file_surfer": "FileSurfer",
     "document_writer": "DocumentWriter",
-    "quality_assessor": "QualityAssessor"
+    "quality_assessor": "QualityAssessor",
 }
 
-# Tool Descriptions
+# --- Logging Configuration ---
+LOG_LEVEL = "INFO"  # e.g., "DEBUG", "INFO", "WARNING"
+LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+DATE_FORMAT = "%Y-%m-%d_%H-%M-%S"
+LOG_PREVIEW_LENGTH = 200
+
+# --- File and Pattern Matching ---
+PDF_FILE_PATTERN = "*.pdf"
+DOCUMENT_FILE_PATTERN = "*.md"
+DEFAULT_SECTION_NAME = "unnamed_section"
+FILE_ENCODING = "utf-8"
+SPECIAL_CHAR_PATTERN = r'[^a-zA-Z0-9\s-]'
+SPACE_HYPHEN_PATTERN = r'[\s-]+'
+REPLACEMENT_CHAR = '_'
+
+# --- Regex Patterns for Feedback Parsing ---
+ISSUE_PATTERNS = {
+    'critical': [r'critical issues: (\d+)', r'critical: (\d+)'],
+    'major': [r'major issues: (\d+)', r'major: (\d+)'],
+    'minor': [r'minor issues: (\d+)', r'minor: (\d+)']
+}
+CRITICAL_ISSUE_PATTERNS = [
+    r"critical issues: (\d+)",
+    r"critical: (\d+)",
+    r"validation FAILED"
+]
+PASS_STATUS_PATTERNS = [r"validation PASSED"]
+VALID_PYTHON_PATH_PATTERNS = [r"/bin/python\d?(\.\d+)?$", r"/usr/bin/python\d?(\.\d+)?$", r"\\Scripts\\python.exe$"]
+
+# --- Tool Descriptions (for agent prompts) ---
 TOOL_DESCRIPTIONS = {
-    "save_document": "Save document content to file",
-    "save_document_section": "Saves the document section content as a separate file. Each section is saved as its own file for modular management.",
-    "save_feedback": "Save validation feedback to file",
-    "delete_file": "Safely deletes a file from the output directory. Use this to remove incorrectly named or duplicate files before creating the correct ones."
+    "save_document": "Save document content to a file in the output directory.",
+    "save_document_section": "Save a named section of the document to a markdown file in the output directory.",
+    "delete_file": "Safely delete a specific file from the output directory.",
+    "save_feedback": "Save the complete validation feedback report to a markdown file.",
 }
 
-# Environment Variables
+# --- NEW: STAGE MAPPING FOR ORCHESTRATOR ---
+STAGE_TO_FILENAME_MAP = {
+    "s1": "section_1_personal_details.md",
+    "s2": "section_2_child_overview.md",
+    "s3": "section_3_special_educational_needs_and_provision.md",
+    "s4": "section_4_health_care_needs_and_health_care_provision.md",
+    "s5": "section_5_social_care_needs_and_social_care_provision.md",
+}
+
+ALL_SECTION_FILENAMES = list(STAGE_TO_FILENAME_MAP.values())
+
+# --- Display Separators ---
+SEPARATOR_STANDARD = "=" * 80
+SEPARATOR_MAJOR = "-" * 80
+SEPARATOR_ITERATION = "#" * 80
+SEPARATOR_MINOR = "-" * 40
+
+# --- Environment Variables ---
 REQUIRED_ENV_VARS = [
     "AZURE_OPENAI_API_KEY",
     "AZURE_OPENAI_ENDPOINT",
     "AZURE_OPENAI_MODEL_NAME"
 ]
-
-OPTIONAL_ENV_VARS = [
-    "AZURE_OPENAI_API_VERSION"
-]
-
-# Default Values
-DEFAULT_SECTION_NAME = "unnamed_section"
-
-# Console Output
-SEPARATOR_STANDARD = "=" * 80
-SEPARATOR_ITERATION = "#" * 80
-SEPARATOR_MINOR = "-" * 80
-
-# Directory Configuration
-if Path.cwd().name == "output":
-    # We're already in output directory
-    INSTRUCTIONS_DIR = Path("./instructions")
-else:
-    # We're in project root
-    INSTRUCTIONS_DIR = OUTPUT_DIR / "instructions"
-
-# Instruction File Paths
-WRITER_GUIDANCE_FILE = INSTRUCTIONS_DIR / "writer_guidance.md"
-VALIDATOR_GUIDANCE_FILE = INSTRUCTIONS_DIR / "validator_guidance.md"
-WRITER_PROMPTS_FILE = INSTRUCTIONS_DIR / "writer_prompts.yaml"
-VALIDATOR_PROMPTS_FILE = INSTRUCTIONS_DIR / "validator_prompts.yaml"
-
-# Legacy Paths (for migration)
-OLD_PROMPTS_DIR = Path("./prompts")
-OLD_GUIDANCE_FILE = Path("./guidance.md")
-OLD_VALIDATION_FILE = Path("./validationguidance.md")
-
-# Security Configuration
-# Valid patterns for Python executable paths (for subprocess security)
-VALID_PYTHON_PATH_PATTERNS = [
-    r"\.venv[/\\]Scripts[/\\]python\.exe$",  # Windows venv
-    r"\.venv[/\\]bin[/\\]python\d*$",        # Unix venv
-    r"venv[/\\]Scripts[/\\]python\.exe$",    # Windows venv (no dot)
-    r"venv[/\\]bin[/\\]python\d*$",          # Unix venv (no dot)
-    r"[/\\]usr[/\\]bin[/\\]python\d*$",      # System Python on Unix
-    r"[/\\]usr[/\\]local[/\\]bin[/\\]python\d*$",  # Local Python on Unix
-    r"Python\d+[/\\]python\.exe$",           # Windows system Python
-]
+DEFAULT_API_VERSION = "2024-05-01-preview"

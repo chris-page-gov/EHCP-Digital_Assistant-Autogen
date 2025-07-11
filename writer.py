@@ -1,335 +1,105 @@
-"""
-Document Writer
+import autogen
+from autogen import ConversableAgent, UserProxyAgent, GroupChat, GroupChatManager
+from typing import List, Dict
 
-This module generates documents from source materials using AI agents.
-It reads guidance from guidance.md and creates structured documents based on the template provided.
-
-Exit codes:
-- 0: Success - normal generation completed
-- 1: Error during execution
-- 2: Fix mode - attempted to fix issues from validation feedback
-"""
-
-import asyncio
-import os
-from pathlib import Path
-import sys
-from typing import Annotated
-
-from autogen_agentchat.agents import AssistantAgent
-from autogen_agentchat.teams import MagenticOneGroupChat
-from autogen_agentchat.ui import Console
-from autogen_ext.agents.file_surfer import FileSurfer
-from autogen_core.tools import FunctionTool
-
-import config
-
-# Import shared utilities
 from utils import (
-    setup_logging, check_environment_variables, create_azure_client,
-    ensure_directories, sanitize_filename, run_with_error_handling,
-    load_prompts, get_path_context
+    read_markdown_file,
+    #read_pdf_file,
+    list_files_in_directory,
+    save_markdown_file,
+    DOCS_DIR,
+    OUTPUTS_DIR,
 )
 
-# Setup logging
-logger, log_filename = setup_logging("document_session")
-
-
-async def save_document_section(
-    content: Annotated[str, "The document content to save"],
-    section_name: Annotated[str, "The name of the section being saved"] = ""
-) -> str:
-    """Save document section content as a separate file. Each section is saved as its own .md file."""
-    logger.info(f"=== save_document_section CALLED ===")
-    logger.info(f"Section name: '{section_name}'")
-    logger.info(f"Content length: {len(content)} characters")
-    logger.info(f"Content preview: {content[:config.LOG_PREVIEW_LENGTH]}..." if len(content) > config.LOG_PREVIEW_LENGTH else f"Content: {content}")
-    
-    ensure_directories(config.OUTPUT_DIR)
-    
-    try:
-        # Generate filename from section name
-        if not section_name:
-            section_name = config.DEFAULT_SECTION_NAME
-            logger.warning("No section name provided, using 'unnamed_section'")
-        
-        # Strip any file extensions from section_name to prevent double extensions
-        if section_name.lower().endswith('.md'):
-            logger.warning(f"Section name '{section_name}' contains .md extension - removing it")
-            section_name = section_name[:-3]
-        elif section_name.lower().endswith('.markdown'):
-            logger.warning(f"Section name '{section_name}' contains .markdown extension - removing it")
-            section_name = section_name[:-9]
-        
-        # Sanitize filename
-        filename = f"{sanitize_filename(section_name)}.md"
-        
-        # Since we're already in the output directory, just use the filename
-        output_path = Path(filename)
-        
-        # Check if file already exists
-        if output_path.exists():
-            logger.warning(f"File {filename} already exists - it will be overwritten")
-        
-        # Log the section being saved
-        logger.info(f"Saving section '{section_name}' to {filename}")
-        logger.info(f"Full path: {output_path.absolute()}")
-        
-        # Write the content to the section file
-        output_path.write_text(content, encoding=config.FILE_ENCODING)
-        
-        # Verify file was written
-        if output_path.exists():
-            file_size = output_path.stat().st_size
-            logger.info(f"File written successfully. Size: {file_size} bytes")
-        else:
-            logger.error(f"File was not created at {output_path}")
-        
-        logger.info(f"Successfully saved section '{section_name}' to {output_path}")
-        logger.info(f"=== save_document_section COMPLETED ===")
-        return f"Successfully saved section '{section_name}' to {output_path}"
-    
-    except Exception as e:
-        logger.error(f"Error saving document section '{section_name}': {str(e)}")
-        logger.error(f"Exception type: {type(e).__name__}")
-        logger.error(f"Full traceback:", exc_info=True)
-        return f"Error saving document section '{section_name}': {str(e)}"
-
-
-async def delete_file(
-    filename: Annotated[str, "The name of the file to delete (e.g., 'main_contact_details.md')"]
-) -> str:
-    """Safely delete a file from the output directory. Only files in the output directory can be deleted."""
-    logger.info(f"=== delete_file CALLED ===")
-    logger.info(f"Filename to delete: '{filename}'")
-    
-    try:
-        # Since we're already in the output directory, just use the filename
-        file_path = Path(filename)
-        
-        # Security check - ensure the path doesn't go outside current directory
-        try:
-            resolved_path = file_path.resolve()
-            current_dir_resolved = Path.cwd().resolve()
-            
-            # Check if the resolved path is within the current directory
-            if not str(resolved_path).startswith(str(current_dir_resolved)):
-                logger.error(f"Security violation: Attempted to delete file outside current directory: {resolved_path}")
-                return f"Error: Cannot delete files outside the current directory"
-        except Exception as e:
-            logger.error(f"Error resolving path: {e}")
-            return f"Error: Invalid file path"
-        
-        # Check if file exists
-        if not file_path.exists():
-            logger.warning(f"File not found: {file_path}")
-            return f"File not found: {filename}"
-        
-        # Check if it's a file (not a directory)
-        if not file_path.is_file():
-            logger.error(f"Not a file: {file_path}")
-            return f"Error: {filename} is not a file"
-        
-        # Log file details before deletion
-        file_size = file_path.stat().st_size
-        logger.info(f"Deleting file: {file_path} (size: {file_size} bytes)")
-        
-        # Delete the file
-        file_path.unlink()
-        
-        # Verify deletion
-        if not file_path.exists():
-            logger.info(f"Successfully deleted file: {filename}")
-            logger.info(f"=== delete_file COMPLETED ===")
-            return f"Successfully deleted file: {filename}"
-        else:
-            logger.error(f"File still exists after deletion attempt: {file_path}")
-            return f"Error: Failed to delete file {filename}"
-            
-    except PermissionError:
-        logger.error(f"Permission denied when trying to delete: {filename}")
-        return f"Error: Permission denied to delete {filename}"
-    except Exception as e:
-        logger.error(f"Error deleting file '{filename}': {str(e)}")
-        logger.error(f"Exception type: {type(e).__name__}")
-        logger.error(f"Full traceback:", exc_info=True)
-        return f"Error deleting file '{filename}': {str(e)}"
-
-
-async def main():
-    """Main function to run the document writer system."""
-    logger.info("Starting Document Writer System")
-    print("--- Initializing Document Writer System ---")
-    logger.info("=" * 80)
-    logger.info("SYSTEM STARTUP - Section-based file output enabled")
-    logger.info("=" * 80)
-    
-    # Check environment
-    check_environment_variables(logger)
-    
-    # Change working directory to output for simpler navigation
-    original_dir = Path.cwd()
-    os.chdir(config.OUTPUT_DIR)
-    logger.info(f"Changed working directory from {original_dir} to {Path.cwd()}")
-    
-    # Log working directory for agents
-    current_dir = Path.cwd()
-    logger.info(f"Current working directory: {current_dir}")
-    logger.info(f"Relative paths from output directory:")
-    logger.info(f"  - Instructions: instructions/")
-    logger.info(f"  - Docs: docs/")
-    logger.info(f"  - Document files: *.md")
-    
-    # Load prompts from new instructions directory
-    try:
-        prompts = load_prompts(config.WRITER_PROMPTS_FILE.name, logger)
-        logger.info("Prompts loaded successfully from instructions directory")
-    except Exception as e:
-        logger.error(f"Failed to load prompts: {e}")
-        print(f"ERROR: Failed to load prompts: {e}")
-        return config.EXIT_ERROR
-    
-    # We're already in the output directory
-    print(f"[OK] Working in output directory: {Path.cwd()}")
-    logger.info(f"Output directory ready at '{config.OUTPUT_DIR}'")
-    
-    # Setup LLM client
-    model_client = create_azure_client(logger)
-    
-    # Create file management tools
-    save_document_tool = FunctionTool(save_document_section, description=config.TOOL_DESCRIPTIONS.get("save_document_section", config.TOOL_DESCRIPTIONS["save_document"]))
-    delete_file_tool = FunctionTool(delete_file, description=config.TOOL_DESCRIPTIONS["delete_file"])
-    
-    # Define agents (no UserProxy needed for streamlined operation)
-    
-    # Native MagenticOne FileSurfer agent - can read files including PDFs
-    file_surfer = FileSurfer(
-        name=config.AGENT_NAMES["file_surfer"],
-        model_client=model_client
+def create_writer_team(llm_config: Dict) -> GroupChatManager:
+    """
+    Creates and configures the writer multi-agent team.
+    """
+    writer_user_proxy = UserProxyAgent(
+        name="Writer_User_Proxy",
+        is_termination_msg=lambda x: x.get("content", "") and "FINAL" in x.get("content", ""),
+        human_input_mode="NEVER",
+        max_consecutive_auto_reply=50,
+        code_execution_config={"use_docker": False},
+        llm_config=llm_config,
+        system_message="You are the user proxy for the writer team. You orchestrate the task by calling tools. "
+                       "You will call file tools to read guidance, source documents, and previous outputs. "
+                       "First, find and read the guidance. Then find and read the source documents. "
+                       "Provide the collected content to the Document_Writer. "
+                       "After the writer generates the content, you MUST use the save_markdown_file tool to save it. "
+                       "After saving the file, reply with the word 'FINAL' to end the conversation."
     )
-    
-    document_writer = AssistantAgent(
-        name=config.AGENT_NAMES["document_writer"],
-        model_client=model_client,
-        tools=[save_document_tool, delete_file_tool],
-        system_message=prompts['document_writer_system_prompt']
+
+    document_writer = ConversableAgent(
+        name="Document_Writer",
+        llm_config=llm_config,
+        system_message= "You are a professional document writer. Your job is to synthesize information into a clear document. "
+                        "If you are given feedback on a previous version, your primary goal is to **refine the existing content** to address "
+                        "the specific issues raised. Do not start over unless explicitly told to."
+                        "Your generated content must be based entirely on the provided guidance and source documents. "
     )
-    
-    print("[OK] Agents configured (FileSurfer, DocumentWriter)")
-    logger.info("Agents configured")
-    
-    # Setup team
-    team = MagenticOneGroupChat(
-        participants=[file_surfer, document_writer],
-        model_client=model_client
-    )
-    print("[OK] Document writing team assembled with MagenticOne")
-    logger.info("Document writing team assembled")
-    
-    print("\n--- Document Writer System Ready ---")
-    print("Available PDF documents in docs folder:")
-    # We're now in the output directory, so docs is a subdirectory
-    docs_dir = Path('docs')
-    pdf_files = list(docs_dir.glob(config.PDF_FILE_PATTERN))
-    for pdf in pdf_files:
-        print(f"  - {pdf.name}")
-        logger.info(f"Found PDF: {pdf.name}")
-    
-    print(config.SEPARATOR_MINOR)
-    
-    # Check if feedback.md exists - we're already in output directory
-    feedback_path = Path(config.DEFAULT_FEEDBACK_FILENAME)
-    if feedback_path.exists():
-        print("\n>>> FEEDBACK DETECTED - Switching to Fix Mode <<<")
-        print(f"Found feedback at: {feedback_path}")
-        print(f"Absolute path: {feedback_path.absolute()}")
-        logger.info(f"Feedback detected at {feedback_path.absolute()} - switching to fix mode")
-        
-        # Create task for fixing issues with agent capabilities context
-        pdf_files_str = ', '.join([pdf.name for pdf in pdf_files])
-        agent_context = prompts.get('agent_capabilities_context', '')
-        
-        # Add working directory context
-        path_context = get_path_context()
-        
-        # Add explicit FileSurfer navigation instructions
-        filesurfer_instructions = """\n\nNAVIGATION TIPS FOR FILESURFER:
-- If you have trouble finding a file, first list the directory contents
-- All paths are relative to the working directory
-- Use paths like "instructions/writer_guidance.md", "docs/filename.pdf"
+
+    planner = ConversableAgent(
+        name="Planner",
+        llm_config=llm_config,
+        system_message="""You are a meticulous planner. Your role is to create a precise, step-by-step plan for the team. You do not write content or call tools yourself. Your output must be ONLY the plan.
+
+**Planning for Initial Creation (Iteration 1):**
+Your plan MUST follow this structure:
+1.  **Read Guidance & Sources:** Direct the `Writer_User_Proxy` to read the writer's guidance and all source documents from the `processed_docs` folder.
+2.  **Draft Content:** Direct the `Document_Writer` to synthesize the gathered information into a DRAFT of the document section.
+3.  **Fact-Check Draft:** Direct the `Fact_Checker` to review the draft produced by the `Document_Writer` against the source document content. The `Fact_Checker` must either state "APPROVED" or provide a list of corrections.
+4.  **Finalize Content:** If corrections are needed, direct the `Document_Writer` to create a final, corrected version. If the draft was approved, this step can be skipped.
+5.  **Save Output:** Direct the `Writer_User_Proxy` to save the final, fact-checked content to the specified output file.
+
+**Planning for Correction (Based on Validator Feedback):**
+Your plan MUST follow this structure:
+1.  **Analyze Feedback & Read Files:** Direct the `Writer_User_Proxy` to read the feedback and the existing incorrect output file.
+2.  **Generate Corrected Draft:** Direct the `Document_Writer` to generate a new DRAFT of the content, focusing on fixing the issues from the feedback.
+3.  **Fact-Check Corrected Draft:** Direct the `Fact_Checker` to review the new draft against the source documents to ensure no new factual errors were introduced.
+4.  **Finalize Content:** If the `Fact_Checker` found new issues, direct the `Document_Writer` to make final adjustments.
+5.  **Save Final Output:** Direct the `Writer_User_Proxy` to save the final, corrected, and fact-checked content.
 """
-        
-        task = prompts['fix_mode_task_template'].format(
-            agent_capabilities_context=agent_context + "\n" + path_context + filesurfer_instructions,
-            pdf_files=pdf_files_str
-        )
-        
-        # Log the task for debugging
-        logger.debug("=" * 80)
-        logger.debug("TASK SENT TO AGENTS (Fix Mode):")
-        logger.debug(task)
-        logger.debug("=" * 80)
-    else:
-        # Auto-generate the document request
-        print("\n>>> Starting Document Generation <<<")
-        logger.info("Starting document generation")
-        
-        # Create the task for new document generation with agent capabilities context
-        pdf_files_str = ', '.join([pdf.name for pdf in pdf_files])
-        agent_context = prompts.get('agent_capabilities_context', '')
-        
-        # Add working directory context
-        path_context = get_path_context()
-        
-        # Add explicit FileSurfer navigation instructions
-        filesurfer_instructions = """\n\nNAVIGATION TIPS FOR FILESURFER:
-- If you have trouble finding a file, first list the directory contents
-- All paths are relative to the working directory  
-- Use paths like "instructions/writer_guidance.md", "docs/filename.pdf"
-"""
-        
-        task = prompts['generation_mode_task_template'].format(
-            agent_capabilities_context=agent_context + "\n" + path_context + filesurfer_instructions,
-            pdf_files=pdf_files_str
-        )
-        
-        # Log the task for debugging
-        logger.debug("=" * 80)
-        logger.debug("TASK SENT TO AGENTS (Generation Mode):")
-        logger.debug(task)
-        logger.debug("=" * 80)
-    
-    exit_code = config.EXIT_SUCCESS  # Default to success
-    
-    try:
-        stream = team.run_stream(task=task)
-        console = Console(stream)
-        await console
-        print("\n[OK] Document generation completed.")
-        logger.info("Document generation completed successfully")
-        
-        # Set exit code based on mode
-        if feedback_path.exists():
-            # Fix mode - return 2 to indicate fixes were attempted
-            exit_code = config.EXIT_FIX_MODE
-        else:
-            # Normal generation mode - return 0 for success
-            exit_code = config.EXIT_SUCCESS
-    except Exception as e:
-        error_msg = f"ERROR during processing: {e}"
-        print(error_msg)
-        logger.error(error_msg, exc_info=True)
-        exit_code = config.EXIT_ERROR  # Set 1 for errors
-    
-    print("\n" + config.SEPARATOR_MINOR)
-    
-    # Cleanup
-    await model_client.close()
-    print("[OK] System shutdown complete.")
-    logger.info("System shutdown complete")
-    logger.info(f"Session log saved to: {log_filename}")
-    
-    return exit_code
+    )
 
-if __name__ == "__main__":
-    run_with_error_handling(main, "Document Writer")
+    fact_checker = ConversableAgent(
+        name="Fact_Checker",
+        llm_config=llm_config,
+        system_message="""You are a meticulous Fact Checker. Your sole purpose is to verify the factual accuracy of text generated by the Document_Writer.
+
+        You will be given:
+        1.  The full content of the source documents.
+        2.  The draft text generated by the Document_Writer.
+
+        Your task is to compare the draft text against the source documents and identify any discrepancies, hallucinations, or information that cannot be verified.
+
+        Your output should be a list of findings. If there are no issues, you MUST respond with the single word "APPROVED". If there are issues, list them clearly, for example:
+        - "The draft mentions the subject's birth date is 10-JAN-2010, but the source document states it is 12-JAN-2010."
+        - "The draft includes the service 'Speech Therapy', which is not mentioned in any of the source documents."
+        """
+    )
+    
+    
+    # Register tools for the UserProxyAgent to call
+    for func in [read_markdown_file, list_files_in_directory, save_markdown_file]:
+        autogen.agentchat.register_function(
+            func,
+            caller=writer_user_proxy,
+            executor=writer_user_proxy,
+            name=func.__name__,
+            description=func.__doc__,
+        )
+
+    # Create the group chat and manager
+    groupchat = GroupChat(
+        agents=[writer_user_proxy, document_writer, planner, fact_checker],
+        messages=[],
+        max_round=100
+    )
+    
+    manager = GroupChatManager(
+        groupchat=groupchat,
+        llm_config=llm_config
+    )
+    
+    return manager
