@@ -24,18 +24,18 @@ Minor: [Number of minor issues found]
 
 ## Content Validation Rules for Section 4
 
-### The Golden Thread (CRITICAL)
+### The Golden Thread (Major)
 
 *   Every identified Health Care Need MUST have a corresponding Health Care Provision.
 *   Every Provision must link to a Need.
-*   Outcomes must be achievable through the stated Provisions. A broken thread is a **CRITICAL** error.
+*   Outcomes must be achievable through the stated Provisions. A broken thread is a **Major** error.
 
-### Provision Specificity (CRITICAL)
+### Provision Specificity (Major)
 
-*   Vague health provision is a **CRITICAL** error. Check if each provision specifies the required support, provider, ratio, frequency, and duration.
+*   Vague health provision is a **Major** error. Check if each provision specifies the required support, provider, ratio, frequency, and duration.
 *   "Ongoing access to nursing team" is NOT specific. "Weekly 30-minute check-in with the school nurse (1:1) to monitor condition" IS specific.
 
-### SMART Outcomes (CRITICAL)
+### SMART Outcomes (Major)
 
 *   Health outcomes MUST be SMART (Specific, Measurable, Achievable, Relevant, Time-bound).
 *   "To manage his condition" is NOT a SMART outcome. It is a **Major** error.

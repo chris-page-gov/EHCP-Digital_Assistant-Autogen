@@ -46,7 +46,7 @@ The file `output_s2.md` must contain the following two main sections with their 
 ## Summary of the Child or Young Person’s History
 
 ***CRITICAL: This summary MUST NOT exceed 500 words (approximately 3000 characters).***
-*It should be written as a short list of bullet points.*
+It should be written as a short block of text. Some use of bullet points is allowed, but should not be fully bullet-pointed
 
 *   **A brief overview of the child or young person’s circumstances.**
 *   **A summary of how to communicate with the child or young person, and how best to engage them in decision making.**
@@ -54,7 +54,7 @@ The file `output_s2.md` must contain the following two main sections with their 
 ## Summary of the Views, Interests and Aspirations of the Child and Their Parent, or of the Young Person
 
 ***This summary should also be approximately 500 words or 3000 characters.***
-*It does not need to be in bullet points, but must be arranged under the following four subheadings.*
+*It should not be in bullet points, but must be arranged under the following four subheadings.*
 
 **Views**
 *This should be a summary of the views of the child and the family. You must state how this information was collected, including if another person provided this information on the child or young person’s behalf.*

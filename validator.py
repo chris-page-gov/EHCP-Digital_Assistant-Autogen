@@ -57,3 +57,53 @@ def create_validator_team(llm_config: Dict) -> GroupChatManager:
     )
     
     return manager
+
+def create_final_validator_team(llm_config: Dict) -> GroupChatManager:
+    """
+    Creates and configures the FINAL validator team for holistic review.
+    """
+    # This proxy's system message is generic and can be reused.
+    final_validator_proxy = UserProxyAgent(
+        name="Final_Validator_Proxy",
+        is_termination_msg=lambda x: x.get("content", "") and "FINAL" in x.get("content", ""),
+        human_input_mode="NEVER",
+        max_consecutive_auto_reply=10,
+        code_execution_config={"use_docker": False},
+        llm_config=llm_config,
+        system_message="You are the user proxy for the final validation team. "
+                       "Manage the workflow by calling tools to read the document and save the feedback report. "
+                       "Reply with 'FINAL' after the report is saved."
+    )
+
+    # This agent's instructions are highly specialized for the final review.
+    holistic_assessor = ConversableAgent(
+        name="Holistic_Assessor",
+        llm_config=llm_config,
+        system_message="You are an expert Quality Assurance editor. Your task is a **holistic review** of a complete document. "
+                       "Your primary focus is on ensuring **consistency, logical flow, and eliminating redundancy** between sections. "
+                       "You must identify contradictions and significant duplication, recommending where duplicated content should be moved. "
+                       "You will produce a structured feedback report based on final validation guidelines."
+    )
+
+    # Register tools for the proxy agent to call
+    for func in [read_markdown_file, save_markdown_file]:
+        autogen.agentchat.register_function(
+            func,
+            caller=final_validator_proxy,
+            executor=final_validator_proxy,
+            name=func.__name__,
+            description=func.__doc__,
+        )
+
+    groupchat = GroupChat(
+        agents=[final_validator_proxy, holistic_assessor],
+        messages=[],
+        max_round=10
+    )
+    
+    manager = GroupChatManager(
+        groupchat=groupchat,
+        llm_config=llm_config
+    )
+    
+    return manager

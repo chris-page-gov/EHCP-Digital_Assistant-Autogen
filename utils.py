@@ -231,3 +231,40 @@ def preprocess_all_pdfs() -> bool:
     except Exception as e:
         logging.critical(f"A critical error occurred during PDF pre-processing: {e}")
         return False
+
+def merge_output_files(num_sections: int, output_dir: str, final_filename: str) -> bool:
+    """
+    Merges sectional output files into a single final document.
+
+    Args:
+        num_sections (int): The total number of sections to merge.
+        output_dir (str): The directory containing the output files.
+        final_filename (str): The name of the final merged file.
+
+    Returns:
+        bool: True if merging was successful, False otherwise.
+    """
+    final_doc_path = os.path.join(output_dir, final_filename)
+    logging.info(f"Starting merge process for {final_doc_path}")
+    
+    try:
+        with open(final_doc_path, 'w', encoding='utf-8') as outfile:
+            for i in range(1, num_sections + 1):
+                section_filename = f"output_s{i}.md"
+                section_filepath = os.path.join(output_dir, section_filename)
+                
+                if not os.path.exists(section_filepath):
+                    logging.error(f"Merge failed: Section file not found at {section_filepath}")
+                    return False
+                
+                with open(section_filepath, 'r', encoding='utf-8') as infile:
+                    outfile.write(infile.read())
+                    # Add a separator between sections for clarity, except for the last one
+                    if i < num_sections:
+                        outfile.write("\n\n---\n\n")
+            
+            logging.info(f"Successfully merged all sections into {final_doc_path}")
+            return True
+    except IOError as e:
+        logging.error(f"An I/O error occurred during merging: {e}")
+        return False

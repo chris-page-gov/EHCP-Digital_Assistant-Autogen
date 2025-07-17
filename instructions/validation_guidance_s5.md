@@ -24,15 +24,15 @@ Minor: [Number of minor issues found]
 
 ## Content Validation Rules for Section 5
 
-### The Golden Thread (CRITICAL)
+### The Golden Thread (Major)
 
 *   Every identified Social Care Need MUST have a corresponding Provision (either H1 or H2).
 *   Every Provision must link to a Need.
-*   Outcomes must be achievable through the stated Provisions. A broken thread is a **CRITICAL** error.
+*   Outcomes must be achievable through the stated Provisions. A broken thread is a **Major** error.
 
-### Provision Specificity (CRITICAL)
+### Provision Specificity (Major)
 
-*   Vague social care provision is a **CRITICAL** error. Check if each provision specifies the required support, provider, ratio, frequency, and duration.
+*   Vague social care provision is a **Major** error. Check if each provision specifies the required support, provider, ratio, frequency, and duration.
 *   "Support to access the community" is NOT specific. "Support from a youth worker (1:1) for 2 hours per week to attend a local youth club" IS specific.
 
 ### SMART Outcomes (Major)

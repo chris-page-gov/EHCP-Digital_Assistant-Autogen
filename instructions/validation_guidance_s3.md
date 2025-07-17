@@ -24,16 +24,16 @@ Minor: [Number of minor issues found]
 
 ## Content Validation Rules for Section 3
 
-### The Golden Thread (CRITICAL)
+### The Golden Thread (Major)
 
-The "Golden Thread" is the logical link between Needs, Provisions, and Outcomes. A broken thread is a **CRITICAL** error. Check for:
+The "Golden Thread" is the logical link between Needs, Provisions, and Outcomes. A broken thread is a **Major** error. Check for:
 1.  **Every Need must have a Provision:** Is there a specific provision listed for every single need identified?
 2.  **Every Provision must be for a Need:** Is there a provision listed that doesn't correspond to any identified need?
 3.  **Outcomes must be supported by Provisions:** Are the outcomes achievable based on the provisions listed?
 
-### Provision Specificity (CRITICAL)
+### Provision Specificity (Major)
 
-Vague or unspecified provision is a **CRITICAL** error. For EVERY provision listed, you must check if it contains the following five elements:
+Vague or unspecified provision is a **Major** error. For EVERY provision listed, you must check if it contains the following five elements:
 1.  **Support required** (What is it?)
 2.  **Provider qualification** (Who provides it?)
 3.  **Staff/student ratio** (e.g., 1:1)
@@ -41,9 +41,9 @@ Vague or unspecified provision is a **CRITICAL** error. For EVERY provision list
 5.  **Duration** (For how long?)
 *   A provision missing any of these key details (e.g., "regular support from a TA") is not specific enough and constitutes a **Major** error.
 
-### SMART Outcomes (CRITICAL)
+### SMART Outcomes (Major)
 
-Outcomes that are not SMART are a **CRITICAL** error. For EVERY outcome, check if it is:
+Outcomes that are not SMART are a **Major** error. For EVERY outcome, check if it is:
 *   **S**pecific (Clear and well-defined)
 *   **M**easurable (Progress can be tracked)
 *   **A**chievable (Realistic)
