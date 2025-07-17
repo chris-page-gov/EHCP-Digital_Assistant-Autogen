@@ -1,4 +1,5 @@
 import os
+import sys
 import logging
 import time
 import autogen
@@ -23,11 +24,23 @@ from utils import (
 # Load environment variables from .env file
 load_dotenv()
 
+class Tee:
+    """A helper class to redirect stdout to both console and a file."""
+    def __init__(self, original_stream, log_file):
+        self.original_stream = original_stream
+        self.log_file = log_file
+
+    def write(self, text):
+        self.original_stream.write(text)
+        self.log_file.write(text)
+
+    def flush(self):
+        self.original_stream.flush()
+        self.log_file.flush()
+
 def setup_logging(run_timestamp: str):
     """
-    Configures two loggers with timestamped filenames: one for full output, one for loop tracing.
-    Args:
-        run_timestamp (str): A string timestamp (e.g., 'YYYY-MM-DD_HH-MM-SS') to use in log filenames.
+    Configures logging to capture full terminal output and a separate loop trace.
     """
     # Create logs directory if it doesn't exist
     os.makedirs(LOGS_DIR, exist_ok=True)
@@ -36,25 +49,30 @@ def setup_logging(run_timestamp: str):
     # Construct the log filename with the timestamp
     full_log_filename = f"full_run_{run_timestamp}.log"
     full_log_path = os.path.join(LOGS_DIR, full_log_filename)
+
+    # Open the log file in write mode
+    log_file_handle = open(full_log_path, 'w', encoding='utf-8')
+
+    # Redirect stdout and stderr
+    original_stdout = sys.stdout
+    original_stderr = sys.stderr
+    sys.stdout = Tee(original_stdout, log_file_handle)
+    sys.stderr = Tee(original_stderr, log_file_handle)
     
     # Get the root logger
     root_logger = logging.getLogger()
-    root_logger.setLevel(logging.INFO)
     root_logger.handlers.clear()
-    
-    # Create a file handler for the full log. Mode is 'w' (write), so no need to change it.
-    file_handler = logging.FileHandler(full_log_path, mode='w')
-    file_formatter = logging.Formatter('%(asctime)s - %(message)s')
-    file_handler.setFormatter(file_formatter)
-    
-    # Create a stream handler for console output
-    stream_handler = logging.StreamHandler()
-    stream_formatter = logging.Formatter('%(message)s')
-    stream_handler.setFormatter(stream_formatter)
-    
-    root_logger.addHandler(file_handler)
-    root_logger.addHandler(stream_handler)
+    root_logger.setLevel(logging.INFO)
 
+    stream_handler = logging.StreamHandler(sys.stdout) # Use the redirected stdout
+    # Use a more detailed formatter for the logs now
+    formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+    stream_handler.setFormatter(formatter)
+
+    root_logger.addHandler(stream_handler)
+    
+    
+    
     # ---- Loop Trace Logger (only for specific milestones) ----
     # Construct the log filename with the timestamp
     loop_log_filename = f"loop_trace_{run_timestamp}.log"
@@ -132,7 +150,7 @@ def main():
 
     total_sections = 5
     process_completed_successfully = True
-    for section_number in range(5, total_sections + 1):
+    for section_number in range(1, total_sections + 1):
         logging.info(f"\n{'#'*25} STARTING SECTION {section_number} {'#'*25}")
         loop_logger.info(f"===== Processing Section {section_number} START =====")
 

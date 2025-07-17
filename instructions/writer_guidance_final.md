@@ -4,7 +4,7 @@ Your task is to refine and polish the complete `final_document.md` based on the 
 
 **CRITICAL INSTRUCTIONS:**
 
-1.  **Read the Final Feedback:** First, carefully analyze the holistic feedback report to understand the required changes.
+1.  **Read the Final Feedback:** First, carefully analyze the feedback report to understand the required changes.
 2.  **Read the Full Document:** Load the content of the `final_document.md` that needs correcting.
 3.  **Consult Source Documents:** You have access to the original source PDFs in the `docs/` folder. Use them to:
     -   Verify facts if there are contradictions.
