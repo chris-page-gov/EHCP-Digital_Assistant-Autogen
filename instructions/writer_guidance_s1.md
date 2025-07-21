@@ -56,7 +56,7 @@ The file `output_s1.md` must contain the following three sub-headings and all as
 - **Relationship:**
 - **Email:**
 - **Telephone number:**
-- **Home Address:** [LINE ONE / LINE TWO / TOWN/ CITY / COUNTY / POST CODE]
+- **Home address:** [LINE ONE / LINE TWO / TOWN/ CITY / COUNTY / POST CODE]
 
 #### Parent or Carer 2
 

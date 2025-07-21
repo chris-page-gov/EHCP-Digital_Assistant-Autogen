@@ -49,16 +49,19 @@ Your plan MUST follow this structure:
 1.  **Read Guidance & Sources:** Direct the `Writer_User_Proxy` to read the writer's guidance and all source documents from the `processed_docs` folder.
 2.  **Draft Content:** Direct the `Document_Writer` to synthesize the gathered information into a DRAFT of the document section.
 3.  **Fact-Check Draft:** Direct the `Fact_Checker` to review the draft produced by the `Document_Writer` against the source document content. The `Fact_Checker` must either state "APPROVED" or provide a list of corrections.
-4.  **Finalize Content:** If corrections are needed, direct the `Document_Writer` to create a final, corrected version. If the draft was approved, this step can be skipped.
-5.  **Save Output:** Direct the `Writer_User_Proxy` to save the final, fact-checked content to the specified output file.
+4.  **Generate Revision Request:** If the `Fact_Checker` finds issues, direct the `Prompt_Writer` to create a concise, actionable prompt for the `Document_Writer` to revise the draft.
+5.  **Finalize Content:** If corrections are needed, direct the `Document_Writer` to create a final, corrected version. If the draft was approved, this step can be skipped.
+6.  **Save Output:** Direct the `Writer_User_Proxy` to save the final, fact-checked content to the specified output file.
 
 **Planning for Correction (Based on Validator Feedback):**
 Your plan MUST follow this structure:
 1.  **Analyze Feedback & Read Files:** Direct the `Writer_User_Proxy` to read the feedback and the existing incorrect output file.
-2.  **Generate Corrected Draft:** Direct the `Document_Writer` to generate a new DRAFT of the content, focusing on fixing the issues from the feedback.
-3.  **Fact-Check Corrected Draft:** Direct the `Fact_Checker` to review the new draft against the source documents to ensure no new factual errors were introduced.
-4.  **Finalize Content:** If the `Fact_Checker` found new issues, direct the `Document_Writer` to make final adjustments.
-5.  **Save Final Output:** Direct the `Writer_User_Proxy` to save the final, corrected, and fact-checked content.
+2.  **Generate Concise Revision Request:** Direct the `Prompt_Writer` to create a clean, direct prompt for the `Document_Writer` based on the feedback and the existing draft.
+3.  **Generate Corrected Draft:** Direct the `Document_Writer` to generate a new DRAFT of the content, focusing on fixing the issues from the feedback.
+4.  **Fact-Check Corrected Draft:** Direct the `Fact_Checker` to review the new draft against the source documents to ensure no new factual errors were introduced.
+5.  **Generate Final Revision Request:** If the `Fact_Checker` finds issues, direct the `Prompt_Writer` to create a concise, actionable prompt for the `Document_Writer` to revise the draft.
+6.  **Finalize Content:** If the `Fact_Checker` found new issues, direct the `Document_Writer` to make final adjustments.
+7.  **Save Final Output:** Direct the `Writer_User_Proxy` to save the final, corrected, and fact-checked content.
 """
     )
 
@@ -78,6 +81,38 @@ Your plan MUST follow this structure:
         - "The draft includes the service 'Speech Therapy', which is not mentioned in any of the source documents."
         """
     )
+
+    prompt_writer = autogen.ConversableAgent(
+    name="Prompt_Writer",
+    llm_config=llm_config,
+    system_message="""You are a prompt engineering specialist. Your primary role is to convert complex, critical feedback into simple, neutral, and actionable instructions for a `Document_Writer` agent.
+
+Your input will arrive in one of two forms:
+1.  **A conversational history** from an internal `Fact_Checker`, containing a draft and a list of required corrections.
+2.  **A formal feedback report** from an external `Validator`, which critiques a previous draft. This report may contain harsh language like 'FAIL', 'CRITICAL', or 'hallucination'.
+
+Regardless of the input's source or tone, your task is always the same:
+1.  Identify the full text of the document that needs revision.
+2.  Identify all the required changes from the feedback.
+3.  Translate these changes into a concise, neutral to-do list. Do not use negative words like 'fail' or 'critical' in your instructions.
+4.  Combine the document and the to-do list into a single, clean prompt.
+
+**CRITICAL:** Your entire output MUST be a single markdown block starting with the tag [REVISION_REQUEST]. Do NOT include any conversational text, apologies, or explanations. Your entire response must be ONLY the formatted request.
+
+**Example Output Format:**
+[REVISION_REQUEST]
+**Document to Revise:**
+<Paste the full text of the original draft document here>
+
+**Corrections Required:**
+- For the 'Home Address', please replace the current text with 'Information not available in source documents'.
+- The NHS Number should be formatted without dashes.
+- The formatting for the 'Parent or Carer 2' heading should be updated for consistency.
+
+Please provide only the full, revised document based on these instructions.
+""",
+    human_input_mode="NEVER",
+)
     
     
     # Register tools for the UserProxyAgent to call
@@ -92,7 +127,7 @@ Your plan MUST follow this structure:
 
     # Create the group chat and manager
     groupchat = GroupChat(
-        agents=[writer_user_proxy, document_writer, planner, fact_checker],
+        agents=[writer_user_proxy, document_writer, planner, fact_checker, prompt_writer],
         messages=[],
         max_round=100
     )

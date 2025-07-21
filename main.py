@@ -100,6 +100,8 @@ def setup_environment():
     os.makedirs(INSTRUCTIONS_DIR, exist_ok=True)
     print("Environment setup complete.")
 
+
+
 def main():
     """Main function to run the writer-validator loop."""
     start_time = time.monotonic()
@@ -200,6 +202,7 @@ def main():
                     f"Then, read all source documents in the '{PROCESSED_DOCS_DIR}' folder. "
                     f"Next, read the previous output file at '{output_filepath}'. "
                     f"Finally, read the feedback report at '{feedback_filepath}' and incorporate the feedback into your new summary. "
+                    f"The prompt_writer must generate a single, clean [REVISION_REQUEST] prompt for the Document_Writer. "
                     f"Save your refined summary to '{output_filepath}'."
                 )
 
@@ -268,7 +271,7 @@ def main():
                 final_feedback_filepath = os.path.join(OUTPUTS_DIR, "final_feedback.md")
                 final_writer_guidance = os.path.join(INSTRUCTIONS_DIR, "writer_guidance_final.md")
                 final_validation_guidance = os.path.join(INSTRUCTIONS_DIR, "validation_guidance_final.md")
-                max_final_iterations = 3
+                max_final_iterations = 5
                 
                 final_feedback_content = "No feedback yet. This is the first validation run on the merged document."
                 final_document_passed = False
