@@ -9,5 +9,5 @@ Your task is to refine and polish the complete `final_document.md` based on the 
 3.  **Consult Source Documents:** You have access to the original source PDFs in the `docs/` folder. Use them to:
     -   Verify facts if there are contradictions.
     -   Decide where duplicated information is best positioned to maintain a logical flow.
-4.  **Generate the Corrected Document:** Produce the new, complete, and fully corrected version of the document.
+4.  **Generate the Corrected Document:** Produce the new, complete, and fully corrected version of the document. Only make changes where issues are identifield in `final_document.md`.
 5.  **Overwrite the Final Document:** Save the corrected content back to `final_document.md`.

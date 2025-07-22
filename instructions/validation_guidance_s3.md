@@ -32,7 +32,6 @@ The "Golden Thread" is the logical link between Needs, Provisions, and Outcomes.
 3.  **Outcomes must be supported by Provisions:** Are the outcomes achievable based on the provisions listed?
 
 ### Provision Specificity (Major)
-
 Vague or unspecified provision is a **Major** error. For EVERY provision listed, you must check if it contains the following five elements:
 1.  **Support required** (What is it?)
 2.  **Provider qualification** (Who provides it?)
@@ -42,7 +41,6 @@ Vague or unspecified provision is a **Major** error. For EVERY provision listed,
 *   A provision missing any of these key details (e.g., "regular support from a TA") is not specific enough and constitutes a **Major** error.
 
 ### SMART Outcomes (Major)
-
 Outcomes that are not SMART are a **Major** error. For EVERY outcome, check if it is:
 *   **S**pecific (Clear and well-defined)
 *   **M**easurable (Progress can be tracked)
@@ -51,16 +49,21 @@ Outcomes that are not SMART are a **Major** error. For EVERY outcome, check if i
 *   **T**ime-bound (Has a timeframe)
 *   An outcome like "To improve social skills" is not SMART. A SMART outcome would be: "By the end of the term, X will initiate a conversation with a peer during unstructured break time on at least 3 occasions per week."
 
-### Section Structure (MAJOR)
-
+### Section Structure (CRITICAL)
 *   The file MUST contain all four main headings: `Communication and Interaction`, `Cognition and Learning`, `Social, Emotional and Mental Health Difficulties`, and `Sensory and/or Physical Needs`.
-*   Under each main heading, it MUST contain the three sub-headings: `Identified Special Educational Need(s)`, `Provision Relating to That Need`, and `Intended Outcomes`. Missing structure is a **MAJOR** error.
+*   Under each main heading, needs MUST be written in the following format:
+**Special Educational Need 1:**
+**Provision: [provision which relates to need 1]**
+**Outcome: [outcome which relates to need 1]**
+Deviation from this structure is a **CRITICAL** error.
 
 ## Feedback Report
-
 Generate a `feedback.md` report.
 *   State if `output_s3.md` **PASSES** or **FAILS**.
 *   This section will likely have many issues. Prioritize **CRITICAL** errors.
-*   Example: "CRITICAL - Golden Thread Broken: The need 'difficulty processing verbal instructions' has no corresponding provision."
-*   Example: "CRITICAL - Provision Not Specific: The provision 'Access to SALT' under Communication and Interaction is missing frequency, duration, and staff ratio."
-*   Example: "CRITICAL - Outcome Not SMART: The outcome 'To feel happier in school' is not measurable or time-bound."
+*   Example: "Major - Golden Thread Broken: The need 'difficulty processing verbal instructions' has no corresponding provision."
+*   Example: "Major - Provision Not Specific: The provision 'Access to SALT' under Communication and Interaction is missing frequency, duration, and staff ratio."
+*   Example: "Major - Outcome Not SMART: The outcome 'To feel happier in school' is not measurable or time-bound."
+
+**Important** - Missing information should be flagged, but do not suggest that the writer should state “Not known” when a field has been left blank. Do NOT suggest that field headings are removed.
+Where detail is missing for a provision or outcome, the document should NEVER state 'Not specified in source'. Example: if there is no Staff/student ratio for a provision, omit this completely from the output.

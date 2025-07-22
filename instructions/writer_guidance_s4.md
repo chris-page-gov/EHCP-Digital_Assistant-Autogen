@@ -41,26 +41,32 @@ You must create **only one file** in this stage. Use the `save_document_section`
 
 The file `output_s4.md` must be structured with the following three sub-headings.
 
-### Health Care Needs Which Relate to Their Special Educational Needs
+**Health Care Need 1:**
+**Provision:** [provision which relates to need 1]
+**Outcome:** [outcome which relates to need 1]
 
-[This should capture the child or young person’s health care needs that are directly related to their special educational needs. Describe the need and its impact on their education.
-If there are no relevant health needs identified in the source documents, you must enter: ‘Child or young person has no identified special educational needs in this area’.]
+**Health Care Need 2:**
+**Provision:** [provision which relates to need 2]
+**Outcome:** [outcome which relates to need 2]
 
-### Health Care Provision Reasonably Required
+**Health Education Need 3:**
+................
 
-[**CRITICAL:** Provision must be specified for **each and every health need** identified above. The provision must be specific, detailed, and quantified. It must clearly state how it will support the achievement of the outcomes. Include the following five elements for each provision where available in the source documents:
-1.  **Support required:** What specific support or intervention is needed.
-2.  **Who will provide it:** The required qualification or level of expertise of the provider.
-3.  **Staff/student ratio:** e.g., 1:1, 2:1, or group work.
-4.  **How often:** The frequency, e.g., daily, weekly, termly.
-5.  **How long for:** The duration for each session, e.g., hours or minutes.]
+## Content guidelines for Needs, Provisions, and Outcomes:
 
-### Outcomes
+**Health Care Needs Which Relate to Their Special Educational Needs**
+[This should capture the child or young person’s health care needs that are directly related to their special educational needs. Each need should be concise and specific .Describe the need and its impact on their education.
+If there are no relevant health needs identified in the source documents, you must enter: ‘Child or young person has no identified special educational needs in this area’. Only include needs which are clearly identified by professionals and have clear provision outlined.]
 
-[**CRITICAL:** An outcome is the benefit or difference made to an individual as a result of an intervention. All outcomes must be **SMART**:
-- **S**pecific: Clear and well-defined.
-- **M**easurable: Progress can be monitored with clear metrics.
-- **A**chievable: Realistic given the provisions.
-- **R**elevant: Appropriate for the child's abilities.
-- **T**ime-bound: A clear timeframe is specified.
-The outcome should be personal and not expressed from a service perspective. It must be clearly underpinned by the provision linked to it. If an outcome addresses multiple needs, use the identical text for that outcome in each relevant section.]
+**Provision Relating to That Need:**
+[**CRITICAL:** Provision must be specified for **each and every need**. The provision must be specific, detailed, and quantified. Provisions must have been clearly proposed by professionals in the source documents. Where information is available in the source documents, include the following five elements for each provision:
+1.  Support required: What specific support or intervention is needed.
+2.  Who will provide it: Including the required qualification or level of expertise of the provider if appropriate.
+3.  Staff/student ratio: e.g., 1:1, 2:1, or 6:1 group work (if appropriate).
+4.  How often: The frequency, e.g., daily, weekly, termly.
+5.  How long for: The duration for each session, e.g., hours or minutes.
+Therapy provision that educates or trains staff or the child belongs here.]
+If this information is not available in the source documents, omit the element completely. Example: do NOT state 'Staff student ratio: Not specified in source'.
+
+**Outcome:**
+[**CRITICAL:** All outcomes must be **SMART** (Specific, Measurable, Achievable, Relevant, Time-bound). The outcome should be personal and clearly linked to the provision. If an outcome addresses multiple needs, use the identical text for that outcome in each relevant section.]
