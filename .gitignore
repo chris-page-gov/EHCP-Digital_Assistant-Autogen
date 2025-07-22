@@ -34,5 +34,7 @@ config.py
 
 # Other files that are not part of the source code or configuration
 /archive/
+/docs/
+/appendices/
 
 
