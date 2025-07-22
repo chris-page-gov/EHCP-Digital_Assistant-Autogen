@@ -19,17 +19,17 @@ def create_writer_team(llm_config: Dict) -> GroupChatManager:
     """
     writer_user_proxy = UserProxyAgent(
         name="Writer_User_Proxy",
-        is_termination_msg=lambda msg: isinstance(msg.get("content"), str) and msg.get("content", "").strip() == "FINAL",
+        is_termination_msg=lambda x: x.get("content", "") and "FINAL" in x.get("content", ""),
         human_input_mode="NEVER",
-        max_consecutive_auto_reply=10,
+        max_consecutive_auto_reply=20,
         code_execution_config={"work_dir": "outputs", "use_docker": False},
         llm_config=llm_config,
-        system_message="""You are the user proxy and tool executor for the writer team.
-        Your role is to execute file operations precisely when instructed by the Planner.
-        - When a task begins, you will read the files as instructed.
-        - When the Planner confirms a document is APPROVED and instructs you to save, you MUST use the `save_markdown_file` tool to save the final content.
-        - After successfully saving the file, your response MUST be only the single word 'FINAL'. This is your only function after a successful save.
-        """
+        system_message="You are the user proxy for the writer team. You orchestrate the task by calling tools. "
+                   "You will call file tools to read guidance, source documents, and previous outputs. "
+                   "First, find and read the guidance. Then find and read the source documents. "
+                   "Provide the collected content to the Document_Writer. "
+                   "After the writer generates the content, you MUST use the save_markdown_file tool to save it. "
+                   "After saving the file, reply with the word 'FINAL' to end the conversation."
     )
 
     document_writer = ConversableAgent(
@@ -44,40 +44,26 @@ def create_writer_team(llm_config: Dict) -> GroupChatManager:
     planner = ConversableAgent(
         name="Planner",
         llm_config=llm_config,
-        system_message="""You are a meticulous planner and workflow manager. Your primary role is to create a precise, step-by-step plan for the team. You do not write content or call tools yourself.
-
-                        Your output is typically ONLY the plan. However, you have one critical exception to this rule for managing the end of the workflow.
-
-                        ---
-                        **CRITICAL RULE: Workflow Management and Termination**
-
-                        Your most important responsibility is to recognize when the writing task is complete.
-                        1.  The task is complete ONLY when the `Fact_Checker` agent's message is "APPROVED".
-                        2.  When you see "APPROVED", your next action is NOT to create a new plan.
-                        3.  Instead, your response must be to explicitly instruct the `Writer_User_Proxy` to perform the final save and terminate the conversation.
-
-                        **Your required final response must be:**
-                        "The document has been approved. Writer_User_Proxy, please save the final document and then reply with the single word 'FINAL'."
-
-                        This instruction takes priority over all other planning functions once the 'APPROVED' state is reached.
-                        ---
+        system_message="""You are a meticulous planner. Your role is to create a precise, step-by-step plan for the team. You do not write content or call tools yourself. Your output must be ONLY the plan.
 
                         **Planning for Initial Creation (Iteration 1):**
-                        When the initial task is given, your plan MUST follow this structure:
+                        Your plan MUST follow this structure:
                         1.  **Read Guidance & Sources:** Direct the `Writer_User_Proxy` to read the writer's guidance and all source documents from the `processed_docs` folder.
                         2.  **Draft Content:** Direct the `Document_Writer` to synthesize the gathered information into a DRAFT of the document section.
                         3.  **Fact-Check Draft:** Direct the `Fact_Checker` to review the draft produced by the `Document_Writer` against the source document content. The `Fact_Checker` must either state "APPROVED" or provide a list of corrections.
                         4.  **Generate Revision Request:** If the `Fact_Checker` finds issues, direct the `Prompt_Writer` to create a concise, actionable prompt for the `Document_Writer` to revise the draft.
-                        5.  **Finalize Content:** If corrections are needed, direct the `Document_Writer` to create a corrected version and send it back to the `Fact_Checker`. This loop continues until the draft is approved.
+                        5.  **Finalize Content:** If corrections are needed, direct the `Document_Writer` to create a final, corrected version. If the draft was approved, this step can be skipped.
+                        6.  **Save Output:** Direct the `Writer_User_Proxy` to save the final, fact-checked content to the specified output file.
 
                         **Planning for Correction (Based on Validator Feedback):**
-                        When the task is to correct a failed validation, your plan MUST follow this structure:
+                        Your plan MUST follow this structure:
                         1.  **Analyze Feedback & Read Files:** Direct the `Writer_User_Proxy` to read the feedback and the existing incorrect output file.
-                        2.  **Generate Concise Revision Request:** Direct the `Prompt_Writer` to create a clean, direct prompt for the `Document_Writer`.
+                        2.  **Generate Concise Revision Request:** Direct the `Prompt_Writer` to create a clean, direct prompt for the `Document_Writer` based on the feedback and the existing draft.
                         3.  **Generate Corrected Draft:** Direct the `Document_Writer` to generate a new DRAFT of the content, focusing on fixing the issues from the feedback.
                         4.  **Fact-Check Corrected Draft:** Direct the `Fact_Checker` to review the new draft against the source documents to ensure no new factual errors were introduced.
-                        5.  **Generate Revision Request:** If the `Fact_Checker` finds issues, direct the `Prompt_Writer` to create a concise, actionable prompt for the `Document_Writer` to revise the draft.
-                        6.  **Finalize Content:** If corrections are needed, direct the `Document_Writer` to create a corrected version and send it back to the `Fact_Checker`. This loop continues until the draft is approved.
+                        5.  **Generate Final Revision Request:** If the `Fact_Checker` finds issues, direct the `Prompt_Writer` to create a concise, actionable prompt for the `Document_Writer` to revise the draft.
+                        6.  **Finalize Content:** If the `Fact_Checker` found new issues, direct the `Document_Writer` to make final adjustments.
+                        7.  **Save Final Output:** Direct the `Writer_User_Proxy` to save the final, corrected, and fact-checked content.
                         
                         """
     )
@@ -161,7 +147,7 @@ def create_writer_team(llm_config: Dict) -> GroupChatManager:
     groupchat = GroupChat(
         agents=[writer_user_proxy, document_writer, planner, fact_checker, prompt_writer],
         messages=[],
-        max_round=25
+        max_round=40
     )
     
     manager = GroupChatManager(
@@ -182,7 +168,7 @@ def create_final_writer_team(llm_config: Dict) -> GroupChatManager:
         name="Final_Writer_Proxy",
         is_termination_msg=lambda x: x.get("content", "") and "FINAL" in x.get("content", ""),
         human_input_mode="NEVER",
-        max_consecutive_auto_reply=20,
+        max_consecutive_auto_reply=30,
         code_execution_config={"use_docker": False},
         llm_config=llm_config,
         system_message="You are the user proxy for the final polishing team. "
