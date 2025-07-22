@@ -101,7 +101,6 @@ def setup_environment():
     print("Environment setup complete.")
 
 
-
 def main():
     """Main function to run the writer-validator loop."""
     start_time = time.monotonic()
@@ -141,7 +140,7 @@ def main():
             "base_url": azure_endpoint,
             "api_type": "azure",
             "api_version": azure_api_version,
-            "price": [0.00146, 0.00583]
+            #"price": [0.00146, 0.00583]
         }
     ]
     llm_config = {

@@ -18,7 +18,7 @@ def create_validator_team(llm_config: Dict) -> GroupChatManager:
         name="Validator_User_Proxy",
         is_termination_msg=lambda x: x.get("content", "") and "FINAL" in x.get("content", ""),
         human_input_mode="NEVER",
-        max_consecutive_auto_reply=10,
+        max_consecutive_auto_reply=20,
         code_execution_config={"use_docker": False},
         llm_config=llm_config,
         system_message="You are the user proxy for the validation team. "
@@ -49,7 +49,7 @@ def create_validator_team(llm_config: Dict) -> GroupChatManager:
     groupchat = GroupChat(
         agents=[validator_user_proxy, quality_assessor],
         messages=[],
-        max_round=10
+        max_round=20
     )
     
     manager = GroupChatManager(
