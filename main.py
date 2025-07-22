@@ -141,6 +141,7 @@ def main():
             "base_url": azure_endpoint,
             "api_type": "azure",
             "api_version": azure_api_version,
+            "price": [0.00146, 0.00583]
         }
     ]
     llm_config = {
@@ -207,7 +208,6 @@ def main():
                 )
 
             writer_manager.initiate_chat(recipient=writer_manager, message=writer_task)
-            #all_agents_created.extend(writer_manager.groupchat.agents)
             loop_logger.info(f"Section {section_number}, Iteration {iteration}: Writer team completed.")
 
             # --- VALIDATOR TEAM ---
@@ -220,7 +220,6 @@ def main():
                 f"3. Save your feedback report to '{feedback_filepath}'."
             )
             validator_manager.initiate_chat(recipient=validator_manager, message=validator_task)
-            #all_agents_created.extend(validator_manager.groupchat.agents)
             loop_logger.info(f"Section {section_number}, Iteration {iteration}: Validator team completed.")
 
             # --- ASSESSMENT ---
@@ -235,11 +234,14 @@ def main():
             logging.info(f"Section {section_number} Issues Found: Critical={issue_counts['critical']}, Major={issue_counts['major']}, Minor={issue_counts['minor']}")
             loop_logger.info(f"Section {section_number}, Iteration {iteration} Result: Critical={issue_counts['critical']}.")
 
-            if issue_counts['critical'] == 0:
+            if iteration >= 2 and issue_counts['critical'] == 0:
                 logging.info(f"\n✅ Success! Section {section_number} passed validation.")
                 loop_logger.info(f"===== Section {section_number} PASSED =====")
                 section_passed = True
                 break # Exit inner loop and proceed to the next section
+            elif iteration == 1:
+                logging.info(f"\n🔄 First iteration complete. Proceeding to mandatory refinement iteration.")
+                loop_logger.info(f"Section {section_number}, Iteration 1 complete. Feedback will be used in Iteration 2.")
             else:
                 logging.warning(f"\n❌ Critical issues found for Section {section_number}. Retrying...")
                 loop_logger.warning(f"Section {section_number}, Iteration {iteration} FAILED. Retrying.")
@@ -253,59 +255,59 @@ def main():
 
 
     # Final valiadation phase
-        if not process_completed_successfully:
-            logging.error("Process stopped before finalization due to failures in sectional generation.")
-            loop_logger.error("Aborting. Finalization phase skipped.")
+    if not process_completed_successfully:
+        logging.error("Process stopped before finalization due to failures in sectional generation.")
+        loop_logger.error("Aborting. Finalization phase skipped.")
+    else:
+        logging.info(f"\n{'#'*25} STARTING FINALIZATION PHASE {'#'*25}")
+        loop_logger.info("===== Starting Finalization Phase: Merging and Holistic Review =====")
+
+        final_doc_filename = "final_document.md"
+        merge_success = merge_output_files(total_sections, OUTPUTS_DIR, final_doc_filename)
+
+        if not merge_success:
+            logging.error("Failed to merge sectional documents. Aborting finalization.")
+            loop_logger.error("Process stopped: Merge step failed.")
         else:
-            logging.info(f"\n{'#'*25} STARTING FINALIZATION PHASE {'#'*25}")
-            loop_logger.info("===== Starting Finalization Phase: Merging and Holistic Review =====")
+            final_output_filepath = os.path.join(OUTPUTS_DIR, final_doc_filename)
+            final_feedback_filepath = os.path.join(OUTPUTS_DIR, "final_feedback.md")
+            final_writer_guidance = os.path.join(INSTRUCTIONS_DIR, "writer_guidance_final.md")
+            final_validation_guidance = os.path.join(INSTRUCTIONS_DIR, "validation_guidance_final.md")
+            max_final_iterations = 5
+            
+            final_feedback_content = "No feedback yet. This is the first validation run on the merged document."
+            final_document_passed = False
 
-            final_doc_filename = "final_document.md"
-            merge_success = merge_output_files(total_sections, OUTPUTS_DIR, final_doc_filename)
+            for i in range(max_final_iterations):
+                iteration = i + 1
+                logging.info(f"\n{'='*20} FINALIZATION - ITERATION {iteration} {'='*20}")
+                loop_logger.info(f"--- Finalization Iteration {iteration} START ---")
 
-            if not merge_success:
-                logging.error("Failed to merge sectional documents. Aborting finalization.")
-                loop_logger.error("Process stopped: Merge step failed.")
-            else:
-                final_output_filepath = os.path.join(OUTPUTS_DIR, final_doc_filename)
-                final_feedback_filepath = os.path.join(OUTPUTS_DIR, "final_feedback.md")
-                final_writer_guidance = os.path.join(INSTRUCTIONS_DIR, "writer_guidance_final.md")
-                final_validation_guidance = os.path.join(INSTRUCTIONS_DIR, "validation_guidance_final.md")
-                max_final_iterations = 5
-                
-                final_feedback_content = "No feedback yet. This is the first validation run on the merged document."
-                final_document_passed = False
+                validator_manager = create_final_validator_team(llm_config)
+                #all_agents_created.extend(validator_manager.groupchat.agents)
+                validator_task = (f"Your task is a holistic review of the document at '{final_output_filepath}'. Read your validation rules from '{final_validation_guidance}'. Generate a feedback report and save it to '{final_feedback_filepath}'.")
+                validator_manager.initiate_chat(recipient=validator_manager, message=validator_task)
 
-                for i in range(max_final_iterations):
-                    iteration = i + 1
-                    logging.info(f"\n{'='*20} FINALIZATION - ITERATION {iteration} {'='*20}")
-                    loop_logger.info(f"--- Finalization Iteration {iteration} START ---")
+                final_feedback_content = read_markdown_file(final_feedback_filepath)
+                issue_counts = parse_feedback_and_count_issues(final_feedback_content)
+                logging.info(f"Final Doc Issues Found: Critical={issue_counts['critical']}, Major={issue_counts['major']}, Minor={issue_counts['minor']}")
 
-                    validator_manager = create_final_validator_team(llm_config)
-                    #all_agents_created.extend(validator_manager.groupchat.agents)
-                    validator_task = (f"Your task is a holistic review of the document at '{final_output_filepath}'. Read your validation rules from '{final_validation_guidance}'. Generate a feedback report and save it to '{final_feedback_filepath}'.")
-                    validator_manager.initiate_chat(recipient=validator_manager, message=validator_task)
+                if issue_counts['critical'] == 0:
+                    logging.info("\n✅ Success! Final document has passed holistic validation.")
+                    loop_logger.info("===== Final Document PASSED =====")
+                    final_document_passed = True
+                    break
+                else:
+                    logging.warning(f"\n❌ Critical issues found in final document. Starting correction...")
+                    writer_manager = create_final_writer_team(llm_config)
+                    #all_agents_created.extend(writer_manager.groupchat.agents)
+                    writer_task = (f"The merged document has critical consistency/duplication errors. Your task is to correct the document at '{final_output_filepath}'. Read the correction guidance from '{final_writer_guidance}'. Carefully review the feedback provided below. Load, correct, and re-save the final document.\n\n--- FEEDBACK TO ADDRESS ---\n{final_feedback_content}\n--- END FEEDBACK ---")
+                    writer_manager.initiate_chat(recipient=writer_manager, message=writer_task)
 
-                    final_feedback_content = read_markdown_file(final_feedback_filepath)
-                    issue_counts = parse_feedback_and_count_issues(final_feedback_content)
-                    logging.info(f"Final Doc Issues Found: Critical={issue_counts['critical']}, Major={issue_counts['major']}, Minor={issue_counts['minor']}")
-
-                    if issue_counts['critical'] == 0:
-                        logging.info("\n✅ Success! Final document has passed holistic validation.")
-                        loop_logger.info("===== Final Document PASSED =====")
-                        final_document_passed = True
-                        break
-                    else:
-                        logging.warning(f"\n❌ Critical issues found in final document. Starting correction...")
-                        writer_manager = create_final_writer_team(llm_config)
-                        #all_agents_created.extend(writer_manager.groupchat.agents)
-                        writer_task = (f"The merged document has critical consistency/duplication errors. Your task is to correct the document at '{final_output_filepath}'. Read the correction guidance from '{final_writer_guidance}'. Carefully review the feedback provided below. Load, correct, and re-save the final document.\n\n--- FEEDBACK TO ADDRESS ---\n{final_feedback_content}\n--- END FEEDBACK ---")
-                        writer_manager.initiate_chat(recipient=writer_manager, message=writer_task)
-
-                if not final_document_passed:
-                    logging.error(f"\n🚫 FAILED: Final document could not be corrected after {max_final_iterations} iterations.")
-                    loop_logger.error("===== Final Document FAILED TO PASS. =====")
-                    process_completed_successfully = False
+            if not final_document_passed:
+                logging.error(f"\n🚫 FAILED: Final document could not be corrected after {max_final_iterations} iterations.")
+                loop_logger.error("===== Final Document FAILED TO PASS. =====")
+                process_completed_successfully = False
 
     
     

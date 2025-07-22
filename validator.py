@@ -8,6 +8,8 @@ from utils import (
     OUTPUTS_DIR,
 )
 
+# Create main validator team with agents for validation and quality assessment.
+# This team is responsible for validating the document against criteria and generating a feedback report.
 def create_validator_team(llm_config: Dict) -> GroupChatManager:
     """
     Creates and configures the validator multi-agent team.
@@ -16,7 +18,7 @@ def create_validator_team(llm_config: Dict) -> GroupChatManager:
         name="Validator_User_Proxy",
         is_termination_msg=lambda x: x.get("content", "") and "FINAL" in x.get("content", ""),
         human_input_mode="NEVER",
-        max_consecutive_auto_reply=30,
+        max_consecutive_auto_reply=10,
         code_execution_config={"use_docker": False},
         llm_config=llm_config,
         system_message="You are the user proxy for the validation team. "
@@ -58,11 +60,14 @@ def create_validator_team(llm_config: Dict) -> GroupChatManager:
     
     return manager
 
+
+# Create final validator team for holistic review.
+# This team is responsible for the final validation of the document, ensuring consistency and logical flow.
+# It will produce a structured feedback report based on final validation guidelines.
 def create_final_validator_team(llm_config: Dict) -> GroupChatManager:
     """
     Creates and configures the FINAL validator team for holistic review.
     """
-    # This proxy's system message is generic and can be reused.
     final_validator_proxy = UserProxyAgent(
         name="Final_Validator_Proxy",
         is_termination_msg=lambda x: x.get("content", "") and "FINAL" in x.get("content", ""),
@@ -75,7 +80,6 @@ def create_final_validator_team(llm_config: Dict) -> GroupChatManager:
                        "Reply with 'FINAL' after the report is saved."
     )
 
-    # This agent's instructions are highly specialized for the final review.
     holistic_assessor = ConversableAgent(
         name="Holistic_Assessor",
         llm_config=llm_config,
