@@ -1,11 +1,3 @@
-Of course! You can add the Mermaid diagram directly into your `README.md` file by wrapping the diagram's code in a `mermaid` code block. Most modern Git platforms like GitHub and GitLab will automatically render this as a visual chart.
-
-Here is the complete, updated `README.md` file with the "High-Level Workflow" section and the diagram correctly integrated. The existing formatting is fully preserved.
-
-You can simply **copy this entire block of text and paste it directly into your `README.md` file.**
-
----
-
 # AutoGen Document Assembly & Finalization Engine
 
 This project showcases an advanced, multi-phase autonomous agent system built with Microsoft's AutoGen framework. It orchestrates a complex workflow to generate, validate, and polish documents from source materials, ensuring a high degree of quality and consistency.
