@@ -57,6 +57,7 @@ H2 is for any other social care provision reasonably required by the learning di
 
 ### Document Structure (CRITICAL)
 Needs, provisions and outcomes MUST be written in the following format:
+**Strengths**
 **Social Care Need 1:**
 **H1 Provision: [H1 Social Care provision which relates to need 1]**
 **H2 Provision: [H2 Social Care provision which relates to need 1]**

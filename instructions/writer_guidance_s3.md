@@ -54,6 +54,8 @@ The file `output_s3.md` must be structured with the following four main areas of
 
 [CRITICAL] Content within each area of need should be structured as follows:
 
+**Strengths** [any strengths which are identified under the area of need]
+
 **Special Educational Need 1:**
 **Provision:** [provision which relates to need 1]
 **Outcome:** [outcome which relates to need 1]

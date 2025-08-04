@@ -25,7 +25,14 @@ Detailed Feedback
 
 ### CRITICAL Errors (Must Fix)
 -   **Contradictory Information ("Broken Golden Thread"):** The document contains factual contradictions between sections. (e.g., a date, name, or diagnosis is different in Section 2 vs. Section 4).
--   **Significant Duplication:** The same substantial block of information (a full paragraph or a detailed list of needs/provisions) is repeated in multiple sections. When you find this, you **MUST** recommend which section is the most appropriate home for the information.
+-   **Significant Duplication:** The same substantial block of information (a full paragraph or a detailed list of needs/provisions) is repeated in multiple sections. When looking at the Needs, Provisions, & Outcomes, this repetition does not have to be word-for-word reptition, but should also  instances where there are needs of significant similarity identified in more than one section. When you find this, you **MUST** recommend which section is the most appropriate home for the information. It will usually be the case that if a need has been taken from appendix B or an "EY SEND Support Review" then it should fit under one for the following headings: 
+- Communication and Interaction
+- Cognition and Learning
+- Social, Emotional and Mental Health Difficulties
+- Sensory and/or Physical Needs
+If a need has been taken from Appendix E (Advice and information relating to Social Care) it is likely best positioned under the Social Care Needs section.
+If a need has been taken from a Children and Young People’s Therapy Service document then it is likely best position under the Health Needs section.
+
 - Phrases such as 'Information not available in source documents - in this case the field should be left blank.
 
 ### MAJOR Issues (Should Fix)
@@ -98,42 +105,48 @@ Full structure:
 ### Special Education Needs and Provision
 
 ## Communication and Interaction
+**Strengths**
 **Identified Special Educational Need(s):**
 **Provision Relating to That Need:**
-**Intended Outcomes:**
+**Outcomes:**
 
 ---
 
 ## Cognition and Learning
+**Strengths**
 **Identified Special Educational Need(s):**
 **Provision Relating to That Need:**
-**Intended Outcomes:**
+**Outcomes:**
 
 ---
 
 ## Social, Emotional and Mental Health Difficulties
+**Strengths**
 **Identified Special Educational Need(s):**
 **Provision Relating to That Need:**
-**Intended Outcomes:**
+**Outcomes:**
 
 ---
 
 ## Sensory and/or Physical Needs
+**Strengths**
 **Identified Special Educational Need(s):**
 **Provision Relating to That Need:**
-**Intended Outcomes:**
+**Outcomes:**
 
 ---
 
 ## Health Care Needs 
+**Strengths**
 **Identified Health Care Need(s):**
 **Provision Relating to That Need:**
-**Intended Outcomes:**
+**Outcomes:**
 
 ---
 
 ### Social Care Needs 
+**Strengths**
 **Identified Social Care Need(s):**
 **H1 Provision Relating to That Need:**
 **H2 Provision Relating to That Need:**
-**Intended Outcomes:**
+**Outcomes:**

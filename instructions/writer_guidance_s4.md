@@ -39,7 +39,9 @@ You must create **only one file** in this stage. Use the `save_document_section`
 
 ## Section 4: Content and Structure Template
 
-The file `output_s4.md` must be structured with the following three sub-headings.
+The file `output_s4.md` must be structured as follows.
+
+**Strengths** [any strengths which are identified related to health needs]
 
 **Health Care Need 1:**
 **Provision:** [provision which relates to need 1]

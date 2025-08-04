@@ -52,6 +52,7 @@ Outcomes that are not SMART are a **Major** error. For EVERY outcome, check if i
 ### Section Structure (CRITICAL)
 *   The file MUST contain all four main headings: `Communication and Interaction`, `Cognition and Learning`, `Social, Emotional and Mental Health Difficulties`, and `Sensory and/or Physical Needs`.
 *   Under each main heading, needs MUST be written in the following format:
+**Strengths**
 **Special Educational Need 1:**
 **Provision: [provision which relates to need 1]**
 **Outcome: [outcome which relates to need 1]**

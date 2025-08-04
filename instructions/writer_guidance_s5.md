@@ -40,6 +40,8 @@ You must create **only one file** in this stage. Use the `save_document_section`
 
 The file `output_s5.md` must be structured as follows. Each need-provision-outcome should be a distinct section.
 
+**Strengths** [any strengths which are identified under the category of social care needs]
+
 **Social Care Need 1:**
 **H1 Provision:** [H1 Social Care provision which relates to need 1]
 **H2 Provision:** [H2 Social Care provision which relates to need 1]

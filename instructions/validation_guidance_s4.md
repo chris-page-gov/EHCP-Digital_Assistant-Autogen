@@ -49,6 +49,7 @@ Minor: [Number of minor issues found]
 
 ### Document Structure (CRITICAL)
 Needs, provisions and outcomes MUST be written in the following format:
+**Strengths**
 **Health Care Need 1:**
 **Provision: [provision which relates to need 1]**
 **Outcome: [outcome which relates to need 1]**
