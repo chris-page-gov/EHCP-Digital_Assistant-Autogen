@@ -107,7 +107,7 @@ def main():
     run_timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     setup_logging(run_timestamp)
 
-    litellm.max_retries = 5
+    litellm.max_retries = 10
 
     loop_logger = logging.getLogger('LoopTracer')
     loop_logger.info("Main process started.")
@@ -146,7 +146,7 @@ def main():
     ]
     llm_config = {
         "config_list": config_list, 
-        "timeout": 300,
+        "timeout": 240,
         }
     
     config_list_fast = [
@@ -161,7 +161,7 @@ def main():
 
     llm_config_fast = {
         "config_list": config_list_fast, 
-        "timeout": 300,
+        "timeout": 240,
         }
     
     #all_agents_created = []
