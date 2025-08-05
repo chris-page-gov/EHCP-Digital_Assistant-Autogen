@@ -42,17 +42,17 @@ The file `output_s5.md` must be structured as follows. Each need-provision-outco
 
 **Strengths** [any strengths which are identified under the category of social care needs]
 
-**Social Care Need 1:**
+**Social Care Need 1:** [a clearly identified social care need]
 **H1 Provision:** [H1 Social Care provision which relates to need 1]
 **H2 Provision:** [H2 Social Care provision which relates to need 1]
 **Outcome:** [outcome which relates to need 1]
 
-**Social Care Need 2:**
+**Social Care Need 2:** [a clearly identified social care need]
 **H1 Provision:** [H1 Social Care provision which relates to need 2]
 **H2 Provision:** [H2 Social Care provision which relates to need 2]
 **Outcome:** [outcome which relates to need 2]
 
-**Social Care Need 3:**
+**Social Care Need 3:** [a clearly identified social care need]
 ................
 
 

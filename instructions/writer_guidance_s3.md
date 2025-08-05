@@ -56,15 +56,15 @@ The file `output_s3.md` must be structured with the following four main areas of
 
 **Strengths** [any strengths which are identified under the area of need]
 
-**Special Educational Need 1:**
+**Special Educational Need 1:** [a clearly identified special educational need]
 **Provision:** [provision which relates to need 1]
 **Outcome:** [outcome which relates to need 1]
 
-**Special Educational Need 2:**
+**Special Educational Need 2:** [a clearly identified special educational need]
 **Provision:** [provision which relates to need 2]
 **Outcome:** [outcome which relates to need 2]
 
-**Special Education Need 3:**
+**Special Education Need 3:** [a clearly identified special educational need]
 ................
 
 ## Content guidelines for Needs, Provisions, and Outcomes:

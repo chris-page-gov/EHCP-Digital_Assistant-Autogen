@@ -43,15 +43,15 @@ The file `output_s4.md` must be structured as follows.
 
 **Strengths** [any strengths which are identified related to health needs]
 
-**Health Care Need 1:**
+**Health Care Need 1:** [a clearly identified health care need]
 **Provision:** [provision which relates to need 1]
 **Outcome:** [outcome which relates to need 1]
 
-**Health Care Need 2:**
+**Health Care Need 2:** [a clearly identified health care need]
 **Provision:** [provision which relates to need 2]
 **Outcome:** [outcome which relates to need 2]
 
-**Health Education Need 3:**
+**Health Education Need 3:** [a clearly identified health care need]
 ................
 
 ## Content guidelines for Needs, Provisions, and Outcomes:

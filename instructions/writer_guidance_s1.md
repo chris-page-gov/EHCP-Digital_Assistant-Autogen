@@ -51,14 +51,14 @@ The file `output_s1.md` must contain the following three sub-headings and all as
 - **Relationship:** [Relationship to child]
 - **Email:**
 - **Telephone number:**
-- **Home address:** [LINE ONE / LINE TWO / TOWN/ CITY / COUNTY / POST CODE]
+- **Home address:** [Full address, seperated by comma]
 
 #### Parent or Carer 2
 - **Name:** [INSERT, using format Forename, Surname]
 - **Relationship:** [Relationship to child]
 - **Email:**
 - **Telephone number:**
-- **Home address (if different to parent or carer 1):** [LINE ONE / LINE TWO / TOWN/ CITY / COUNTY / POST CODE]
+- **Home address (if different to parent or carer 1):** [Full address, seperated by comma]
 
 ### Services Currently Involved with this Child or Young Person
 - **Education setting:** [Name of young person's school or education setting]
