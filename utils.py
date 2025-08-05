@@ -30,6 +30,34 @@ def read_markdown_file(filepath: str) -> str:
         return f"Error: File not found at {filepath}"
     except Exception as e:
         return f"Error reading file {filepath}: {e}"
+    
+
+def read_multiple_markdown_files(filepaths: list[str]) -> str:
+    """
+    Reads the content of multiple markdown files and concatenates them into a single string.
+    Each file's content is clearly demarcated.
+
+    Args:
+        filepaths (list[str]): A list of paths to the markdown files.
+
+    Returns:
+        str: The combined content of all files, or an error message if any file fails.
+    """
+    full_content = ""
+    for filepath in filepaths:
+        filename = os.path.basename(filepath)
+        full_content += f"--- START OF FILE {filename} ---\n\n"
+        try:
+            with open(filepath, 'r', encoding='utf-8') as f:
+                full_content += f.read()
+        except FileNotFoundError:
+            full_content += f"Error: File not found at {filepath}"
+        except Exception as e:
+            full_content += f"Error reading file {filepath}: {e}"
+        
+        full_content += f"\n\n--- END OF FILE {filename} ---\n\n"
+        
+    return full_content
 
 def read_pdf_file(filepath: str) -> str:
     """

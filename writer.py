@@ -4,6 +4,7 @@ from typing import List, Dict
 
 from utils import (
     read_markdown_file,
+    read_multiple_markdown_files,
     #read_pdf_file,
     list_files_in_directory,
     save_markdown_file,
@@ -11,25 +12,38 @@ from utils import (
     OUTPUTS_DIR,
 )
 
+def is_terminate_message(message):
+    """
+    Custom function to check for termination message.
+    Safely handles messages that are not simple strings.
+    """
+    # Check if the message is a dictionary and has a "content" key
+    if isinstance(message, dict) and "content" in message:
+        content = message["content"]
+        # Check if the content is not None before calling string methods
+        if content is not None:
+            return content.rstrip().endswith("TERMINATE")
+    return False
+
 # Create main writer team with agents for writing, planning, fact-checking, and prompt engineering.
 # This team is responsible for drafting the document, fact-checking it, and generating prompts for revisions.
-def create_writer_team(llm_config: Dict) -> GroupChatManager:
+def create_writer_team(llm_config: Dict, llm_config_fast: Dict) -> GroupChatManager:
     """
     Creates and configures the writer multi-agent team.
     """
     writer_user_proxy = UserProxyAgent(
         name="Writer_User_Proxy",
-        is_termination_msg=lambda x: x.get("content", "") and "FINAL" in x.get("content", ""),
+        is_termination_msg=is_terminate_message,
         human_input_mode="NEVER",
         max_consecutive_auto_reply=20,
         code_execution_config={"work_dir": "outputs", "use_docker": False},
-        llm_config=llm_config,
+        llm_config=llm_config_fast,
         system_message="You are the user proxy for the writer team. You orchestrate the task by calling tools. "
                    "You will call file tools to read guidance, source documents, and previous outputs. "
                    "First, find and read the guidance. Then find and read the source documents. "
                    "Provide the collected content to the Document_Writer. "
                    "After the writer generates the content, you MUST use the save_markdown_file tool to save it. "
-                   "After saving the file, reply with the word 'FINAL' to end the conversation."
+                   "The Planner will signal the end of the task by replying with the single word 'TERMINATE'. Your termination condition is set to detect this word."
     )
 
     document_writer = ConversableAgent(
@@ -43,7 +57,7 @@ def create_writer_team(llm_config: Dict) -> GroupChatManager:
 
     planner = ConversableAgent(
         name="Planner",
-        llm_config=llm_config,
+        llm_config=llm_config_fast,
         system_message="""You are a meticulous planner. Your role is to create a precise, step-by-step plan for the team. You do not write content or call tools yourself. Your output must be ONLY the plan.
 
                         **Planning for Initial Creation (Iteration 1):**
@@ -65,6 +79,9 @@ def create_writer_team(llm_config: Dict) -> GroupChatManager:
                         6.  **Finalize Content:** If the `Fact_Checker` found new issues, direct the `Document_Writer` to make final adjustments.
                         7.  **Save Final Output:** Direct the `Writer_User_Proxy` to save the final, corrected, and fact-checked content.
                         
+                        After the file is saved, you must confirm the entire task is complete.
+                        **Once you see a message confirming the file has been successfully saved, your next response must be one single word: TERMINATE**
+
                         """
     )
 
@@ -87,7 +104,7 @@ def create_writer_team(llm_config: Dict) -> GroupChatManager:
 
     prompt_writer = autogen.ConversableAgent(
     name="Prompt_Writer",
-    llm_config=llm_config,
+    llm_config=llm_config_fast,
     system_message="""You are a prompt engineering specialist. Your primary role is to convert complex, critical feedback into simple, neutral, and actionable instructions for a `Document_Writer` agent.
 
                     Your input will arrive in one of two forms:
@@ -134,7 +151,7 @@ def create_writer_team(llm_config: Dict) -> GroupChatManager:
     
     
     # Register tools for the UserProxyAgent to call
-    for func in [read_markdown_file, list_files_in_directory, save_markdown_file]:
+    for func in [read_markdown_file, list_files_in_directory, save_markdown_file, read_multiple_markdown_files]:
         autogen.agentchat.register_function(
             func,
             caller=writer_user_proxy,
@@ -152,7 +169,9 @@ def create_writer_team(llm_config: Dict) -> GroupChatManager:
     
     manager = GroupChatManager(
         groupchat=groupchat,
-        llm_config=llm_config
+        llm_config=llm_config_fast,
+        system_message= """You are the manager of a writing team. Your goal is to follow the Planner's plan to produce and save a single document.
+                        """
     )
     
     return manager
@@ -160,19 +179,20 @@ def create_writer_team(llm_config: Dict) -> GroupChatManager:
 
 # Create final writer team for polishing and correction.
 # This team is responsible for the final review, fact-checking, and polishing of the document
-def create_final_writer_team(llm_config: Dict) -> GroupChatManager:
+def create_final_writer_team(llm_config: Dict, llm_config_fast: Dict) -> GroupChatManager:
     """
     Creates and configures the FINAL writer team for polishing and correction.
     """
     final_writer_proxy = UserProxyAgent(
         name="Final_Writer_Proxy",
-        is_termination_msg=lambda x: x.get("content", "") and "FINAL" in x.get("content", ""),
+        is_termination_msg=is_terminate_message,
         human_input_mode="NEVER",
         max_consecutive_auto_reply=30,
         code_execution_config={"use_docker": False},
-        llm_config=llm_config,
+        llm_config=llm_config_fast,
         system_message="You are the user proxy for the final polishing team. "
                        "Your job is to manage the correction workflow by calling tools to read the full document, read source documents for verification, and save the final corrected version."
+                       "The Document_Polisher will signal the end of the task by replying with the single word 'TERMINATE'. Your termination condition is set to detect this word."
     )
 
     document_polisher = ConversableAgent(
@@ -182,7 +202,9 @@ def create_final_writer_team(llm_config: Dict) -> GroupChatManager:
                        "You will receive feedback about any inconsistencies and duplication within the final document."
                        "Your job is to resolve these issues by editing, moving, or rephrasing content to improve the overall cohesion and quality of the final document. " \
                        "Do not amend any content that is not mentioned in the feedback. " \
-                       "Do not add comments like 'I have fixed issues' or 'No changes made'. Your output should be the polished document content only. "
+                       "Do not add comments like 'I have fixed issues' or 'No changes made'. Your output should be the polished document content only. " \
+                       "After the file is saved, you must confirm the entire task is complete."
+                       "**Once you see a message confirming the file has been successfully saved, your next response must be one single word: TERMINATE**"
     )
     
     # 
@@ -204,7 +226,8 @@ def create_final_writer_team(llm_config: Dict) -> GroupChatManager:
     )
 
     tools_to_register = [
-        read_markdown_file, 
+        read_markdown_file,
+        read_multiple_markdown_files, 
         #read_pdf_file, 
         list_files_in_directory, 
         save_markdown_file,
@@ -227,7 +250,7 @@ def create_final_writer_team(llm_config: Dict) -> GroupChatManager:
     
     manager = GroupChatManager(
         groupchat=groupchat,
-        llm_config=llm_config
+        llm_config=llm_config_fast
     )
     
     return manager

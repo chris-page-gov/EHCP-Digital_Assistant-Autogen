@@ -5,26 +5,40 @@ from typing import Dict
 from utils import (
     read_markdown_file,
     save_markdown_file,
+    read_multiple_markdown_files,
     OUTPUTS_DIR,
 )
 
+def is_terminate_message(message):
+    """
+    Custom function to check for termination message.
+    Safely handles messages that are not simple strings.
+    """
+    # Check if the message is a dictionary and has a "content" key
+    if isinstance(message, dict) and "content" in message:
+        content = message["content"]
+        # Check if the content is not None before calling string methods
+        if content is not None:
+            return content.rstrip().endswith("VALIDATION_COMPLETE")
+    return False
+
 # Create main validator team with agents for validation and quality assessment.
 # This team is responsible for validating the document against criteria and generating a feedback report.
-def create_validator_team(llm_config: Dict) -> GroupChatManager:
+def create_validator_team(llm_config: Dict, llm_config_fast: Dict) -> GroupChatManager:
     """
     Creates and configures the validator multi-agent team.
     """
     validator_user_proxy = UserProxyAgent(
         name="Validator_User_Proxy",
-        is_termination_msg=lambda x: x.get("content", "") and "FINAL" in x.get("content", ""),
+        is_termination_msg=is_terminate_message,
         human_input_mode="NEVER",
         max_consecutive_auto_reply=20,
         code_execution_config={"use_docker": False},
-        llm_config=llm_config,
+        llm_config=llm_config_fast,
         system_message="You are the user proxy for the validation team. "
                        "Your job is to manage the validation workflow by calling the correct tools. "
                        "Ensure the feedback report is generated and then you MUST save it correctly to a file using the save_markdown_file tool. "
-                       "After the feedback file is saved, reply with the word 'FINAL' to terminate."
+                       "You will listen for the `Quality_Assessor` to say 'VALIDATION_COMPLETE', at which point the task will end."
     )
 
     quality_assessor = ConversableAgent(
@@ -34,10 +48,11 @@ def create_validator_team(llm_config: Dict) -> GroupChatManager:
                        "against a set of validation criteria. You must be objective and identify issues, "
                        "categorizing them as Critical, Major, or Minor. "
                        "You will produce a structured feedback report in markdown format as instructed. Do not call any tools."
+                       "After the `Validator_User_Proxy` has successfully saved your final report to a file, you will be called on one last time. At this point, your **entire response must be the single phrase `VALIDATION_COMPLETE`** to end the task"
     )
 
     # Register tools for the UserProxyAgent to call
-    for func in [read_markdown_file, save_markdown_file]:
+    for func in [read_markdown_file, save_markdown_file, read_multiple_markdown_files]:
         autogen.agentchat.register_function(
             func,
             caller=validator_user_proxy,
@@ -54,8 +69,8 @@ def create_validator_team(llm_config: Dict) -> GroupChatManager:
     
     manager = GroupChatManager(
         groupchat=groupchat,
-        
-        llm_config=llm_config
+        llm_config=llm_config_fast,
+        system_message="""You are the manager of the validation team. Your role is to coordinate the agents to produce a single, consolidated feedback report."""
     )
     
     return manager
@@ -64,20 +79,21 @@ def create_validator_team(llm_config: Dict) -> GroupChatManager:
 # Create final validator team for holistic review.
 # This team is responsible for the final validation of the document, ensuring consistency and logical flow.
 # It will produce a structured feedback report based on final validation guidelines.
-def create_final_validator_team(llm_config: Dict) -> GroupChatManager:
+def create_final_validator_team(llm_config: Dict, llm_config_fast: Dict) -> GroupChatManager:
     """
     Creates and configures the FINAL validator team for holistic review.
     """
     final_validator_proxy = UserProxyAgent(
         name="Final_Validator_Proxy",
-        is_termination_msg=lambda x: x.get("content", "") and "FINAL" in x.get("content", ""),
+        is_termination_msg=is_terminate_message,
         human_input_mode="NEVER",
         max_consecutive_auto_reply=10,
         code_execution_config={"use_docker": False},
-        llm_config=llm_config,
+        llm_config=llm_config_fast,
         system_message="You are the user proxy for the final validation team. "
                        "Manage the workflow by calling tools to read the document and save the feedback report. "
-                       "Reply with 'FINAL' after the report is saved."
+                       "Ensure the feedback report is generated and then you MUST save it correctly to a file using the save_markdown_file tool. "
+                       "You will listen for the `Quality_Assessor` to say 'VALIDATION_COMPLETE', at which point the task will end."
     )
 
     holistic_assessor = ConversableAgent(
@@ -87,10 +103,11 @@ def create_final_validator_team(llm_config: Dict) -> GroupChatManager:
                        "Your primary focus is on ensuring **consistency, logical flow, and eliminating redundancy** between sections. "
                        "You must identify contradictions and significant duplication, recommending where duplicated content should be moved. "
                        "You will produce a structured feedback report based on final validation guidelines."
+                       "After the `Final_Validator_Proxy` has successfully saved your final report to a file, you will be called on one last time. At this point, your **entire response must be the single phrase `VALIDATION_COMPLETE`** to end the task"
     )
 
     # Register tools for the proxy agent to call
-    for func in [read_markdown_file, save_markdown_file]:
+    for func in [read_markdown_file, save_markdown_file, read_multiple_markdown_files]:
         autogen.agentchat.register_function(
             func,
             caller=final_validator_proxy,
@@ -107,7 +124,7 @@ def create_final_validator_team(llm_config: Dict) -> GroupChatManager:
     
     manager = GroupChatManager(
         groupchat=groupchat,
-        llm_config=llm_config
+        llm_config=llm_config_fast
     )
     
     return manager
