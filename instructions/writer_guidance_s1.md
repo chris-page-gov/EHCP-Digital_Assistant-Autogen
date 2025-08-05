@@ -39,7 +39,7 @@ The file `output_s1.md` must contain the following three sub-headings and all as
 ### Child or Young Person’s Personal Details
 - **Name:** [INSERT, using format Forename, middle names (if available), Surname]
 - **Preferred name:**
-- **Date of Birth:** DD-MM-CCYY
+- **Date of Birth:** DD/MM/CCYY
 - **Sex:** Sex of the child or young person at birth. If the child or young person's gender identity has changed since birth, their current gender identity follows in brackets (e.g., 'Male (now identifying as non-binary)')
 - **Ethnicity:**
 - **Child or young person first language:**

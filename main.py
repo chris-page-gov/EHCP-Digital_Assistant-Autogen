@@ -146,7 +146,7 @@ def main():
     ]
     llm_config = {
         "config_list": config_list, 
-        "timeout": 120,
+        "timeout": 300,
         }
     
     config_list_fast = [
@@ -161,7 +161,7 @@ def main():
 
     llm_config_fast = {
         "config_list": config_list_fast, 
-        "timeout": 240,
+        "timeout": 300,
         }
     
     #all_agents_created = []
@@ -298,7 +298,7 @@ def main():
                 logging.info(f"\n{'='*20} FINALIZATION - ITERATION {iteration} {'='*20}")
                 loop_logger.info(f"--- Finalization Iteration {iteration} START ---")
 
-                validator_manager = create_final_validator_team(llm_config)
+                validator_manager = create_final_validator_team(llm_config=llm_config, llm_config_fast=llm_config_fast)
                 #all_agents_created.extend(validator_manager.groupchat.agents)
                 validator_task = (f"Your task is a holistic review of the document at '{final_output_filepath}'. Read your validation rules from '{final_validation_guidance}'. Generate a feedback report and save it to '{final_feedback_filepath}'.")
                 validator_manager.initiate_chat(recipient=validator_manager, message=validator_task)
@@ -314,7 +314,7 @@ def main():
                     break
                 else:
                     logging.warning(f"\n❌ Critical issues found in final document. Starting correction...")
-                    writer_manager = create_final_writer_team(llm_config)
+                    writer_manager = create_final_writer_team(llm_config=llm_config, llm_config_fast=llm_config_fast)
                     #all_agents_created.extend(writer_manager.groupchat.agents)
                     writer_task = (f"The merged document has critical consistency/duplication errors. Your task is to correct the document at '{final_output_filepath}'. Read the correction guidance from '{final_writer_guidance}'. Carefully review the feedback provided below. Load, correct, and re-save the final document.\n\n--- FEEDBACK TO ADDRESS ---\n{final_feedback_content}\n--- END FEEDBACK ---")
                     writer_manager.initiate_chat(recipient=writer_manager, message=writer_task)

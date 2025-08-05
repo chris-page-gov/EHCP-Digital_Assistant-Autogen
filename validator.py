@@ -91,7 +91,8 @@ def create_final_validator_team(llm_config: Dict, llm_config_fast: Dict) -> Grou
         code_execution_config={"use_docker": False},
         llm_config=llm_config_fast,
         system_message="You are the user proxy for the final validation team. "
-                       "Manage the workflow by calling tools to read the document and save the feedback report. "
+                       "Manage the workflow by calling tools to read the documents and save the feedback report. "
+                       "You will be asked to read the source documents and validation guidelines"
                        "Ensure the feedback report is generated and then you MUST save it correctly to a file using the save_markdown_file tool. "
                        "You will listen for the `Quality_Assessor` to say 'VALIDATION_COMPLETE', at which point the task will end."
     )
@@ -124,7 +125,14 @@ def create_final_validator_team(llm_config: Dict, llm_config_fast: Dict) -> Grou
     
     manager = GroupChatManager(
         groupchat=groupchat,
-        llm_config=llm_config_fast
+        llm_config=llm_config_fast,
+        system_message=""" You are the manager of the final validation team. Your role is to coordinate the agents to produce a single, consolidated feedback report.
+        Follow the workflow:
+1. Validator_User_Proxy (reads the output document, source documents and validation guidelines).
+2. `Holistic_Assessor` (completes review).
+3. `Validator_User_Proxy` (save report).
+3. `Holistic_Assessor` (final termination signal).
+Ensure the conversation flows in this exact order. """
     )
     
     return manager

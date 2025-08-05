@@ -32,6 +32,8 @@ Detailed Feedback
 - Sensory and/or Physical Needs
 If a need has been taken from Appendix E (Advice and information relating to Social Care) it is likely best positioned under the Social Care Needs section.
 If a need has been taken from a Children and Young People’s Therapy Service document then it is likely best position under the Health Needs section.
+Duplication of 'strengths' is acceptable anbd should not be an issue
+
 
 - Phrases such as 'Information not available in source documents - in this case the field should be left blank.
 
@@ -106,47 +108,85 @@ Full structure:
 
 ## Communication and Interaction
 **Strengths**
-**Identified Special Educational Need(s):**
+**Identified Special Educational Need 1:**
 **Provision Relating to That Need:**
 **Outcomes:**
+
+**Identified Special Educational Need 2:**
+**Provision Relating to That Need:**
+**Outcomes:**
+
+**Identified Special Educational Need 3:** (etc)
 
 ---
 
 ## Cognition and Learning
 **Strengths**
-**Identified Special Educational Need(s):**
+**Identified Special Educational Need 1:**
 **Provision Relating to That Need:**
 **Outcomes:**
+
+**Identified Special Educational Need 2:**
+**Provision Relating to That Need:**
+**Outcomes:**
+
+**Identified Special Educational Need 3:** (etc)
 
 ---
 
 ## Social, Emotional and Mental Health Difficulties
 **Strengths**
-**Identified Special Educational Need(s):**
+**Identified Special Educational Need 1:**
 **Provision Relating to That Need:**
 **Outcomes:**
+
+**Identified Special Educational Need 2:**
+**Provision Relating to That Need:**
+**Outcomes:**
+
+**Identified Special Educational Need 3:** (etc)
 
 ---
 
 ## Sensory and/or Physical Needs
 **Strengths**
-**Identified Special Educational Need(s):**
+**Identified Special Educational Need 1:**
 **Provision Relating to That Need:**
 **Outcomes:**
+
+**Identified Special Educational Need 2:**
+**Provision Relating to That Need:**
+**Outcomes:**
+
+**Identified Special Educational Need 3:** (etc)
 
 ---
 
 ## Health Care Needs 
 **Strengths**
-**Identified Health Care Need(s):**
+**Identified Health Care Need 1:**
 **Provision Relating to That Need:**
 **Outcomes:**
+
+**Identified Health Care Need 2:**
+**Provision Relating to That Need:**
+**Outcomes:**
+
+**Identified Health Care Need 3:** (etc)
 
 ---
 
 ### Social Care Needs 
 **Strengths**
-**Identified Social Care Need(s):**
+**Identified Social Care Need 1:**
 **H1 Provision Relating to That Need:**
 **H2 Provision Relating to That Need:**
 **Outcomes:**
+
+**Identified Social Care Need 2:**
+**H1 Provision Relating to That Need:**
+**H2 Provision Relating to That Need:**
+**Outcomes:**
+
+**Identified Social Care Need 3:** (etc)
+
