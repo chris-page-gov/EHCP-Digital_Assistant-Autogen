@@ -120,7 +120,7 @@ def create_final_validator_team(llm_config: Dict, llm_config_fast: Dict) -> Grou
     groupchat = GroupChat(
         agents=[final_validator_proxy, holistic_assessor],
         messages=[],
-        max_round=10
+        max_round=20
     )
     
     manager = GroupChatManager(
