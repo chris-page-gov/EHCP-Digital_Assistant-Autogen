@@ -66,7 +66,7 @@ Use these rules to assess the document and populate your report.
     *   *Failure to include any of these is a **CRITICAL** error.*
 
 3.  **Quality Checks (MINOR):**
-    *   Check for inconsistent formatting (e.g., Date of Birth format is not DD-MM-CCYY).
+    *   Check for inconsistent formatting (e.g., Date of Birth format is not DD/MM/CCYY).
     *   Ensure professional services are listed by department/practice name, not by individuals' names.
 
 

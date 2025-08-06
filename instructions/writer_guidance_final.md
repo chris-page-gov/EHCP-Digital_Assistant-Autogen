@@ -11,3 +11,9 @@ Your task is to refine and polish the complete `final_document.md` based on the 
     -   Decide where duplicated information is best positioned to maintain a logical flow.
 4.  **Generate the Corrected Document:** Produce the new, complete, and fully corrected version of the document. Only make changes where issues are identifield in `final_document.md`.
 5.  **Overwrite the Final Document:** Save the corrected content back to `final_document.md`.
+
+
+Specific instructions:
+- When making corrections based on feedback, do NOT add any conversational text explaining what has been changed or where information has been moved to.
+- The structure of the document must NOT be changed unless explicitly instructed to do so in the feedback.
+- When information is removed from one section, the headings must remain with a blank value next to them. Do NOT say "see _____ section"

@@ -43,7 +43,7 @@ def create_writer_team(llm_config: Dict, llm_config_fast: Dict) -> GroupChatMana
                    "First, find and read the guidance. Then find and read the source documents. "
                    "Provide the collected content to the Document_Writer. "
                    "After the writer generates the content, you MUST use the save_markdown_file tool to save it. "
-                   "The Planner will signal the end of the task by replying with the single word 'TERMINATE'. Your termination condition is set to detect this word."
+                   "The Planner will signal the end of the task by replying with the single word 'TERMINATE'. Your termination condition is set to detect this word. "
     )
 
     document_writer = ConversableAgent(
@@ -72,6 +72,7 @@ def create_writer_team(llm_config: Dict, llm_config_fast: Dict) -> GroupChatMana
                         **Planning for Correction (Based on Validator Feedback):**
                         Your plan MUST follow this structure:
                         1.  **Analyze Feedback & Read Files:** Direct the `Writer_User_Proxy` to read the feedback and the existing incorrect output file.
+                        2.  **If no existing output fil is found, treat this as a new task and follow the initial creation plan.**
                         2.  **Generate Concise Revision Request:** Direct the `Prompt_Writer` to create a clean, direct prompt for the `Document_Writer` based on the feedback and the existing draft.
                         3.  **Generate Corrected Draft:** Direct the `Document_Writer` to generate a new DRAFT of the content, focusing on fixing the issues from the feedback.
                         4.  **Fact-Check Corrected Draft:** Direct the `Fact_Checker` to review the new draft against the source documents to ensure no new factual errors were introduced.
@@ -199,11 +200,12 @@ def create_final_writer_team(llm_config: Dict, llm_config_fast: Dict) -> GroupCh
         name="Document_Polisher",
         llm_config=llm_config,
         system_message="You are a senior editor. Your task is to **polish a complete document**, not create content from scratch. "
-                       "You will receive feedback about any inconsistencies and duplication within the final document."
-                       "Your job is to resolve these issues by editing, moving, or rephrasing content to improve the overall cohesion and quality of the final document. " \
-                       "Do not amend any content that is not mentioned in the feedback. " \
-                       "Do not add comments like 'I have fixed issues' or 'No changes made'. Your output should be the polished document content only. " \
-                       "After the file is saved, you must confirm the entire task is complete."
+                       "You will receive feedback about any inconsistencies and duplication within the final document. "
+                       "Your job is to make the changes as instructed by the feedback " 
+                       "Do not amend any content that is not mentioned in the feedback. "
+                       "You MUST only add information that is clearly referenced in the feedback or source documents. " 
+                       "Do not add comments like 'I have fixed issues' or 'No changes made'. Your output should be the polished document content only. " 
+                       "After the file is saved, you must confirm the entire task is complete. "
                        "**Once you see a message confirming the file has been successfully saved, your next response must be one single word: TERMINATE**"
     )
     
