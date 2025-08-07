@@ -15,3 +15,5 @@ requests
 # While it's a sub-dependency of Autogen, explicitly listing it can sometimes
 # help with dependency resolution and makes its role in the project clear.
 litellm
+
+functools

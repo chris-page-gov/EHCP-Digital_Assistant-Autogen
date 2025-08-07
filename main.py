@@ -2,13 +2,16 @@ import os
 import sys
 import logging
 import time
-import autogen
+from autogen import ConversableAgent
 import litellm
 from datetime import datetime
 from dotenv import load_dotenv
+from typing import List, Dict
 
-from writer import create_writer_team, create_final_writer_team
-from validator import create_validator_team, create_final_validator_team
+from writer_lean import create_writer_team, create_final_writer_team
+from validator_heavy import create_validator_team, create_final_validator_team
+from specialist_agents import create_prompt_writer_agent, create_final_prompt_writer_agent
+from tasks import get_correction_task, get_creation_task, get_final_validation_task, get_final_writer_task, get_validation_task
 from utils import (
     read_markdown_file,
     parse_feedback_and_count_issues,
@@ -107,7 +110,7 @@ def main():
     run_timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     setup_logging(run_timestamp)
 
-    litellm.max_retries = 10
+    litellm.max_retries = 5
 
     loop_logger = logging.getLogger('LoopTracer')
     loop_logger.info("Main process started.")
@@ -141,12 +144,11 @@ def main():
             "base_url": azure_endpoint,
             "api_type": "azure",
             "api_version": azure_api_version,
-            #"price": [0.00146, 0.00583]
         }
     ]
     llm_config = {
         "config_list": config_list, 
-        "timeout": 240,
+        "timeout": 300,
         }
     
     config_list_fast = [
@@ -161,11 +163,12 @@ def main():
 
     llm_config_fast = {
         "config_list": config_list_fast, 
-        "timeout": 240,
+        "timeout": 300,
         }
     
-    #all_agents_created = []
-
+    prompt_writer = create_prompt_writer_agent(llm_config_fast)
+    final_prompt_writer = create_final_prompt_writer_agent(llm_config_fast)
+    
     total_sections = 5
     process_completed_successfully = True
     for section_number in range(1, total_sections + 1):
@@ -188,7 +191,6 @@ def main():
             process_completed_successfully = False
             break # Exit the main section loop
 
-
         max_iterations = 10
         feedback_content = "No feedback yet. This is the first attempt."
         section_passed = False
@@ -201,40 +203,43 @@ def main():
             # --- WRITER TEAM ---
             logging.info("\n--- Kicking off Writer Team ---")
             writer_manager = create_writer_team(llm_config=llm_config, llm_config_fast=llm_config_fast)
+            writer_proxy_agent = writer_manager.groupchat.agent_by_name("Writer_User_Proxy")
 
             if iteration == 1:
-                writer_task = (
-                    f"You are the writer team. Your task is to generate a summary document. "
-                    f"First, read the guidance document at '{writer_guidance_file}'. "
-                    f"Then, read all source documents in the '{PROCESSED_DOCS_DIR}' folder. "
-                    f"Generate a summary based on the guidance and the content of the source documents. "
-                    f"Finally, save your summary to '{output_filepath}'."
-                )
-
+                writer_task = get_creation_task(section_number)
             else:
-                writer_task = (
-                    f"You are the writer team. Your task is to refine the existing document based on feedback. "
-                    f"First, read the guidance document at '{writer_guidance_file}'. "
-                    f"Then, read all source documents in the '{PROCESSED_DOCS_DIR}' folder. "
-                    f"Next, read the previous output file at '{output_filepath}'. "
-                    f"Finally, read the feedback report at '{feedback_filepath}' and incorporate the feedback into your new summary. "
-                    f"The prompt_writer must generate a single, clean [REVISION_REQUEST] prompt for the Document_Writer. "
-                    f"Save your refined summary to '{output_filepath}'."
-                )
+                logging.info("--- Preparing clean revision request with Prompt_Writer ---")
+                previous_draft = read_markdown_file(output_filepath)
+                feedback_report = read_markdown_file(feedback_filepath)
 
-            writer_manager.initiate_chat(recipient=writer_manager, message=writer_task)
+                # Create a prompt for the prompt_writer
+                prompt_writer_task = f"""
+                Here is a document that failed validation and the feedback report. Create a clean [REVISION_REQUEST] for the Document_Writer.
+
+                **Document to Revise:**
+                {previous_draft}
+
+                **Feedback Report:**
+                {feedback_report}
+                """
+
+                # Directly call the agent to get a reply
+                clean_request = prompt_writer.generate_reply(messages=[{"role": "user", "content": prompt_writer_task}])
+
+                # Create the writer task with the clean request
+                writer_task = get_correction_task(section_number, clean_request)
+
+            writer_proxy_agent.initiate_chat(
+                recipient=writer_manager, 
+                message=writer_task,
+                clear_history=(iteration > 1)
+            )
+
             loop_logger.info(f"Section {section_number}, Iteration {iteration}: Writer team completed.")
 
             # --- VALIDATOR TEAM ---
             logging.info("\n--- Kicking off Validator Team ---")
-            validator_manager = create_validator_team(llm_config=llm_config, llm_config_fast=llm_config_fast)
-            validator_task = (
-                f"Your task is to validate the file '{output_filepath}'.\n"
-                f"1. Read your validation rules from '{validation_guidance_file}'.\n"
-                f"2. Generate a feedback report based on these rules.\n"
-                f"3. Save your feedback report to '{feedback_filepath}'."
-            )
-            validator_manager.initiate_chat(recipient=validator_manager, message=validator_task)
+            get_validation_task(section_number, llm_config, llm_config_fast)
             loop_logger.info(f"Section {section_number}, Iteration {iteration}: Validator team completed.")
 
             # --- ASSESSMENT ---
@@ -288,8 +293,7 @@ def main():
             final_feedback_filepath = os.path.join(OUTPUTS_DIR, "final_feedback.md")
             final_writer_guidance = os.path.join(INSTRUCTIONS_DIR, "writer_guidance_final.md")
             final_validation_guidance = os.path.join(INSTRUCTIONS_DIR, "validation_guidance_final.md")
-            max_final_iterations = 5
-            
+            max_final_iterations = 10
             final_feedback_content = "No feedback yet. This is the first validation run on the merged document."
             final_document_passed = False
 
@@ -298,10 +302,11 @@ def main():
                 logging.info(f"\n{'='*20} FINALIZATION - ITERATION {iteration} {'='*20}")
                 loop_logger.info(f"--- Finalization Iteration {iteration} START ---")
 
-                validator_manager = create_final_validator_team(llm_config=llm_config, llm_config_fast=llm_config_fast)
-                #all_agents_created.extend(validator_manager.groupchat.agents)
-                validator_task = (f"Your task is a holistic review of the document at '{final_output_filepath}'. Read your validation rules from '{final_validation_guidance}'. Generate a feedback report and save it to '{final_feedback_filepath}'.")
-                validator_manager.initiate_chat(recipient=validator_manager, message=validator_task)
+                final_validator_manager = create_final_validator_team(llm_config=llm_config, llm_config_fast=llm_config_fast)
+                final_validator_proxy = final_validator_manager.groupchat.agent_by_name("Final_Validator_Proxy")
+                final_validation_task = get_final_validation_task(final_output_filepath, final_validation_guidance, final_feedback_filepath)
+                final_validator_proxy.initiate_chat(recipient=final_validator_manager, message=final_validation_task, clear_history=True)
+                loop_logger.info(f"Finalization Iteration {iteration}: Validator team completed.")          
 
                 final_feedback_content = read_markdown_file(final_feedback_filepath)
                 issue_counts = parse_feedback_and_count_issues(final_feedback_content)
@@ -314,17 +319,33 @@ def main():
                     break
                 else:
                     logging.warning(f"\n❌ Critical issues found in final document. Starting correction...")
-                    writer_manager = create_final_writer_team(llm_config=llm_config, llm_config_fast=llm_config_fast)
-                    #all_agents_created.extend(writer_manager.groupchat.agents)
-                    writer_task = (f"The merged document has critical consistency/duplication errors. Your task is to correct the document at '{final_output_filepath}'. Read the correction guidance from '{final_writer_guidance}'. Carefully review the feedback provided below. Load, correct, and re-save the final document.\n\n--- FEEDBACK TO ADDRESS ---\n{final_feedback_content}\n--- END FEEDBACK ---")
-                    writer_manager.initiate_chat(recipient=writer_manager, message=writer_task)
+                    # --- PROMPT WRITER SANITIZES FEEDBACK ---
+                    logging.info("--- Preparing clean revision request with Prompt_Writer ---")
+                    previous_draft = read_markdown_file(final_output_filepath)
+                    prompt_writer_task = f"""
+                    Here is a final document that failed validation and the feedback report. Create a clean [REVISION_REQUEST] for the Document_Polisher.
+
+                    **Document to Revise:**
+                    {previous_draft}
+
+                    **Feedback Report:**
+                    {final_feedback_content}
+                    """
+                    clean_final_request = final_prompt_writer.generate_reply(messages=[{"role": "user", "content": prompt_writer_task}])
+
+                    # --- FINAL WRITER TEAM ---
+                    logging.info("--- Kicking off Final Writer Team for correction ---")
+                    final_writer_manager = create_final_writer_team(llm_config=llm_config, llm_config_fast=llm_config_fast)
+                    final_writer_proxy = final_writer_manager.groupchat.agent_by_name("Final_Writer_Proxy")
+                    final_writer_task = get_final_writer_task(final_output_filepath, final_writer_guidance, clean_final_request)
+                    
+                    final_writer_proxy.initiate_chat(recipient=final_writer_manager, message=final_writer_task, clear_history=True)
+                    loop_logger.info(f"Finalization Iteration {iteration}: Writer team completed correction.")
 
             if not final_document_passed:
                 logging.error(f"\n🚫 FAILED: Final document could not be corrected after {max_final_iterations} iterations.")
                 loop_logger.error("===== Final Document FAILED TO PASS. =====")
                 process_completed_successfully = False
-
-    
     
     logging.info(f"\n{'#'*25} PROCESS COMPLETE {'#'*25}")
     loop_logger.info("Main process finished.")
@@ -332,9 +353,6 @@ def main():
     end_time = time.monotonic()
     total_duration_seconds = end_time - start_time
     total_duration_minutes = total_duration_seconds / 60
-
-    # unique_agents = list({agent.name: agent for agent in all_agents_created}.values())
-    # usage_summary = calculate_total_cost_and_tokens(unique_agents)
 
     loop_logger.info("=" * 40)
     loop_logger.info("            RUN SUMMARY")
@@ -345,10 +363,6 @@ def main():
         loop_logger.info("Overall Status: FAILED / STOPPED EARLY")
     
     loop_logger.info(f"Total Execution Time: {total_duration_seconds:.2f} seconds ({total_duration_minutes:.2f} minutes)")
-    # loop_logger.info(f"Total API Cost: ${usage_summary['total_cost']:.4f}")
-    # loop_logger.info(f"Total Tokens: {usage_summary['total_tokens']}")
-    # loop_logger.info(f"  - Prompt Tokens: {usage_summary['prompt_tokens']}")
-    # loop_logger.info(f"  - Completion Tokens: {usage_summary['completion_tokens']}")
     loop_logger.info("=" * 40)
 
 if __name__ == "__main__":

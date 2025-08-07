@@ -3,6 +3,7 @@ import re
 import pypdf
 import logging
 from typing import List, Dict, Any
+from functools import lru_cache
 
 
 # Define base directories
@@ -15,36 +16,55 @@ LOGS_DIR = os.path.join(BASE_DIR, "logs")
 
 # --- Tool Functions ---
 
+_single_file_cache: Dict[str, str] = {}
+
 def read_markdown_file(filepath: str) -> str:
     """
-    Reads the content of a markdown file.
-    Args:
-        filepath (str): The path to the markdown file.
-    Returns:
-        str: The content of the file.
+    Reads the content of a markdown file using a custom internal cache
+    to speed up repeated reads of static files like guidance documents.
     """
+    # 2. Check if the result is already in our cache.
+    if filepath in _single_file_cache:
+        # If yes, return the stored content instantly.
+        return _single_file_cache[filepath]
+    
+    # 3. If not in the cache, perform the slow disk read.
     try:
         with open(filepath, 'r', encoding='utf-8') as f:
-            return f.read()
+            content = f.read()
+            # 4. Store the newly read content in the cache before returning it.
+            _single_file_cache[filepath] = content
+            return content
     except FileNotFoundError:
         return f"Error: File not found at {filepath}"
     except Exception as e:
         return f"Error reading file {filepath}: {e}"
+
+# def read_markdown_file(filepath: str) -> str:
+#     """
+#     Reads the content of a markdown file.
+#     Args:
+#         filepath (str): The path to the markdown file.
+#     Returns:
+#         str: The content of the file.
+#     """
+#     try:
+#         with open(filepath, 'r', encoding='utf-8') as f:
+#             return f.read()
+#     except FileNotFoundError:
+#         return f"Error: File not found at {filepath}"
+#     except Exception as e:
+#         return f"Error reading file {filepath}: {e}"
     
 
-def read_multiple_markdown_files(filepaths: list[str]) -> str:
+@lru_cache(maxsize=10)
+def _cached_read_files(filepaths_tuple: tuple[str]) -> str:
     """
-    Reads the content of multiple markdown files and concatenates them into a single string.
-    Each file's content is clearly demarcated.
-
-    Args:
-        filepaths (list[str]): A list of paths to the markdown files.
-
-    Returns:
-        str: The combined content of all files, or an error message if any file fails.
+    Internal, cached function for reading multiple files.
+    IMPORTANT: This function MUST take a tuple as input, because lists are not hashable for caching.
     """
     full_content = ""
-    for filepath in filepaths:
+    for filepath in filepaths_tuple:
         filename = os.path.basename(filepath)
         full_content += f"--- START OF FILE {filename} ---\n\n"
         try:
@@ -59,6 +79,27 @@ def read_multiple_markdown_files(filepaths: list[str]) -> str:
         
     return full_content
 
+def read_multiple_markdown_files(filepaths: list[str]) -> str:
+    """
+    Reads the content of multiple markdown files and concatenates them into a single string.
+    Each file's content is clearly demarcated.
+
+    This function now uses an internal cache to speed up repeated reads of the same file set.
+    Each file's content is clearly demarcated.
+
+    Args:
+        filepaths (list[str]): A list of paths to the markdown files.
+
+    Returns:
+        str: The combined content of all files, or an error message if any file fails.
+    """
+    # Convert the list of filepaths to a tuple so it can be used as a cache key.
+    # Sorting ensures that the order of files doesn't matter for caching.
+    filepaths_tuple = tuple(sorted(filepaths))
+    
+    # Call the internal, cached function
+    return _cached_read_files(filepaths_tuple)
+        
 def read_pdf_file(filepath: str) -> str:
     """
     Reads the text content of a single PDF file.
@@ -94,20 +135,43 @@ def list_files_in_directory(directory: str) -> List[str]:
 
 def save_markdown_file(filepath: str, content: str) -> str:
     """
-    Saves content to a markdown file.
-    Args:
-        filepath (str): The path to the file to be saved.
-        content (str): The content to write to the file.
-    Returns:
-        str: A confirmation message.
+    Saves content to a markdown file and then SELECTIVELY removes that
+    specific file from the read cache.
     """
     try:
         os.makedirs(os.path.dirname(filepath), exist_ok=True)
         with open(filepath, 'w', encoding='utf-8') as f:
             f.write(content)
-        return f"Successfully saved file to {filepath}"
+        
+        # --- PRECISE CACHE INVALIDATION ---
+        # 5. Check if the file we just saved exists in our cache.
+        if filepath in _single_file_cache:
+            # If it does, delete that specific entry.
+            del _single_file_cache[filepath]
+            # Now, the next time read_markdown_file is called for this path,
+            # it will be a cache miss and will have to re-read from disk.
+            # All other cached files (like the guidance) are unaffected.
+        
+        return f"Successfully saved file to {filepath} and invalidated its cache entry."
     except Exception as e:
         return f"Error saving file {filepath}: {e}"
+
+# def save_markdown_file(filepath: str, content: str) -> str:
+#     """
+#     Saves content to a markdown file.
+#     Args:
+#         filepath (str): The path to the file to be saved.
+#         content (str): The content to write to the file.
+#     Returns:
+#         str: A confirmation message.
+#     """
+#     try:
+#         os.makedirs(os.path.dirname(filepath), exist_ok=True)
+#         with open(filepath, 'w', encoding='utf-8') as f:
+#             f.write(content)
+#         return f"Successfully saved file to {filepath}"
+#     except Exception as e:
+#         return f"Error saving file {filepath}: {e}"
 
 def parse_feedback_and_count_issues(feedback_content: str) -> Dict[str, int]:
     """
@@ -296,3 +360,17 @@ def merge_output_files(num_sections: int, output_dir: str, final_filename: str) 
     except IOError as e:
         logging.error(f"An I/O error occurred during merging: {e}")
         return False
+    
+
+def is_terminate_message(message):
+    """
+    Custom function to check for termination message.
+    Safely handles messages that are not simple strings.
+    """
+    # Check if the message is a dictionary and has a "content" key
+    if isinstance(message, dict) and "content" in message:
+        content = message["content"]
+        # Check if the content is not None before calling string methods
+        if content is not None:
+            return content.rstrip().endswith("TERMINATE")
+    return False
