@@ -53,11 +53,48 @@ Use these rules to assess the document and populate your report.
 *   **(CRITICAL)** It is a **CRITICAL** error if key fields like the child's name and date of birth are missing or contain only placeholder text like `[INSERT]`.
 
 #### Section-Specific Content and Structure
-1.  **Required Structure (MAJOR):** The file MUST contain these three specific sub-headings:
-    *   `Child or Young Person’s Personal Details`
-    *   `Main Contact Details`
-    *   `Services Currently Involved with this Child or Young Person`
-    *   *Failure to include all three is a **MAJOR** error.*
+1.  **Required Structure (CRITICAL):** The file MUST follow this specific structure:
+    ### Child or Young Person’s Personal Details
+
+- **Name:**
+- **Preferred name:**
+- **Date of Birth:** 
+- **Sex:** 
+- **Ethnicity:**
+- **Child or young person first language:**
+- **Parent or carer first language:**
+
+### Main Contact Details
+
+#### Main Contact: Parent or Carer 1 (or young person if applying independently)
+- **Name:** 
+- **Relationship:**
+- **Email:**
+- **Telephone number:**
+- **Home address:** 
+
+#### Parent or Carer 2
+
+- **Name:**
+- **Relationship:**
+- **Email:**
+- **Telephone number:**
+- **Home address (if different to parent or carer 1):** 
+
+### Services Currently Involved with this Child or Young Person
+
+- **Education setting:**
+- **GP and key health professional (where applicable):**
+- **NHS Number (if available):** 
+- **Known to social care:** 
+- **Other professionals involved with this child/young person/family:** 
+- **Currently a looked after child?** 
+- **Has been a looked after child?** 
+- **Is there a one page profile received (append)?** 
+- **Child or young person moving to area with EHCP from a different LA?** 
+- **Name of LA:**
+
+Failrue to do so is a CRITICAL error
 
 2.  **Required Content (CRITICAL):**
     *   Under `Child or Young Person’s Personal Details`, the file must contain at least the child's full name and date of birth.
