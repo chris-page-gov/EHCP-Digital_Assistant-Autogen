@@ -14,27 +14,12 @@ Adhere strictly to the formatting and content rules, especially the word count l
 
 ## CRITICAL INSTRUCTIONS FOR DOCUMENT GENERATION
 
-### ANTI-HALLUCINATION REQUIREMENTS
-
-**ABSOLUTE RULE: Only include information that can be directly found in or clearly inferred from the source documents.**
-
-1.  **NO FABRICATION:** Never create fictional information. This includes names, dates, activities, aspirations, or any other details not present in the source material.
-2.  **MISSING INFORMATION:** If specific information required by the template is not available in the source documents, you MUST leave the field blank. Do not say 'Information no available' or anything to that effect. Do NOT invent content to fill gaps.
-3.  **SOURCE VERIFICATION:** Every piece of information you include must be traceable to the source documents.
-
----
-
 ## Required Output File for This Stage
 
 You must create **only one file** in this stage. Use the `save_document_section` tool with the following parameters:
 
 *   **Filename to create:** `output_s2.md`
 *   **Correct Naming:** Use the exact `section_name` "Child Overview" in the tool.
-
-### Important File Management Rules
-
-*   **One File Only:** Do not create any other files. Your only task is `output_s2.md`.
-*   **Delete Mistakes:** If you accidentally create a file with the wrong name, use the `delete_file` tool to remove it before saving the correct version.
 
 ---
 
@@ -47,12 +32,15 @@ The file `output_s2.md` must contain the following two main sections with their 
 It should be written as a short block of text. Some use of bullet points is allowed, but the output should not be fully bullet-pointed
 
 This should conatin:
-*   A brief overview of the child or young person’s circumstances.
+*   A brief overview of the child or young person’s history circumstances.
 *   A summary of how to communicate with the child or young person, and how best to engage them in decision making.
+
+The summary of their history should be a brief story of their life so far. It should include positive points about them. Description of some of their challenges and diagnoses are allowed, but these should not be the entire focus.
+Do not mention the child's current age or school year.
 
 ## Summary of the Views, Interests and Aspirations of the Child and Their Parent, or of the Young Person
 **This summary should also be approximately 500 words or 3000 characters.**
-*It should not be in bullet points, but must be arranged under the following four subheadings.*
+**It must be arranged under the following four subheadings and must not be in bullet points.**
 
 **Views**
 This should be a summary of the views of the child and the family. You must state how this information was collected, including if another person provided this information on the child or young person’s behalf.
@@ -65,3 +53,22 @@ This section is ONLY for the child's strengths. Descriptions of their needs or d
 
 **Aspirations**
 This should capture the child or young person’s ambitions for their own lives. If the plan relates to a child, parent or carer views should also be included, and any differences in their priorities should be reflected.
+
+### Output Structure
+[CRITICAL] The output must be structured exactly as follows:
+
+## Summary of the Child or Young Person’s History
+[A brief overview of the child or young person’s circumstances.]
+
+[A summary of how to communicate with the child or young person, and how best to engage them in decision making.]
+
+## Summary of the Views, Interests and Aspirations of the Child and Their Parent, or of the Young Person
+
+**Views**
+[Views content]
+**Interests**
+[Interest content]
+**Strengths**
+[Strengths content]
+**Aspirations**
+[Aspirations content]

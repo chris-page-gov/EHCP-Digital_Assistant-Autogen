@@ -4,9 +4,9 @@ Your task is to perform a holistic review of the complete, merged document found
 
 ---
 
-## 1. Required Feedback Report Format
+### Required Feedback Report Format
 
-Your entire response **MUST** begin with the `[FEEDBACK_SUMMARY]` block.
+This is the most important instruction. Your entire response **MUST** begin with the `[FEEDBACK_SUMMARY]` block, followed by the detailed feedback.
 
 **TEMPLATE:**
 [FEEDBACK_SUMMARY]
@@ -15,17 +15,14 @@ Critical: [Number of critical issues found]
 Major: [Number of major issues found]
 Minor: [Number of minor issues found]
 [END_FEEDBACK_SUMMARY]
-Detailed Feedback
 
-**Note:** The document FAILS if there is one or more CRITICAL issue.
-
----
+**Note:** A document FAILS only if there is one or more CRITICAL issue.
 
 ## 2. Final Validation Rules
 
 ### CRITICAL Errors (Must Fix)
 -   **Contradictory Information ("Broken Golden Thread"):** The document contains factual contradictions between sections. (e.g., a date, name, or diagnosis is different in Section 2 vs. Section 4).
--   **Significant Duplication:** The same substantial block of information (a full paragraph or a detailed list of needs/provisions) is repeated in multiple sections. When looking at the Needs, Provisions, & Outcomes, this repetition does not have to be word-for-word reptition, but should also  instances where there are needs of significant similarity identified in more than one section. When you find this, you **MUST** recommend which section is the most appropriate home for the information. It will usually be the case that if a need has been taken from appendix B or an "EY SEND Support Review" then it should fit under one for the following headings: 
+-   **Significant Duplication:** The same substantial block of information (a full paragraph or a detailed list of needs/provisions) is repeated in multiple sections. When looking at the Needs, Provisions, & Outcome, this repetition does not have to be word-for-word reptition, but should also  instances where there are needs of significant similarity identified in more than one section. When you find this, you **MUST** recommend which section is the most appropriate home for the information. It will usually be the case that if a need has been taken from appendix B or an "EY SEND Support Review" then it should fit under one for the following headings: 
 - Communication and Interaction
 - Cognition and Learning
 - Social, Emotional and Mental Health Difficulties
@@ -107,86 +104,106 @@ Full structure:
 ### Special Education Needs and Provision
 
 ## Communication and Interaction
-**Strengths**
-**Identified Special Educational Need 1:**
-**Provision Relating to That Need:**
-**Outcomes:**
+**Strengths** 
 
-**Identified Special Educational Need 2:**
-**Provision Relating to That Need:**
-**Outcomes:**
+**Special Educational Need 1:** 
+**Provision:** 
+**Outcome:** 
 
-**Identified Special Educational Need 3:** (etc)
+**Special Educational Need 2:** 
+**Provision:** 
+**Outcome:** 
+
+**Special Education Need 3:** 
+(etc)
 
 ---
 
 ## Cognition and Learning
-**Strengths**
-**Identified Special Educational Need 1:**
-**Provision Relating to That Need:**
-**Outcomes:**
+**Strengths** 
 
-**Identified Special Educational Need 2:**
-**Provision Relating to That Need:**
-**Outcomes:**
+**Special Educational Need 1:** 
+**Provision:** 
+**Outcome:** 
 
-**Identified Special Educational Need 3:** (etc)
+**Special Educational Need 2:** 
+**Provision:** 
+**Outcome:** 
+
+**Special Education Need 3:**  
+(etc)
 
 ---
 
 ## Social, Emotional and Mental Health Difficulties
-**Strengths**
-**Identified Special Educational Need 1:**
-**Provision Relating to That Need:**
-**Outcomes:**
+**Strengths** 
 
-**Identified Special Educational Need 2:**
-**Provision Relating to That Need:**
-**Outcomes:**
+**Special Educational Need 1:** 
+**Provision:** 
+**Outcome:** 
 
-**Identified Special Educational Need 3:** (etc)
+**Special Educational Need 2:** 
+**Provision:** 
+**Outcome:** 
+
+**Special Education Need 3:**  
+(etc)
 
 ---
 
 ## Sensory and/or Physical Needs
-**Strengths**
-**Identified Special Educational Need 1:**
-**Provision Relating to That Need:**
-**Outcomes:**
+**Strengths** 
 
-**Identified Special Educational Need 2:**
-**Provision Relating to That Need:**
-**Outcomes:**
+**Special Educational Need 1:** 
+**Provision:** 
+**Outcome:** 
 
-**Identified Special Educational Need 3:** (etc)
+**Special Educational Need 2:** 
+**Provision:** 
+**Outcome:** 
 
----
-
-## Health Care Needs 
-**Strengths**
-**Identified Health Care Need 1:**
-**Provision Relating to That Need:**
-**Outcomes:**
-
-**Identified Health Care Need 2:**
-**Provision Relating to That Need:**
-**Outcomes:**
-
-**Identified Health Care Need 3:** (etc)
+**Special Education Need 3:**  
+(etc)
 
 ---
 
-### Social Care Needs 
+## Health Care Needs and Provision
 **Strengths**
-**Identified Social Care Need 1:**
-**H1 Provision Relating to That Need:**
-**H2 Provision Relating to That Need:**
-**Outcomes:**
 
-**Identified Social Care Need 2:**
-**H1 Provision Relating to That Need:**
-**H2 Provision Relating to That Need:**
-**Outcomes:**
+**Health Care Need 1:**
+**Provision:**
+**Outcome:**
 
-**Identified Social Care Need 3:** (etc)
+**Health Care Need 2:**
+**Provision:**
+**Outcome:**
 
+**Health Care Need 3:** (etc)
+
+---
+
+### Social Care Needs and Provision
+**Strengths**
+
+**Social Care Need 1:**
+**H1 Provision:**
+**H2 Provision:**
+**Outcome:**
+
+**Social Care Need 2:**
+**H1 Provision:**
+**H2 Provision:**
+**Outcome:**
+
+**Social Care Need 3:** (etc)
+
+---
+
+### CRITICAL INSTRUCTION FOR FEEDBACK CONTENT
+For every issue you identify (especially CRITICAL ones like contradictions or duplications), you **MUST** provide the **exact, complete, and corrected text** that should be used as the replacement. Do NOT just describe the problem; you must provide the solution.
+
+**Example Finding:**
+- **Issue:** Contradictory information about therapy provision.
+- **Location:** Section H, under 'Health Care Provision'.
+- **Action:** REPLACE
+- **Content:** [Provide the full, correct, and consolidated paragraph about the therapy provision here.]

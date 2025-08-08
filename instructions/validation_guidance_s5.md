@@ -1,44 +1,14 @@
-# EHCP Validator Guidance: Section 5 - Social Care
+# EHCP Validator Guidance: Section 5 - Social Care Needs and Provision
 
-## Your Current Validation Goal
+Your task is to validate a single file, `output_s5.md`, and produce a feedback report.
+You MUST strictly follow the required format for the report and use the validation rules below to identify and categorise issues, paying close attention to the "Golden Thread" connecting Needs, Provisions, and Outcomes within all four areas of need. You must also validate the correct classification of social care provision into H1 and H2 categories.
 
-Your sole focus is to validate the single file: `output_s5.md`.
 
-This is the most critical validation task. You must meticulously check for the "Golden Thread" connecting Needs, Provisions, and Outcomes, and also validate the correct classification of provision into H1 and H2 categories.
-
-## Required Feedback Report Format
-
-This is the most important instruction. Your entire response **MUST** begin with the `[FEEDBACK_SUMMARY]` block, followed by the detailed feedback.
-
-**TEMPLATE:**
-[FEEDBACK_SUMMARY]
-Overall Status: [PASS or FAIL]
-Critical: [Number of critical issues found]
-Major: [Number of major issues found]
-Minor: [Number of minor issues found]
-[END_FEEDBACK_SUMMARY]
-
-## Overall File Structure Validation for This Stage
+## Overall File Structure 
 
 *   **Expected File:** `output_s5.md` MUST exist. If missing, it's a **CRITICAL** error.
 
 ## Content Validation Rules for Section 5
-
-### The Golden Thread (MAJOR)
-
-*   Every identified Social Care Need MUST have a corresponding Provision (either H1 or H2).
-*   Every Provision must link to a Need.
-*   Outcomes must be achievable through the stated Provisions. A broken thread is a **Major** error.
-
-### Provision Specificity (Major)
-
-*   Vague social care provision is a **Major** error. Check if each provision specifies the required support, provider, ratio, frequency, and duration.
-*   "Support to access the community" is NOT specific. "Support from a youth worker (1:1) for 2 hours per week to attend a local youth club" IS specific.
-
-### SMART Outcomes (Major)
-
-*   Social care outcomes should be SMART (Specific, Measurable, Achievable, Relevant, Time-bound).
-*   "To make friends" is NOT a SMART outcome. It is a **Major** error.
 
 ### Section-Specific Rules
 
@@ -64,12 +34,19 @@ Needs, provisions and outcomes MUST be written in the following format:
 **Outcome: [outcome which relates to need 1]**
 Deviation from this structure is a **CRITICAL** error.
 
-## Feedback Report
+The finished document MUST match this structure (failure to do so is a CRITICAL error):
 
-Generate a `feedback.md` report.
-*   State if `output_s5.md` **PASSES** or **FAILS**.
-*   Prioritize **CRITICAL** errors related to the Golden Thread, Specificity, and SMART criteria.
-*   Example: "CRITICAL - Golden Thread Broken: A need for 'support to develop independence skills' is listed, but no provision in H1 or H2 addresses this."
-*   Example: "MAJOR - Incorrect Classification: 'Assistance with travel to college' is listed under H2 but should be in H1."
+## Social Care Needs and Provision
+**Strengths**
 
-**Important** - Missing information should be flagged, but do not suggest that the writer should state “Not known” when a field has been left blank. Do NOT suggest that field headings are removed.
+**Social Care Need 1:**
+**Provision:**
+**Outcome:**
+
+**Social Care Need 2:**
+**Provision:**
+**Outcome:**
+
+**Social Care Need 3:** (etc)
+
+---

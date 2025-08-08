@@ -9,6 +9,7 @@ from datetime import datetime
 from dotenv import load_dotenv
 from typing import List, Dict
 import asyncio
+import config
 
 from writer import create_writer_team, create_final_writer_team
 from validator import create_validator_team, create_final_validator_team
