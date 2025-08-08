@@ -41,6 +41,8 @@ You must create **only one file** in this stage. Use the `save_document_section`
 
 The file `output_s4.md` must be structured as follows.
 
+### Health Care Needs and Provision
+
 **Strengths** [any strengths which are identified related to health needs]
 
 **Health Care Need 1:** [a clearly identified health care need]

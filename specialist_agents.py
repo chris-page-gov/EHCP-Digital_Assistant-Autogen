@@ -68,7 +68,9 @@ Your SOLE task is to extract this information and format it into a `[REVISION_RE
 **Final Output Structure:**
 [REVISION_REQUEST]
 **Document to Revise:**
+--- START OF DOCUMENT ---
 <Paste the full text of the original draft document here>
+--- END OF DOCUMENT ---
 
 **Explicit Changes to Make:**
 - **In Section [X], find this text:**

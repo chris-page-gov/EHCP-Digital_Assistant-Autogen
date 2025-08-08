@@ -4,6 +4,10 @@ import pypdf
 import logging
 from typing import List, Dict, Any
 from functools import lru_cache
+import aiofiles
+import asyncio
+import threading
+from collections import defaultdict
 
 
 # Define base directories
@@ -39,24 +43,7 @@ def read_markdown_file(filepath: str) -> str:
         return f"Error: File not found at {filepath}"
     except Exception as e:
         return f"Error reading file {filepath}: {e}"
-
-# def read_markdown_file(filepath: str) -> str:
-#     """
-#     Reads the content of a markdown file.
-#     Args:
-#         filepath (str): The path to the markdown file.
-#     Returns:
-#         str: The content of the file.
-#     """
-#     try:
-#         with open(filepath, 'r', encoding='utf-8') as f:
-#             return f.read()
-#     except FileNotFoundError:
-#         return f"Error: File not found at {filepath}"
-#     except Exception as e:
-#         return f"Error reading file {filepath}: {e}"
     
-
 @lru_cache(maxsize=10)
 def _cached_read_files(filepaths_tuple: tuple[str]) -> str:
     """
@@ -156,23 +143,6 @@ def save_markdown_file(filepath: str, content: str) -> str:
     except Exception as e:
         return f"Error saving file {filepath}: {e}"
 
-# def save_markdown_file(filepath: str, content: str) -> str:
-#     """
-#     Saves content to a markdown file.
-#     Args:
-#         filepath (str): The path to the file to be saved.
-#         content (str): The content to write to the file.
-#     Returns:
-#         str: A confirmation message.
-#     """
-#     try:
-#         os.makedirs(os.path.dirname(filepath), exist_ok=True)
-#         with open(filepath, 'w', encoding='utf-8') as f:
-#             f.write(content)
-#         return f"Successfully saved file to {filepath}"
-#     except Exception as e:
-#         return f"Error saving file {filepath}: {e}"
-
 def parse_feedback_and_count_issues(feedback_content: str) -> Dict[str, int]:
     """
     Parses a feedback document to find a [FEEDBACK_SUMMARY] block and extract issue counts.
@@ -206,55 +176,6 @@ def parse_feedback_and_count_issues(feedback_content: str) -> Dict[str, int]:
         return {"critical": 0, "major": 0, "minor": 0}
 
     return counts
-
-# def calculate_total_cost_and_tokens(agents: List[Any]) -> Dict[str, Any]:
-#     """
-#     Calculates the total cost and token usage across all agents.
-
-#     Args:
-#         agents (List[Any]): A list of Autogen agent objects.
-
-#     Returns:
-#         Dict[str, Any]: A dictionary containing total tokens, prompt tokens,
-#                         completion tokens, and the total cost.
-#     """
-#     total_cost = 0
-#     total_tokens = 0
-#     total_prompt_tokens = 0
-#     total_completion_tokens = 0
-
-#     # The oai_client is a class variable, so we access it from one of the agents
-#     # to get the cost. It's the same client for all.
-#     client = agents[0].client if agents else None
-
-#     if not client:
-#         return {
-#             "total_tokens": 0,
-#             "prompt_tokens": 0,
-#             "completion_tokens": 0,
-#             "total_cost": 0.0,
-#         }
-
-#     for agent in agents:
-#         if hasattr(agent, "client") and hasattr(agent.client, "total_cost"):
-#             total_cost += agent.client.total_cost
-
-#         # Accessing the "private" _oai_messages is the most reliable way to get all message histories
-#         if hasattr(agent, '_oai_messages'):
-#             for a, messages in agent._oai_messages.items():
-#                 for msg in messages:
-#                     if isinstance(msg, dict) and 'usage' in msg and msg['usage'] is not None:
-#                         usage = msg['usage']
-#                         total_prompt_tokens += usage.get("prompt_tokens", 0)
-#                         total_completion_tokens += usage.get("completion_tokens", 0)
-#                         total_tokens += usage.get("total_tokens", 0)
-    
-#     return {
-#         "total_tokens": total_tokens,
-#         "prompt_tokens": total_prompt_tokens,
-#         "completion_tokens": total_completion_tokens,
-#         "total_cost": round(total_cost, 4), # Round to 4 decimal places
-#     }
 
 def _clean_text(text: str) -> str:
     """
@@ -360,7 +281,77 @@ def merge_output_files(num_sections: int, output_dir: str, final_filename: str) 
     except IOError as e:
         logging.error(f"An I/O error occurred during merging: {e}")
         return False
+
+_async_single_file_cache: Dict[str, str] = {}
+
+async def read_markdown_file_async(filepath: str) -> str:
+    """Asynchronously reads a markdown file using a custom in-memory cache."""
+    if filepath in _async_single_file_cache:
+        return _async_single_file_cache[filepath]
     
+    try:
+        async with aiofiles.open(filepath, 'r', encoding='utf-8') as f:
+            content = await f.read()
+            _async_single_file_cache[filepath] = content
+            return content
+    except FileNotFoundError:
+        return f"Error: File not found at {filepath}"
+    except Exception as e:
+        return f"Error reading file {filepath}: {e}"
+
+async def save_markdown_file_async(filepath: str, content: str) -> str:
+    """Asynchronously saves content to a markdown file and invalidates its cache entry."""
+    try:
+        os.makedirs(os.path.dirname(filepath), exist_ok=True)
+        async with aiofiles.open(filepath, 'w', encoding='utf-8') as f:
+            await f.write(content)
+        
+        if filepath in _async_single_file_cache:
+            del _async_single_file_cache[filepath]
+            
+        return f"Successfully saved file to {filepath} and invalidated its cache entry."
+    except Exception as e:
+        return f"Error saving file {filepath}: {e}"    
+
+@lru_cache(maxsize=10)
+def _read_and_cache_multiple_files_sync(filepaths_tuple: tuple[str]) -> str:
+    """
+    Internal SYNCHRONOUS function to read and cache the combined source documents.
+    This will block ONCE per run, the very first time it's called. All subsequent
+    calls will be instantaneous memory reads.
+    """
+    full_content = ""
+    for filepath in filepaths_tuple:
+        filename = os.path.basename(filepath)
+        full_content += f"--- START OF FILE {filename} ---\n\n"
+        try:
+            with open(filepath, 'r', encoding='utf-8') as f:
+                full_content += f.read()
+        except FileNotFoundError:
+            full_content += f"Error: File not found at {filepath}"
+        except Exception as e:
+            full_content += f"Error reading file {filepath}: {e}"
+        
+        full_content += f"\n\n--- END OF FILE {filename} ---\n\n"
+        
+    return full_content
+
+async def read_multiple_markdown_files_async(filepaths: list[str]) -> str:
+    """
+    Asynchronously reads multiple markdown files.
+    This tool is now a non-blocking wrapper around a synchronous, cached function.
+    """
+    filepaths_tuple = tuple(sorted(filepaths))
+    
+    # Run the synchronous, blocking function in a separate thread pool executor
+    # so that it doesn't block the main asyncio event loop.
+    loop = asyncio.get_running_loop()
+    content = await loop.run_in_executor(
+        None,  # Use the default thread pool executor
+        _read_and_cache_multiple_files_sync,
+        filepaths_tuple
+    )
+    return content
 
 def is_terminate_message(message):
     """
@@ -374,3 +365,74 @@ def is_terminate_message(message):
         if content is not None:
             return content.rstrip().endswith("TERMINATE")
     return False
+
+class TokenTracker:
+    """
+    A thread-safe class to track token usage for different LLM models.
+    This is designed to be used as a callback with litellm.
+    """
+    def __init__(self):
+        # Use a lock to ensure thread-safe updates from concurrent API calls
+        self._lock = threading.Lock()
+        # Use defaultdict to simplify adding new models
+        self._token_counts = defaultdict(lambda: {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0})
+
+    def log_success(self, kwargs: dict):
+        """
+        Callback function to be registered with litellm.success_callback.
+        Extracts token usage from the API response and updates the counts.
+        """
+        try:
+            # LiteLLM passes the 'response' object in kwargs
+            response_obj = kwargs.get("response")
+            if not response_obj:
+                return
+
+            model_name = response_obj.model
+            usage = response_obj.usage
+
+            if not model_name or not usage:
+                return
+
+            prompt_tokens = usage.prompt_tokens
+            completion_tokens = usage.completion_tokens
+            total_tokens = usage.total_tokens
+
+            # Acquire the lock to prevent race conditions during updates
+            with self._lock:
+                self._token_counts[model_name]["prompt_tokens"] += prompt_tokens
+                self._token_counts[model_name]["completion_tokens"] += completion_tokens
+                self._token_counts[model_name]["total_tokens"] += total_tokens
+        
+        except Exception as e:
+            # A non-critical error in logging should not crash the main application
+            logging.warning(f"[TokenTracker] Error processing callback: {e}")
+
+    def display_summary(self):
+        """
+        Prints a formatted summary of the token usage for each model.
+        Should be called at the end of the main script.
+        """
+        summary_lines = ["\n", "="*50, "           LLM TOKEN USAGE SUMMARY", "="*50]
+        
+        if not self._token_counts:
+            summary_lines.append("No token usage was recorded.")
+        else:
+            grand_total = 0
+            for model, counts in self._token_counts.items():
+                summary_lines.append(f"\nModel: {model}")
+                summary_lines.append(f"  - Prompt Tokens:     {counts['prompt_tokens']:,}")
+                summary_lines.append(f"  - Completion Tokens: {counts['completion_tokens']:,}")
+                summary_lines.append(f"  - Total Tokens:      {counts['total_tokens']:,}")
+                grand_total += counts['total_tokens']
+            
+            summary_lines.append("="*50)
+            summary_lines.append(f"GRAND TOTAL (all models): {grand_total:,} tokens")
+
+        summary_lines.append("="*50)
+        
+        summary_text = "\n".join(summary_lines)
+        
+        # Print to console and also log to the main log file
+        print(summary_text)
+        logging.getLogger('LoopTracer').info(summary_text)

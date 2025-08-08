@@ -3,12 +3,12 @@ from autogen import ConversableAgent, UserProxyAgent, GroupChat, GroupChatManage
 from typing import List, Dict
 
 from utils import (
-    read_markdown_file,
-    read_multiple_markdown_files,
-    #read_pdf_file,
     list_files_in_directory,
-    save_markdown_file,
     is_terminate_message,
+    read_markdown_file_async,
+    read_multiple_markdown_files_async,
+    save_markdown_file_async,
+    PROCESSED_DOCS_DIR,
     DOCS_DIR,
     OUTPUTS_DIR,
 )
@@ -45,21 +45,21 @@ def create_writer_team(llm_config: Dict, llm_config_fast: Dict) -> GroupChatMana
         llm_config=llm_config_fast,
         system_message=
         
-        """You are a meticulous planner. Your role is to create a simple, step-by-step plan for the writer team. You do not write content or call tools yourself. Your output must ONLY be the plan.
+        """You are a meticulous planner. Your role is to create a step-by-step plan and ensure it is followed precisely.
 
-        **Your plan should always follow this structure:**
-        1.  **Read Files:** Direct the `Writer_User_Proxy` to read all necessary files as described in the user's request using the read_multiple_markdown_files tool.
-        2.  **Draft/Revise Content:** Direct the `Document_Writer` to synthesize the information and write the document.
-        3.  **Save Output:** Direct the `Writer_User_Proxy` to save the resulting draft to the specified file.
+        **Your plan is ALWAYS:**
+        1.  **Read Guidance:** Direct the `Writer_User_Proxy` to read ONLY the single guidance file specified in the task.
+        2.  **Read Sources:** After the guidance is read, direct the `Writer_User_Proxy` to read ALL the source documents from the `processed_docs` folder.
+        3.  **Draft Content:** After all sources are read, direct the `Document_Writer` to synthesize ALL the provided information to write the document.
+        4.  **Save Output:** After the draft is complete, direct the `Writer_User_Proxy` to save the result.
+        5.  **Terminate:** After the save is confirmed, you MUST respond with the single word: "TERMINATE".
 
-        After the file is saved, you must confirm the entire task is complete.
-        **Once you see a message confirming the file has been successfully saved, your next response must be one single word: TERMINATE**
-        """
+        You will output one step of the plan at a time and wait for it to be completed before announcing the next step. Do not combine steps."""
     )
  
     
     # Register tools for the UserProxyAgent to call
-    for func in [read_markdown_file, list_files_in_directory, save_markdown_file, read_multiple_markdown_files]:
+    for func in [read_markdown_file_async, list_files_in_directory, save_markdown_file_async, read_multiple_markdown_files_async]:
         autogen.agentchat.register_function(
             func,
             caller=writer_user_proxy,
@@ -107,17 +107,15 @@ def create_final_writer_team(llm_config: Dict, llm_config_fast: Dict) -> GroupCh
     document_polisher = ConversableAgent(
         name="Document_Polisher",
         llm_config=llm_config,
-        system_message="""You are a 'find and replace' text editor bot.
-You will be given a document and a list of explicit "find and replace" or "find and delete" instructions inside a [REVISION_REQUEST].
-Your SOLE task is to execute these instructions literally and exactly as they are written.
-- **Do not** add any new information.
-- **Do not** rephrase or "improve" any text you are not explicitly told to change.
-- **Do not** change any formatting unless the instructions tell you to.
-- If an instruction says to "replace", you will replace the entire found block with the provided replacement block.
-- If an instruction says to "delete", you will delete the entire found block.
+        system_message="""You are a hyper-literal text processing bot. You will perform a series of 'find and replace' or 'find and delete' operations on a given document.
 
-Your output must be ONLY the full document text after you have performed all the find-and-replace/delete operations.
-"""
+        **Your process is a strict, unchangeable algorithm:**
+        1.  **Identify the Baseline:** Locate the full, original document text provided in the prompt under the `**Document to Revise:**` heading.
+        2.  **Execute Changes Sequentially:** Go through the list under `**Explicit Changes to Make:**` one by one. For each instruction, perform the find-and-replace or find-and-delete operation on the baseline text.
+        3.  **Preserve Everything Else:** The Golden Rule is that any text not explicitly targeted by a 'find' instruction MUST be preserved in its original form and position.
+
+        **CRITICAL OUTPUT RULE:** Your final, entire response must be the **complete and full text of the document** after all modifications have been made. Do not output conversational text, explanations, or just the sections you changed. The output must be the whole document, from the first character to the last.
+        """
         
     )
     
@@ -128,14 +126,14 @@ Your output must be ONLY the full document text after you have performed all the
         Your plan is simple:
         1. **Revise Content:** Direct the `Document_Polisher` to execute the revision request from the prompt.
         2. **Save Output:** Direct the `Final_Writer_Proxy` to save the polished document.
-        After the file is saved, you MUST confirm the task is complete by replying with the single word: TERMINATE"""
+        After the file is saved, you MUST confirm the task is complete by replying with the single word: "TERMINATE"."""
     ) 
     
     tools_to_register = [
         # read_markdown_file,
         # read_multiple_markdown_files, 
         # list_files_in_directory, 
-        save_markdown_file,
+        save_markdown_file_async,
     ]
     for func in tools_to_register:
         autogen.agentchat.register_function(
@@ -148,7 +146,7 @@ Your output must be ONLY the full document text after you have performed all the
 
     # The group chat for the final team.
     groupchat = GroupChat(
-        agents=[final_writer_proxy, document_polisher],
+        agents=[final_writer_proxy, document_polisher, planner],
         messages=[],
         max_round=25
     )

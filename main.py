@@ -2,21 +2,26 @@ import os
 import sys
 import logging
 import time
+import autogen
 from autogen import ConversableAgent
 import litellm
 from datetime import datetime
 from dotenv import load_dotenv
 from typing import List, Dict
+import asyncio
 
-from writer_lean import create_writer_team, create_final_writer_team
-from validator_heavy import create_validator_team, create_final_validator_team
+from writer import create_writer_team, create_final_writer_team
+from validator import create_validator_team, create_final_validator_team
 from specialist_agents import create_prompt_writer_agent, create_final_prompt_writer_agent
-from tasks import get_correction_task, get_creation_task, get_final_validation_task, get_final_writer_task, get_validation_task
+from tasks import get_correction_task, get_creation_task, get_final_validation_task, get_final_writer_task, get_validation_task, run_validation_async
 from utils import (
+    read_markdown_file_async,
     read_markdown_file,
+    save_markdown_file_async,
     parse_feedback_and_count_issues,
     preprocess_all_pdfs,
     merge_output_files,
+    TokenTracker,
     DOCS_DIR,
     PROCESSED_DOCS_DIR,
     OUTPUTS_DIR,
@@ -103,12 +108,88 @@ def setup_environment():
     os.makedirs(INSTRUCTIONS_DIR, exist_ok=True)
     print("Environment setup complete.")
 
+async def process_section(section_number: str, semaphore: asyncio.Semaphore, llm_config: Dict, llm_config_fast: Dict, prompt_writer: ConversableAgent):
+    """Asynchronously processes a single section, including retries, under a semaphore."""
+    async with semaphore:
+        logging.info(f"Semaphore acquired for section {section_number}. Starting processing.")
+        
+        output_filepath = os.path.join(OUTPUTS_DIR, f"output_s{section_number}.md")
+        feedback_filepath = os.path.join(OUTPUTS_DIR, f"feedback_s{section_number}.md")
+        
+        max_iterations = 10
+        loop_logger = logging.getLogger('LoopTracer')
 
-def main():
+        try: # <--- START OF THE ISOLATION BLOCK
+            for i in range(1, max_iterations + 1):
+                logging.info(f"\n{'='*20} SECTION {section_number} - ITERATION {i} {'='*20}")
+                
+                # --- WRITER TEAM ---
+                writer_manager = create_writer_team(llm_config, llm_config_fast)
+                writer_proxy_agent = writer_manager.groupchat.agent_by_name("Writer_User_Proxy")
+                
+                if i == 1:
+                    writer_task = get_creation_task(section_number)
+                else:
+                    logging.info(f"--- Preparing clean revision request for s{section_number} with Prompt_Writer ---")
+                    previous_draft = await read_markdown_file_async(output_filepath)
+                    feedback_report = await read_markdown_file_async(feedback_filepath)
+                    
+                    prompt_writer_task = f"""
+    Here is a document that failed validation and the feedback report. Create a clean [REVISION_REQUEST] for the Document_Writer.
+
+    **Document to Revise:**
+    {previous_draft}
+
+    **Feedback Report:**
+    {feedback_report}
+    """
+                    # Use the async version of generate_reply
+                    clean_request = await prompt_writer.a_generate_reply(messages=[{"role": "user", "content": prompt_writer_task}])
+                    
+                    writer_task = get_correction_task(section_number, clean_request)
+
+                await writer_proxy_agent.a_initiate_chat(
+                    recipient=writer_manager, message=writer_task, clear_history=True
+                )
+                loop_logger.info(f"Section {section_number}, Iteration {i}: Writer team completed.")
+
+                # --- VALIDATOR TEAM ---
+                await run_validation_async(section_number, llm_config, llm_config_fast)
+                loop_logger.info(f"Section {section_number}, Iteration {i}: Validator team completed.")
+            
+                # Assessment
+                feedback_content = await read_markdown_file_async(feedback_filepath)
+                issue_counts = parse_feedback_and_count_issues(feedback_content)
+                logging.info(f"Section {section_number} Issues Found: Critical={issue_counts['critical']}, Major={issue_counts['major']}, Minor={issue_counts['minor']}")
+
+                if issue_counts['critical'] == 0 and i >= 2:
+                    logging.info(f"\n✅ Success! Section {section_number} passed validation on iteration {i}.")
+                    loop_logger.info(f"===== Section {section_number} PASSED =====")
+                    return True
+                elif issue_counts['critical'] == 0 and i == 1:
+                    logging.info(f"\n⚠️ Section {section_number} passed on first attempt. Forcing a second loop for robustness.")
+                    loop_logger.info(f"Section {section_number}, Iteration 1: Passed, but continuing to mandatory second loop.")
+            
+            logging.error(f"\n🚫 FAILED: Section {section_number} could not pass after {max_iterations} iterations.")
+            return False # Failure for this section
+            
+        except Exception as e:
+            # If anything inside the loop crashes
+            # (e.g., an unexpected agent error, a file not found, a sudden API outage),
+            # this block will catch it.
+            logging.critical(f"FATAL ERROR in process_section '{section_number}': {e}", exc_info=True)
+            loop_logger.critical(f"===== Section {section_number} FAILED with a critical exception: {e} =====")
+            return False # Return False to signal failure, but DO NOT re-raise the exception.    
+
+
+async def main_async():
     """Main function to run the writer-validator loop."""
     start_time = time.monotonic()
     run_timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     setup_logging(run_timestamp)
+
+    token_tracker = TokenTracker()
+    litellm.success_callback = [token_tracker.log_success]
 
     litellm.max_retries = 5
 
@@ -131,9 +212,9 @@ def main():
     azure_model_name2 = os.getenv("AZURE_OPENAI_MODEL_NAME2")
     azure_api_version = os.getenv("AZURE_OPENAI_API_VERSION")
 
-    if not all([azure_api_key, azure_endpoint, azure_model_name, azure_api_version]):
+    if not all([azure_api_key, azure_endpoint, azure_model_name, azure_model_name2, azure_api_version]):
         logging.error("Error: One or more Azure OpenAI environment variables are not set.")
-        logging.error("Please check your .env file for: AZURE_OPENAI_API_KEY, AZURE_OPENAI_ENDPOINT, AZURE_OPENAI_MODEL_NAME, AZURE_OPENAI_API_VERSION")
+        logging.error("Please check your .env file for: AZURE_OPENAI_API_KEY, AZURE_OPENAI_ENDPOINT, AZURE_OPENAI_MODEL_NAME, AZURE_OPENAI_MODEL_NAME2, AZURE_OPENAI_API_VERSION")
         loop_logger.error("Process stopped: Missing Azure credentials.")
         return
 
@@ -165,113 +246,27 @@ def main():
         "config_list": config_list_fast, 
         "timeout": 300,
         }
-    
+      
     prompt_writer = create_prompt_writer_agent(llm_config_fast)
     final_prompt_writer = create_final_prompt_writer_agent(llm_config_fast)
     
     total_sections = 5
-    process_completed_successfully = True
-    for section_number in range(1, total_sections + 1):
-        logging.info(f"\n{'#'*25} STARTING SECTION {section_number} {'#'*25}")
-        loop_logger.info(f"===== Processing Section {section_number} START =====")
-
-    # --- Dynamically generate file paths for the current section ---
-        writer_guidance_file = os.path.join(INSTRUCTIONS_DIR, f"writer_guidance_s{section_number}.md")
-        validation_guidance_file = os.path.join(INSTRUCTIONS_DIR, f"validation_guidance_s{section_number}.md")
-        output_filepath = os.path.join(OUTPUTS_DIR, f"output_s{section_number}.md")
-        feedback_filepath = os.path.join(OUTPUTS_DIR, f"feedback_s{section_number}.md")
-
-        # --- Guardrail: Check if guidance files exist before starting ---
-        if not os.path.exists(writer_guidance_file) or not os.path.exists(validation_guidance_file):
-            logging.error(f"Guidance files for Section {section_number} not found. Searched for:")
-            logging.error(f"- {writer_guidance_file}")
-            logging.error(f"- {validation_guidance_file}")
-            logging.error("Stopping process.")
-            loop_logger.error(f"Process stopped: Missing guidance files for Section {section_number}.")
-            process_completed_successfully = False
-            break # Exit the main section loop
-
-        max_iterations = 10
-        feedback_content = "No feedback yet. This is the first attempt."
-        section_passed = False
-
-        for i in range(max_iterations):
-            iteration = i + 1
-            logging.info(f"\n{'='*20} SECTION {section_number} - ITERATION {iteration} {'='*20}")
-            loop_logger.info(f"--- Section {section_number}, Iteration {iteration} START ---")
-
-            # --- WRITER TEAM ---
-            logging.info("\n--- Kicking off Writer Team ---")
-            writer_manager = create_writer_team(llm_config=llm_config, llm_config_fast=llm_config_fast)
-            writer_proxy_agent = writer_manager.groupchat.agent_by_name("Writer_User_Proxy")
-
-            if iteration == 1:
-                writer_task = get_creation_task(section_number)
-            else:
-                logging.info("--- Preparing clean revision request with Prompt_Writer ---")
-                previous_draft = read_markdown_file(output_filepath)
-                feedback_report = read_markdown_file(feedback_filepath)
-
-                # Create a prompt for the prompt_writer
-                prompt_writer_task = f"""
-                Here is a document that failed validation and the feedback report. Create a clean [REVISION_REQUEST] for the Document_Writer.
-
-                **Document to Revise:**
-                {previous_draft}
-
-                **Feedback Report:**
-                {feedback_report}
-                """
-
-                # Directly call the agent to get a reply
-                clean_request = prompt_writer.generate_reply(messages=[{"role": "user", "content": prompt_writer_task}])
-
-                # Create the writer task with the clean request
-                writer_task = get_correction_task(section_number, clean_request)
-
-            writer_proxy_agent.initiate_chat(
-                recipient=writer_manager, 
-                message=writer_task,
-                clear_history=(iteration > 1)
-            )
-
-            loop_logger.info(f"Section {section_number}, Iteration {iteration}: Writer team completed.")
-
-            # --- VALIDATOR TEAM ---
-            logging.info("\n--- Kicking off Validator Team ---")
-            get_validation_task(section_number, llm_config, llm_config_fast)
-            loop_logger.info(f"Section {section_number}, Iteration {iteration}: Validator team completed.")
-
-            # --- ASSESSMENT ---
-            logging.info("\n--- Assessing Feedback ---")
-            feedback_content = read_markdown_file(feedback_filepath)
-            if "Error:" in feedback_content:
-                logging.error(f"Could not read feedback file: {feedback_content}")
-                loop_logger.error(f"Section {section_number}: FAILED to read feedback file. Aborting section.")
-                break # Exit the inner iteration loop for this section
-
-            issue_counts = parse_feedback_and_count_issues(feedback_content)
-            logging.info(f"Section {section_number} Issues Found: Critical={issue_counts['critical']}, Major={issue_counts['major']}, Minor={issue_counts['minor']}")
-            loop_logger.info(f"Section {section_number}, Iteration {iteration} Result: Critical={issue_counts['critical']}.")
-
-            if iteration >= 2 and issue_counts['critical'] == 0:
-                logging.info(f"\n✅ Success! Section {section_number} passed validation.")
-                loop_logger.info(f"===== Section {section_number} PASSED =====")
-                section_passed = True
-                break # Exit inner loop and proceed to the next section
-            elif iteration == 1:
-                logging.info(f"\n🔄 First iteration complete. Proceeding to mandatory refinement iteration.")
-                loop_logger.info(f"Section {section_number}, Iteration 1 complete. Feedback will be used in Iteration 2.")
-            else:
-                logging.warning(f"\n❌ Critical issues found for Section {section_number}. Retrying...")
-                loop_logger.warning(f"Section {section_number}, Iteration {iteration} FAILED. Retrying.")
-
-        # --- After inner loop, check if the section ultimately failed ---
-        if not section_passed:
-            logging.error(f"\n🚫 FAILED: Section {section_number} could not be completed after {max_iterations} iterations.")
-            loop_logger.error(f"===== Section {section_number} FAILED TO PASS. Aborting entire run. =====")
-            process_completed_successfully = False
-            break # Exit the main section loop
+    
+    CONCURRENT_SECTIONS = 5
+    semaphore = asyncio.Semaphore(CONCURRENT_SECTIONS)
+    
+    logging.info(f"Starting concurrent processing for {total_sections} sections with a limit of {CONCURRENT_SECTIONS}.")
+    
+    sections_to_process = [i for i in range(1, total_sections + 1)]
+    
+    # --- CONCURRENT SECTIONAL PROCESSING ---
+    processing_tasks = [
+        process_section(sec_id, semaphore, llm_config, llm_config_fast, prompt_writer)
+        for sec_id in sections_to_process
+    ]
+    
+    section_results = await asyncio.gather(*processing_tasks)
+    process_completed_successfully = all(section_results)
 
 
     # Final valiadation phase
@@ -305,7 +300,7 @@ def main():
                 final_validator_manager = create_final_validator_team(llm_config=llm_config, llm_config_fast=llm_config_fast)
                 final_validator_proxy = final_validator_manager.groupchat.agent_by_name("Final_Validator_Proxy")
                 final_validation_task = get_final_validation_task(final_output_filepath, final_validation_guidance, final_feedback_filepath)
-                final_validator_proxy.initiate_chat(recipient=final_validator_manager, message=final_validation_task, clear_history=True)
+                await final_validator_proxy.a_initiate_chat(recipient=final_validator_manager, message=final_validation_task, clear_history=True)
                 loop_logger.info(f"Finalization Iteration {iteration}: Validator team completed.")          
 
                 final_feedback_content = read_markdown_file(final_feedback_filepath)
@@ -321,7 +316,8 @@ def main():
                     logging.warning(f"\n❌ Critical issues found in final document. Starting correction...")
                     # --- PROMPT WRITER SANITIZES FEEDBACK ---
                     logging.info("--- Preparing clean revision request with Prompt_Writer ---")
-                    previous_draft = read_markdown_file(final_output_filepath)
+                    previous_draft = await read_markdown_file_async(final_output_filepath)
+                    final_feedback_content = await read_markdown_file_async(final_feedback_filepath)
                     prompt_writer_task = f"""
                     Here is a final document that failed validation and the feedback report. Create a clean [REVISION_REQUEST] for the Document_Polisher.
 
@@ -331,7 +327,7 @@ def main():
                     **Feedback Report:**
                     {final_feedback_content}
                     """
-                    clean_final_request = final_prompt_writer.generate_reply(messages=[{"role": "user", "content": prompt_writer_task}])
+                    clean_final_request = await final_prompt_writer.a_generate_reply(messages=[{"role": "user", "content": prompt_writer_task}])
 
                     # --- FINAL WRITER TEAM ---
                     logging.info("--- Kicking off Final Writer Team for correction ---")
@@ -339,7 +335,7 @@ def main():
                     final_writer_proxy = final_writer_manager.groupchat.agent_by_name("Final_Writer_Proxy")
                     final_writer_task = get_final_writer_task(final_output_filepath, final_writer_guidance, clean_final_request)
                     
-                    final_writer_proxy.initiate_chat(recipient=final_writer_manager, message=final_writer_task, clear_history=True)
+                    await final_writer_proxy.a_initiate_chat(recipient=final_writer_manager, message=final_writer_task, clear_history=True)
                     loop_logger.info(f"Finalization Iteration {iteration}: Writer team completed correction.")
 
             if not final_document_passed:
@@ -365,5 +361,20 @@ def main():
     loop_logger.info(f"Total Execution Time: {total_duration_seconds:.2f} seconds ({total_duration_minutes:.2f} minutes)")
     loop_logger.info("=" * 40)
 
+    token_tracker.display_summary()
+
 if __name__ == "__main__":
-    main()
+    try:
+        # Run the main asynchronous event loop.
+        asyncio.run(main_async())
+
+    except KeyboardInterrupt:
+        # This block catches the user pressing Ctrl+C.
+        print("\nProcess interrupted by user. Shutting down.")
+        logging.getLogger('LoopTracer').warning("===== PROCESS TERMINATED BY USER =====")
+        # The script will exit automatically after this block, and Python
+        # will handle the basic closing of open file handlers from logging.
+
+    except Exception as e:
+        # This is a catch-all for any other unexpected errors.
+        logging.getLogger('LoopTracer').critical(f"===== A FATAL ERROR OCCURRED: {e} =====")

@@ -3,11 +3,14 @@ from autogen import ConversableAgent, UserProxyAgent, GroupChat, GroupChatManage
 from typing import Dict
 
 from utils import (
-    read_markdown_file,
-    save_markdown_file,
     list_files_in_directory,
-    read_multiple_markdown_files,
     is_terminate_message,
+    read_markdown_file_async,
+    read_multiple_markdown_files_async,
+    save_markdown_file_async,
+    PROCESSED_DOCS_DIR,
+    DOCS_DIR,
+    INSTRUCTIONS_DIR,
     OUTPUTS_DIR,
 )
 
@@ -27,7 +30,7 @@ def create_validator_team(llm_config: Dict, llm_config_fast: Dict) -> GroupChatM
         llm_config=llm_config_fast,
         system_message="""You are the user proxy and tool executor for the validation team.
         Your job is to execute tool calls as directed by other agents.
-        You will read files when asked and, crucially, you will save the final consolidated feedback report using the `save_markdown_file` tool when the `Quality_Assessor` provides it.
+        You will read files when asked and, crucially, you will save the final consolidated feedback report using the `save_markdown_file_async` tool when the `Quality_Assessor` provides it.
         You will listen for the `Quality_Assessor` to say 'TERMINATE', at which point the task will end."""
     )
 
@@ -62,7 +65,7 @@ def create_validator_team(llm_config: Dict, llm_config_fast: Dict) -> GroupChatM
     )
 
     # Register tools for the UserProxyAgent to call
-    for func in [read_markdown_file, list_files_in_directory, save_markdown_file, read_multiple_markdown_files]:
+    for func in [read_markdown_file_async, list_files_in_directory, save_markdown_file_async, read_multiple_markdown_files_async]:
         autogen.agentchat.register_function(
             func,
             caller=validator_user_proxy,
@@ -104,12 +107,12 @@ def create_final_validator_team(llm_config: Dict, llm_config_fast: Dict) -> Grou
         name="Final_Validator_Proxy",
         is_termination_msg=is_terminate_message,
         human_input_mode="NEVER",
-        max_consecutive_auto_reply=10,
+        max_consecutive_auto_reply=20,
         code_execution_config={"use_docker": False},
         llm_config=llm_config_fast,
         system_message="""You are the user proxy for the final validation team. 
         Your job is to execute tool calls as directed.
-        After the `Holistic_Assessor` provides the final feedback report, you MUST save it using `save_markdown_file`. 
+        After the `Holistic_Assessor` provides the final feedback report, you MUST save it using `save_markdown_file_async`. 
         You will listen for the `Holistic_Assessor` to say 'TERMINATE', at which point the task will end."""
     )
 
@@ -142,12 +145,12 @@ For each issue, you must provide:
 
 Your final output is a structured feedback report containing a list of these explicit findings.
 
-Once the final report is ready, you will instruct the `Final_Validator_Proxy` to save it using the `save_markdown_file` tool. After saving, you will signal the end of the task by replying with 'TERMINATE'.
+**Once the final report is ready, you will instruct the `Final_Validator_Proxy` to save it using the `save_markdown_file_async` tool. After saving, you will signal the end of the task by replying with the single word 'TERMINATE'.**
 """
     )
 
     # Register tools for the proxy agent to call
-    for func in [read_markdown_file, save_markdown_file, read_multiple_markdown_files]:
+    for func in [read_markdown_file_async, save_markdown_file_async, list_files_in_directory, read_multiple_markdown_files_async]:
         autogen.agentchat.register_function(
             func,
             caller=final_validator_proxy,
@@ -159,7 +162,9 @@ Once the final report is ready, you will instruct the `Final_Validator_Proxy` to
     groupchat = GroupChat(
         agents=[final_validator_proxy, holistic_assessor],
         messages=[],
-        max_round=20
+        max_round=20,
+        speaker_selection_method="auto",
+        allow_repeat_speaker=True
     )
     
     manager = GroupChatManager(

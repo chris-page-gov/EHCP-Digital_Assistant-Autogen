@@ -40,6 +40,8 @@ You must create **only one file** in this stage. Use the `save_document_section`
 
 The file `output_s3.md` must be structured with the following four main areas of need. 
 
+### Special Educational Needs and Provision
+
 *   ### Communication and Interaction
 *Children and young people with speech, language and communication needs have difficulty in communicating with others.*
 
