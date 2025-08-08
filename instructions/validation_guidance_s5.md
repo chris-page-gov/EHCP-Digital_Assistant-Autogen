@@ -25,6 +25,8 @@ H2 is for any other social care provision reasonably required by the learning di
 *   **Needs without provision (CRITICAL):** The social care needs described must be clearly outlined in the source documents by professionals along with clearly defined provisions.
 *   **No Needs Statement (Correctness Check):** If no social care needs are present, the file MUST contain the exact phrase "Child or young person has no identified special educational needs in this area".
 
+**All needs must have corresponding provision under either H1 or H2, or both. It is not essential for every need to have both H1 and H2 provisions**
+
 ### Document Structure (CRITICAL)
 Needs, provisions and outcomes MUST be written in the following format:
 **Strengths**

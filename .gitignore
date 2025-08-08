@@ -29,8 +29,6 @@ __pycache__/
 .idea/
 *.DS_Store
 
-# Not currently used, but may be useful in the future
-config.py
 
 # Other files that are not part of the source code or configuration
 /archive/

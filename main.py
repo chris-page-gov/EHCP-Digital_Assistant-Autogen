@@ -9,30 +9,26 @@ from datetime import datetime
 from dotenv import load_dotenv
 from typing import List, Dict
 import asyncio
-import config
 
+import config
 from writer import create_writer_team, create_final_writer_team
-from validator import create_validator_team, create_final_validator_team
+from validator import create_final_validator_team
 from specialist_agents import create_prompt_writer_agent, create_final_prompt_writer_agent
-from tasks import get_correction_task, get_creation_task, get_final_validation_task, get_final_writer_task, get_validation_task, run_validation_async
+from tasks import get_correction_task, get_creation_task, get_final_validation_task, get_final_writer_task, run_validation_async
 from utils import (
     read_markdown_file_async,
-    read_markdown_file,
-    save_markdown_file_async,
     parse_feedback_and_count_issues,
     preprocess_all_pdfs,
     merge_output_files,
     TokenTracker,
-    DOCS_DIR,
-    PROCESSED_DOCS_DIR,
-    OUTPUTS_DIR,
-    INSTRUCTIONS_DIR,
-    LOGS_DIR,
+    clear_directory
 )
 
 # Load environment variables from .env file
 load_dotenv()
 
+token_tracker = TokenTracker()
+litellm.success_callback = [token_tracker.log_success]
 class Tee:
     """A helper class to redirect stdout to both console and a file."""
     def __init__(self, original_stream, log_file):
@@ -52,12 +48,12 @@ def setup_logging(run_timestamp: str):
     Configures logging to capture full terminal output and a separate loop trace.
     """
     # Create logs directory if it doesn't exist
-    os.makedirs(LOGS_DIR, exist_ok=True)
+    os.makedirs(config.LOGS_DIR, exist_ok=True)
 
     # ---- Full Output Logger (mirrors console) ----
     # Construct the log filename with the timestamp
     full_log_filename = f"full_run_{run_timestamp}.log"
-    full_log_path = os.path.join(LOGS_DIR, full_log_filename)
+    full_log_path = os.path.join(config.LOGS_DIR, full_log_filename)
 
     # Open the log file in write mode
     log_file_handle = open(full_log_path, 'w', encoding='utf-8')
@@ -85,7 +81,7 @@ def setup_logging(run_timestamp: str):
     # ---- Loop Trace Logger (only for specific milestones) ----
     # Construct the log filename with the timestamp
     loop_log_filename = f"loop_trace_{run_timestamp}.log"
-    loop_log_path = os.path.join(LOGS_DIR, loop_log_filename)
+    loop_log_path = os.path.join(config.LOGS_DIR, loop_log_filename)
 
     loop_logger = logging.getLogger('LoopTracer')
     loop_logger.setLevel(logging.INFO)
@@ -103,10 +99,10 @@ def setup_logging(run_timestamp: str):
 
 def setup_environment():
     """Create necessary directories if they don't exist."""
-    os.makedirs(DOCS_DIR, exist_ok=True)
-    os.makedirs(PROCESSED_DOCS_DIR, exist_ok=True)
-    os.makedirs(OUTPUTS_DIR, exist_ok=True)
-    os.makedirs(INSTRUCTIONS_DIR, exist_ok=True)
+    os.makedirs(config.DOCS_DIR, exist_ok=True)
+    os.makedirs(config.PROCESSED_DOCS_DIR, exist_ok=True)
+    os.makedirs(config.OUTPUTS_DIR, exist_ok=True)
+    os.makedirs(config.INSTRUCTIONS_DIR, exist_ok=True)
     print("Environment setup complete.")
 
 async def process_section(section_number: str, semaphore: asyncio.Semaphore, llm_config: Dict, llm_config_fast: Dict, prompt_writer: ConversableAgent):
@@ -114,10 +110,10 @@ async def process_section(section_number: str, semaphore: asyncio.Semaphore, llm
     async with semaphore:
         logging.info(f"Semaphore acquired for section {section_number}. Starting processing.")
         
-        output_filepath = os.path.join(OUTPUTS_DIR, f"output_s{section_number}.md")
-        feedback_filepath = os.path.join(OUTPUTS_DIR, f"feedback_s{section_number}.md")
+        output_filepath = os.path.join(config.OUTPUTS_DIR, f"output_s{section_number}.md")
+        feedback_filepath = os.path.join(config.OUTPUTS_DIR, f"feedback_s{section_number}.md")
         
-        max_iterations = 10
+        max_iterations = config.MAX_SECTION_ITERATIONS
         loop_logger = logging.getLogger('LoopTracer')
 
         try: # <--- START OF THE ISOLATION BLOCK
@@ -189,9 +185,6 @@ async def main_async():
     run_timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     setup_logging(run_timestamp)
 
-    token_tracker = TokenTracker()
-    litellm.success_callback = [token_tracker.log_success]
-
     litellm.max_retries = 5
 
     loop_logger = logging.getLogger('LoopTracer')
@@ -253,10 +246,9 @@ async def main_async():
     
     total_sections = 5
     
-    CONCURRENT_SECTIONS = 5
-    semaphore = asyncio.Semaphore(CONCURRENT_SECTIONS)
+    semaphore = asyncio.Semaphore(config.CONCURRENT_SECTIONS)
     
-    logging.info(f"Starting concurrent processing for {total_sections} sections with a limit of {CONCURRENT_SECTIONS}.")
+    logging.info(f"Starting concurrent processing for {total_sections} sections with a limit of {config.CONCURRENT_SECTIONS}.")
     
     sections_to_process = [i for i in range(1, total_sections + 1)]
     
@@ -279,17 +271,17 @@ async def main_async():
         loop_logger.info("===== Starting Finalization Phase: Merging and Holistic Review =====")
 
         final_doc_filename = "final_document.md"
-        merge_success = merge_output_files(total_sections, OUTPUTS_DIR, final_doc_filename)
+        merge_success = merge_output_files(total_sections, config.OUTPUTS_DIR, final_doc_filename)
 
         if not merge_success:
             logging.error("Failed to merge sectional documents. Aborting finalization.")
             loop_logger.error("Process stopped: Merge step failed.")
         else:
-            final_output_filepath = os.path.join(OUTPUTS_DIR, final_doc_filename)
-            final_feedback_filepath = os.path.join(OUTPUTS_DIR, "final_feedback.md")
-            final_writer_guidance = os.path.join(INSTRUCTIONS_DIR, "writer_guidance_final.md")
-            final_validation_guidance = os.path.join(INSTRUCTIONS_DIR, "validation_guidance_final.md")
-            max_final_iterations = 10
+            final_output_filepath = os.path.join(config.OUTPUTS_DIR, final_doc_filename)
+            final_feedback_filepath = os.path.join(config.OUTPUTS_DIR, "final_feedback.md")
+            final_writer_guidance = os.path.join(config.INSTRUCTIONS_DIR, "writer_guidance_final.md")
+            final_validation_guidance = os.path.join(config.INSTRUCTIONS_DIR, "validation_guidance_final.md")
+            max_final_iterations = config.MAX_FINAL_ITERATIONS
             final_feedback_content = "No feedback yet. This is the first validation run on the merged document."
             final_document_passed = False
 
@@ -300,11 +292,11 @@ async def main_async():
 
                 final_validator_manager = create_final_validator_team(llm_config=llm_config, llm_config_fast=llm_config_fast)
                 final_validator_proxy = final_validator_manager.groupchat.agent_by_name("Final_Validator_Proxy")
-                final_validation_task = get_final_validation_task(final_output_filepath, final_validation_guidance, final_feedback_filepath)
+                final_validation_task = get_final_validation_task()
                 await final_validator_proxy.a_initiate_chat(recipient=final_validator_manager, message=final_validation_task, clear_history=True)
                 loop_logger.info(f"Finalization Iteration {iteration}: Validator team completed.")          
 
-                final_feedback_content = read_markdown_file(final_feedback_filepath)
+                final_feedback_content = await read_markdown_file_async(final_feedback_filepath)
                 issue_counts = parse_feedback_and_count_issues(final_feedback_content)
                 logging.info(f"Final Doc Issues Found: Critical={issue_counts['critical']}, Major={issue_counts['major']}, Minor={issue_counts['minor']}")
 
@@ -334,7 +326,7 @@ async def main_async():
                     logging.info("--- Kicking off Final Writer Team for correction ---")
                     final_writer_manager = create_final_writer_team(llm_config=llm_config, llm_config_fast=llm_config_fast)
                     final_writer_proxy = final_writer_manager.groupchat.agent_by_name("Final_Writer_Proxy")
-                    final_writer_task = get_final_writer_task(final_output_filepath, final_writer_guidance, clean_final_request)
+                    final_writer_task = get_final_writer_task(clean_final_request)
                     
                     await final_writer_proxy.a_initiate_chat(recipient=final_writer_manager, message=final_writer_task, clear_history=True)
                     loop_logger.info(f"Finalization Iteration {iteration}: Writer team completed correction.")
@@ -362,20 +354,21 @@ async def main_async():
     loop_logger.info(f"Total Execution Time: {total_duration_seconds:.2f} seconds ({total_duration_minutes:.2f} minutes)")
     loop_logger.info("=" * 40)
 
-    token_tracker.display_summary()
-
 if __name__ == "__main__":
     try:
-        # Run the main asynchronous event loop.
+        # The main asynchronous event loop runs here.
         asyncio.run(main_async())
 
     except KeyboardInterrupt:
-        # This block catches the user pressing Ctrl+C.
         print("\nProcess interrupted by user. Shutting down.")
         logging.getLogger('LoopTracer').warning("===== PROCESS TERMINATED BY USER =====")
-        # The script will exit automatically after this block, and Python
-        # will handle the basic closing of open file handlers from logging.
 
     except Exception as e:
         # This is a catch-all for any other unexpected errors.
-        logging.getLogger('LoopTracer').critical(f"===== A FATAL ERROR OCCURRED: {e} =====")
+        logging.getLogger('LoopTracer').critical(f"===== A FATAL ERROR OCCURRED: {e} =====", exc_info=True)
+
+    finally:
+        print("\n--- Displaying final token usage summary. ---")
+        token_tracker.display_summary()
+        print("\n--- Running final cleanup process. ---")
+        clear_directory(config.PROCESSED_DOCS_DIR)

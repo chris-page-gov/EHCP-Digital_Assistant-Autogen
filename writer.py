@@ -8,9 +8,6 @@ from utils import (
     read_markdown_file_async,
     read_multiple_markdown_files_async,
     save_markdown_file_async,
-    PROCESSED_DOCS_DIR,
-    DOCS_DIR,
-    OUTPUTS_DIR,
 )
 
 # This team is responsible for drafting the document
@@ -36,6 +33,7 @@ def create_writer_team(llm_config: Dict, llm_config_fast: Dict) -> GroupChatMana
         llm_config=llm_config,
         system_message= """You are a professional document writer. Your job is to synthesize information from the provided text into a document.
                         If you receive a [REVISION_REQUEST], refine the document based on the instructions provided. Do not start over unless explicitly told to.
+                        Any changes which you make must comply with the writer's guidance. 
                         Your response must always follow the writer's guidance and only contain information that is clearly referenced in the source documents.
                         Your entire response must be ONLY the content of the document itself. Do not add conversational text. Do not add comments or parentheses to explain where information was taken from """
     )
@@ -115,6 +113,8 @@ def create_final_writer_team(llm_config: Dict, llm_config_fast: Dict) -> GroupCh
         3.  **Preserve Everything Else:** The Golden Rule is that any text not explicitly targeted by a 'find' instruction MUST be preserved in its original form and position.
 
         **CRITICAL OUTPUT RULE:** Your final, entire response must be the **complete and full text of the document** after all modifications have been made. Do not output conversational text, explanations, or just the sections you changed. The output must be the whole document, from the first character to the last.
+
+        **NEVER say anything like 'See original text above for full body'. ALWAYS include the full text in your output**
         """
         
     )

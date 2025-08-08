@@ -8,10 +8,6 @@ from utils import (
     read_markdown_file_async,
     read_multiple_markdown_files_async,
     save_markdown_file_async,
-    PROCESSED_DOCS_DIR,
-    DOCS_DIR,
-    INSTRUCTIONS_DIR,
-    OUTPUTS_DIR,
 )
 
 

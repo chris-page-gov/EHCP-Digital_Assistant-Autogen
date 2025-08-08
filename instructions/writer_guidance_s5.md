@@ -47,6 +47,7 @@ The file `output_s5.md` must be structured as follows. Each need-provision-outco
 ## Content guidelines Social Care Provisions:
 
 **Social care provisions must be seperated between H1 Social Care Provision and H2 Social Care Provision.**
+**It is NOT essential for each need to have BOTH H1 and H2 provision. Some needs may only have provision under one cateogry (H1 or H2).**
 
 ### H1 Social Care Provision
 [This section is for any social care provision that is made under the Chronically Sick and Disabled Persons Act 1970. This includes services like:

@@ -8,41 +8,35 @@ import aiofiles
 import asyncio
 import threading
 from collections import defaultdict
+import config
+import shutil
 
-
-# Define base directories
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DOCS_DIR = os.path.join(BASE_DIR, "docs")
-PROCESSED_DOCS_DIR = os.path.join(BASE_DIR, "processed_docs")
-OUTPUTS_DIR = os.path.join(BASE_DIR, "outputs")
-INSTRUCTIONS_DIR = os.path.join(BASE_DIR, "instructions")
-LOGS_DIR = os.path.join(BASE_DIR, "logs")
 
 # --- Tool Functions ---
 
 _single_file_cache: Dict[str, str] = {}
 
-def read_markdown_file(filepath: str) -> str:
-    """
-    Reads the content of a markdown file using a custom internal cache
-    to speed up repeated reads of static files like guidance documents.
-    """
-    # 2. Check if the result is already in our cache.
-    if filepath in _single_file_cache:
-        # If yes, return the stored content instantly.
-        return _single_file_cache[filepath]
+# def read_markdown_file(filepath: str) -> str:
+#     """
+#     Reads the content of a markdown file using a custom internal cache
+#     to speed up repeated reads of static files like guidance documents.
+#     """
+#     # 2. Check if the result is already in our cache.
+#     if filepath in _single_file_cache:
+#         # If yes, return the stored content instantly.
+#         return _single_file_cache[filepath]
     
-    # 3. If not in the cache, perform the slow disk read.
-    try:
-        with open(filepath, 'r', encoding='utf-8') as f:
-            content = f.read()
-            # 4. Store the newly read content in the cache before returning it.
-            _single_file_cache[filepath] = content
-            return content
-    except FileNotFoundError:
-        return f"Error: File not found at {filepath}"
-    except Exception as e:
-        return f"Error reading file {filepath}: {e}"
+#     # 3. If not in the cache, perform the slow disk read.
+#     try:
+#         with open(filepath, 'r', encoding='utf-8') as f:
+#             content = f.read()
+#             # 4. Store the newly read content in the cache before returning it.
+#             _single_file_cache[filepath] = content
+#             return content
+#     except FileNotFoundError:
+#         return f"Error: File not found at {filepath}"
+#     except Exception as e:
+#         return f"Error reading file {filepath}: {e}"
     
 @lru_cache(maxsize=10)
 def _cached_read_files(filepaths_tuple: tuple[str]) -> str:
@@ -66,26 +60,26 @@ def _cached_read_files(filepaths_tuple: tuple[str]) -> str:
         
     return full_content
 
-def read_multiple_markdown_files(filepaths: list[str]) -> str:
-    """
-    Reads the content of multiple markdown files and concatenates them into a single string.
-    Each file's content is clearly demarcated.
+# def read_multiple_markdown_files(filepaths: list[str]) -> str:
+#     """
+#     Reads the content of multiple markdown files and concatenates them into a single string.
+#     Each file's content is clearly demarcated.
 
-    This function now uses an internal cache to speed up repeated reads of the same file set.
-    Each file's content is clearly demarcated.
+#     This function now uses an internal cache to speed up repeated reads of the same file set.
+#     Each file's content is clearly demarcated.
 
-    Args:
-        filepaths (list[str]): A list of paths to the markdown files.
+#     Args:
+#         filepaths (list[str]): A list of paths to the markdown files.
 
-    Returns:
-        str: The combined content of all files, or an error message if any file fails.
-    """
-    # Convert the list of filepaths to a tuple so it can be used as a cache key.
-    # Sorting ensures that the order of files doesn't matter for caching.
-    filepaths_tuple = tuple(sorted(filepaths))
+#     Returns:
+#         str: The combined content of all files, or an error message if any file fails.
+#     """
+#     # Convert the list of filepaths to a tuple so it can be used as a cache key.
+#     # Sorting ensures that the order of files doesn't matter for caching.
+#     filepaths_tuple = tuple(sorted(filepaths))
     
-    # Call the internal, cached function
-    return _cached_read_files(filepaths_tuple)
+#     # Call the internal, cached function
+#     return _cached_read_files(filepaths_tuple)
         
 def read_pdf_file(filepath: str) -> str:
     """
@@ -119,29 +113,6 @@ def list_files_in_directory(directory: str) -> List[str]:
         return [os.path.join(directory, f) for f in os.listdir(directory) if os.path.isfile(os.path.join(directory, f))]
     except FileNotFoundError:
         return []
-
-def save_markdown_file(filepath: str, content: str) -> str:
-    """
-    Saves content to a markdown file and then SELECTIVELY removes that
-    specific file from the read cache.
-    """
-    try:
-        os.makedirs(os.path.dirname(filepath), exist_ok=True)
-        with open(filepath, 'w', encoding='utf-8') as f:
-            f.write(content)
-        
-        # --- PRECISE CACHE INVALIDATION ---
-        # 5. Check if the file we just saved exists in our cache.
-        if filepath in _single_file_cache:
-            # If it does, delete that specific entry.
-            del _single_file_cache[filepath]
-            # Now, the next time read_markdown_file is called for this path,
-            # it will be a cache miss and will have to re-read from disk.
-            # All other cached files (like the guidance) are unaffected.
-        
-        return f"Successfully saved file to {filepath} and invalidated its cache entry."
-    except Exception as e:
-        return f"Error saving file {filepath}: {e}"
 
 def parse_feedback_and_count_issues(feedback_content: str) -> Dict[str, int]:
     """
@@ -198,24 +169,24 @@ def preprocess_all_pdfs() -> bool:
     logging.info("--- Starting PDF Pre-processing ---")
     
     try:
-        if not os.path.exists(PROCESSED_DOCS_DIR):
-            os.makedirs(PROCESSED_DOCS_DIR)
-            logging.info(f"Created directory: '{PROCESSED_DOCS_DIR}'")
+        if not os.path.exists(config.PROCESSED_DOCS_DIR):
+            os.makedirs(config.PROCESSED_DOCS_DIR)
+            logging.info(f"Created directory: '{config.PROCESSED_DOCS_DIR}'")
 
-        if not os.path.exists(DOCS_DIR):
-            logging.error(f"Source directory '{DOCS_DIR}' not found. Cannot pre-process PDFs.")
+        if not os.path.exists(config.DOCS_DIR):
+            logging.error(f"Source directory '{config.DOCS_DIR}' not found. Cannot pre-process PDFs.")
             return False
 
-        pdf_files: List[str] = [f for f in os.listdir(DOCS_DIR) if f.lower().endswith('.pdf')]
+        pdf_files: List[str] = [f for f in os.listdir(config.DOCS_DIR) if f.lower().endswith('.pdf')]
 
         if not pdf_files:
-            logging.warning(f"No PDF files found in '{DOCS_DIR}'. Pre-processing step will be skipped.")
+            logging.warning(f"No PDF files found in '{config.DOCS_DIR}'. Pre-processing step will be skipped.")
             return True # Not an error, just nothing to do.
 
         logging.info(f"Found {len(pdf_files)} PDF(s) to process.")
 
         for pdf_file in pdf_files:
-            pdf_path = os.path.join(DOCS_DIR, pdf_file)
+            pdf_path = os.path.join(config.DOCS_DIR, pdf_file)
             logging.info(f"Processing '{os.path.basename(pdf_path)}'...")
             
             reader = pypdf.PdfReader(pdf_path)
@@ -232,7 +203,7 @@ def preprocess_all_pdfs() -> bool:
             cleaned_content = _clean_text(extracted_text)
             
             output_filename = os.path.basename(pdf_path) + ".txt"
-            output_path = os.path.join(PROCESSED_DOCS_DIR, output_filename)
+            output_path = os.path.join(config.PROCESSED_DOCS_DIR, output_filename)
 
             with open(output_path, 'w', encoding='utf-8') as f:
                 f.write(cleaned_content)
@@ -244,6 +215,32 @@ def preprocess_all_pdfs() -> bool:
     except Exception as e:
         logging.critical(f"A critical error occurred during PDF pre-processing: {e}")
         return False
+
+def clear_directory(directory_path: str):
+    """
+    Deletes all files and subdirectories within a given directory,
+    but does not delete the directory itself.
+    """
+    logging.info(f"--- Starting cleanup of directory: {directory_path} ---")
+    if not os.path.isdir(directory_path):
+        logging.warning(f"Cleanup skipped: Directory '{directory_path}' does not exist.")
+        return
+
+    # Loop through all the items in the directory
+    for filename in os.listdir(directory_path):
+        file_path = os.path.join(directory_path, filename)
+        try:
+            # If it's a file or a symbolic link, delete it
+            if os.path.isfile(file_path) or os.path.islink(file_path):
+                os.unlink(file_path)
+            # If it's a subdirectory, delete it and all its contents
+            elif os.path.isdir(file_path):
+                shutil.rmtree(file_path)
+        except Exception as e:
+            # Log an error if a specific file couldn't be deleted, but continue the process
+            logging.error(f"Failed to delete {file_path}. Reason: {e}")
+    
+    logging.info(f"--- Cleanup of {directory_path} complete. ---")
 
 def merge_output_files(num_sections: int, output_dir: str, final_filename: str) -> bool:
     """
@@ -365,7 +362,6 @@ def is_terminate_message(message):
         if content is not None:
             return content.rstrip().endswith("TERMINATE")
     return False
-
 class TokenTracker:
     """
     A thread-safe class to track token usage for different LLM models.
