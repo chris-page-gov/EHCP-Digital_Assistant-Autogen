@@ -432,3 +432,38 @@ class TokenTracker:
         # Print to console and also log to the main log file
         print(summary_text)
         logging.getLogger('LoopTracer').info(summary_text)
+
+def parse_holistic_feedback(feedback_content: str) -> dict[str, str]:
+    """
+    Parses the structured feedback report from the Holistic_Assessor to extract
+    feedback for each specific section file.
+
+    Args:
+        feedback_content: The full markdown text of the feedback report.
+
+    Returns:
+        A dictionary where keys are section numbers (e.g., "3") and values
+        are the feedback text for that section.
+    """
+    feedback_per_section = {}
+    
+    # Regex to find all feedback blocks.
+    # It looks for "### Feedback for: `output_sX.md`" and captures everything
+    # until it hits the next "---" separator or the end of the string.
+    # re.DOTALL allows '.' to match newlines.
+    pattern = re.compile(r"### Feedback for: `output_s(\d+)\.md`\s*\n(.*?)(?=\n---\n|### Feedback for:|\Z)", re.DOTALL)
+    
+    matches = pattern.finditer(feedback_content)
+    
+    for match in matches:
+        section_number = match.group(1).strip()
+        feedback_text = match.group(2).strip()
+        
+        if section_number and feedback_text:
+            feedback_per_section[section_number] = feedback_text
+            logging.info(f"Parsed feedback for section {section_number}.")
+
+    if not feedback_per_section:
+        logging.warning("Holistic feedback parser did not find any valid feedback blocks.")
+
+    return feedback_per_section

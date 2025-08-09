@@ -200,10 +200,41 @@ Full structure:
 ---
 
 ### CRITICAL INSTRUCTION FOR FEEDBACK CONTENT
-For every issue you identify (especially CRITICAL ones like contradictions or duplications), you **MUST** provide the **exact, complete, and corrected text** that should be used as the replacement. Do NOT just describe the problem; you must provide the solution.
+For every issue you identify (especially CRITICAL ones like contradictions or duplications) you must provide details and the recommended fix. 
 
-**Example Finding:**
-- **Issue:** Contradictory information about therapy provision.
-- **Location:** Section H, under 'Health Care Provision'.
-- **Action:** REPLACE
-- **Content:** [Provide the full, correct, and consolidated paragraph about the therapy provision here.]
+**Your output **MUST** meet the below format. Only include feedback for documents in which you identify issues**
+
+[FEEDBACK_SUMMARY]
+Overall Status: PASS/FAIL
+Critical: [Total number of critical issues you found]
+Major: [Total number of major issues you found]
+Minor: [Total number of minor issues you found]
+[END_FEEDBACK_SUMMARY]
+---
+### Feedback for: `output_s1.md`
+- **Issue:** [Short description of issue]
+- **Details:** [Detailed explanation of issue]
+- **Recommendation:** [Recommended change required to resolve issue]
+
+- **Issue:** [Short description of issue]
+- **Details:** [Detailed explanation of issue]
+- **Recommendation:** [Recommended change required to resolve issue]
+
+- **Issue:** [Short description of issue]
+- **Details:** [Detailed explanation of issue]
+- **Recommendation:** [Recommended change required to resolve issue]
+etc....
+
+---
+### Feedback for: `output_s2.md`
+- **Issue:** [Short description of issue]
+- **Details:** [Detailed explanation of issue]
+- **Recommendation:** [Recommended change required to resolve issue]
+
+- **Issue:** [Short description of issue]
+- **Details:** [Detailed explanation of issue]
+- **Recommendation:** [Recommended change required to resolve issue]
+etc...
+---
+
+

@@ -115,34 +115,37 @@ def create_final_validator_team(llm_config: Dict, llm_config_fast: Dict) -> Grou
     holistic_assessor = ConversableAgent(
         name="Holistic_Assessor",
         llm_config=llm_config,
-        system_message="""You are a senior Quality Assurance editor. Your task is a **holistic review** of a complete, merged document. Your focus is on consistency, logical flow, and eliminating redundancy.
+        system_message="""You are a senior Quality Assurance editor. Your task is a **holistic review** of a set of 5 separate document sections. Your focus is on finding inconsistencies, contradictions, and duplication **between** these files.
 
-**CRITICAL INSTRUCTION:** For every issue you find, you MUST provide the **exact, complete, and corrected text** that should be used as the replacement. Do NOT just describe the problem; you must provide the solution.
+    **CRITICAL: REQUIRED OUTPUT STRUCTURE**
+    Your entire output MUST be a single, structured feedback report. The report **MUST** start with the `[FEEDBACK_SUMMARY]` block, followed by the detailed findings separated by `---`. The parser is not flexible.
 
-**Your Feedback Format:**
-For each issue, you must provide:
-1.  **Issue:** A brief description (e.g., "Duplicated content about 'interest in music'").
-2.  **Location:** The section and heading where the incorrect text is located.
-3.  **Action:** A clear instruction, either 'REPLACE' or 'DELETE'.
-4.  **Content:**
-    - If the action is 'REPLACE', you must provide the **full, corrected paragraph or block of text** that should be used.
-    - If the action is 'DELETE', you can leave this blank or state "N/A".
+    **FULL TEMPLATE:**
+    [FEEDBACK_SUMMARY]
+    Overall Status: PASS/FAIL
+    Critical: [Total number of critical issues you found]
+    Major: [Total number of major issues you found]
+    Minor: [Total number of minor issues you found]
+    [END_FEEDBACK_SUMMARY]
+    ---
+    ### Feedback for: `output_s3.md`
+    - **Issue:** [Description of the first issue for this file]
+    - **Details:** [Details of the issue]
+    - **Recommendation:** [Your recommendation, including text to REPLACE or DELETE]
 
-**Example Finding:**
-- **Issue:** Duplicated content about 'interest in music'.
-- **Location:** Section B, under 'Hobbies and Interests'.
-- **Action:** DELETE
-- **Content:** N/A
+    - **Issue:** [Description of the second issue for this file]
+    - **Details:** ...
+    - **Recommendation:** ...
+    ---
+    ### Feedback for: `output_s4.md`
+    - **Issue:** [Description of the issue for this file]
+    - **Details:** ...
+    - **Recommendation:** ...
+    ---
+    *(Only include sections for files that have issues)*
 
-- **Issue:** Contradictory information about therapy provision.
-- **Location:** Section H, under 'Health Care Provision'.
-- **Action:** REPLACE
-- **Content:** [Provide the full, correct, and consolidated paragraph about the therapy provision here.]
-
-Your final output is a structured feedback report containing a list of these explicit findings.
-
-**Once the final report is ready, you will instruct the `Final_Validator_Proxy` to save it using the `save_markdown_file_async` tool. After saving, you will signal the end of the task by replying with the single word 'TERMINATE'.**
-"""
+    Your final output is ONLY this complete, structured report. Do not add any other conversational text. Once it is ready, instruct the `Final_Validator_Proxy` to save it.
+    """
     )
 
     # Register tools for the proxy agent to call
