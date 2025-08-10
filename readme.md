@@ -56,27 +56,28 @@ The application follows a robust, multi-stage pipeline designed to maximize qual
     -   `Validator_User_Proxy`: The tool user for this team.
 
 ## Project Structure
+
+```text
 .
-├── 📂 docs/ # Input source PDF documents go here.
-├── 📂 instructions/ # Guidance prompts for all agents.
-│ ├── 📂 partials/ # Reusable markdown components for guidance files.
-│ ├── writer_guidance_s1.md
-│ └── ...
-├── 📂 logs/ # All output logs are saved here.
-├── 📂 outputs/ # Generated documents and feedback files.
-├── 📂 processed_docs/ # Cleaned text versions of source PDFs.
-├── 📄 config.py # Central configuration for all paths, settings, and LLMs.
-├── 📄 main.py # Main application entry point and high-level orchestration.
-├── 📄 orchestrator.py # Contains the core logic for processing and correcting sections.
-├── 📄 tasks.py # Generates the initial prompts for all agent teams.
-├── 📄 utils.py # Helper functions and tools.
-├── 📄 writer.py # Defines the agent teams responsible for writing.
-├── 📄 validator.py # Defines the agent teams responsible for validation.
-├── 📄 specialist_agents.py # Defines standalone specialist agents like the Prompt_Writer.
-├── 📄 .env # Environment variables for API keys and endpoints.
-└── 📄 requirements.txt # Python package dependencies.
-
-
+├── 📂 docs/                # Input source PDF documents go here.
+├── 📂 instructions/         # Guidance prompts for all agents.
+│   ├── 📂 partials/         # Reusable markdown components for guidance files.
+│   ├── writer_guidance_s1.md
+│   └── ...
+├── 📂 logs/                 # All output logs are saved here.
+├── 📂 outputs/              # Generated documents and feedback files.
+├── 📂 processed_docs/       # Cleaned text versions of source PDFs.
+├── 📄 config.py             # Central configuration for all paths, settings, and LLMs.
+├── 📄 main.py               # Main application entry point and high-level orchestration.
+├── 📄 orchestrator.py        # Contains the core logic for processing and correcting sections.
+├── 📄 tasks.py               # Generates the initial prompts for all agent teams.
+├── 📄 utils.py               # Helper functions and tools.
+├── 📄 writer.py              # Defines the agent teams responsible for writing.
+├── 📄 validator.py           # Defines the agent teams responsible for validation.
+├── 📄 specialist_agents.py   # Defines standalone specialist agents like the Prompt_Writer.
+├── 📄 .env                   # Environment variables for API keys and endpoints.
+└── 📄 requirements.txt       # Python package dependencies.
+```
 
 ## Setup and Installation
 
