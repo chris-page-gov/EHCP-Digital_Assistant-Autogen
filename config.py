@@ -18,9 +18,9 @@ LOGS_DIR = os.path.join(BASE_DIR, "logs")
 # 1. APPLICATION-LEVEL SETTINGS
 # --------------------------------------------------------------------------
 # High-level controls for the main process run.
-CONCURRENT_SECTIONS = 5  # Number of sections to process in parallel
+TOTAL_SECTIONS = 3
+CONCURRENT_SECTIONS = 3  # Number of sections to process in parallel
 MAX_SECTION_ITERATIONS = 10  # Max loops for a single section before failure
-MAX_FINAL_ITERATIONS = 10  # Max loops for the final merged document
 
 # --------------------------------------------------------------------------
 # 2. GUIDANCE FILE PARTIALS
@@ -46,10 +46,6 @@ GOLDEN_THREAD_RULES = os.path.join(_PARTIALS_DIR, "_golden_thread_rules.md")
 FINAL_DOCUMENT_FILENAME = "final_document.md"
 FINAL_DOCUMENT_PATH = os.path.join(OUTPUTS_DIR, FINAL_DOCUMENT_FILENAME)
 FINAL_FEEDBACK_PATH = os.path.join(OUTPUTS_DIR, "final_feedback.md")
-
-# Guidance for the finalization phase
-FINAL_WRITER_GUIDANCE = os.path.join(INSTRUCTIONS_DIR, "writer_guidance_final.md")
-FINAL_VALIDATION_GUIDANCE = [os.path.join(INSTRUCTIONS_DIR, "validation_guidance_final.md"), NEED_CATEGORISATION_GUIDE]
 
 # --------------------------------------------------------------------------
 # 4. DYNAMIC PATH CONFIGURATION FUNCTION
@@ -88,14 +84,6 @@ def get_path_config(section_number: str) -> dict:
             "writer_guidance": [writer_guidance_s, WRITER_COMMON_RULES, NEED_CATEGORISATION_GUIDE, NEEDS_PROVISION_OUTCOMES_RULES],
             "validation_guidance": validation_common_detailed,
         },
-        "4": {
-            "writer_guidance": [writer_guidance_s, WRITER_COMMON_RULES, NEED_CATEGORISATION_GUIDE, NEEDS_PROVISION_OUTCOMES_RULES],
-            "validation_guidance": validation_common_detailed,
-        },
-        "5": {
-            "writer_guidance": [writer_guidance_s, WRITER_COMMON_RULES, NEED_CATEGORISATION_GUIDE, NEEDS_PROVISION_OUTCOMES_RULES],
-            "validation_guidance": validation_common_detailed,
-        },
     }
 
     # Base configuration for any section
@@ -113,6 +101,7 @@ def get_path_config(section_number: str) -> dict:
 # 5. LLM AND API CONFIGURATIONS
 # --------------------------------------------------------------------------
 # This section centralizes the configuration for all Large Language Models.
+
 
 # --- Load Azure OpenAI credentials ---
 azure_api_key = os.getenv("AZURE_OPENAI_API_KEY")

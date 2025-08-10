@@ -10,8 +10,6 @@ from utils import (
     save_markdown_file_async,
 )
 
-
-
 # This team is responsible for validating the document against criteria and generating a feedback report.
 def create_validator_team(llm_config: Dict, llm_config_fast: Dict) -> GroupChatManager:
     """
@@ -87,95 +85,6 @@ def create_validator_team(llm_config: Dict, llm_config_fast: Dict) -> GroupChatM
         4. `Validator_User_Proxy` (save report).
         5. `Quality_Assessor` (final termination signal).
         Ensure the conversation flows in this exact order."""
-    )
-    
-    return manager
-
-
-# Create final validator team for holistic review.
-# This team is responsible for the final validation of the document, ensuring consistency and logical flow.
-# It will produce a structured feedback report based on final validation guidelines.
-def create_final_validator_team(llm_config: Dict, llm_config_fast: Dict) -> GroupChatManager:
-    """
-    Creates and configures the FINAL validator team for holistic review.
-    """
-    final_validator_proxy = UserProxyAgent(
-        name="Final_Validator_Proxy",
-        is_termination_msg=is_terminate_message,
-        human_input_mode="NEVER",
-        max_consecutive_auto_reply=20,
-        code_execution_config={"use_docker": False},
-        llm_config=llm_config_fast,
-        system_message="""You are the user proxy for the final validation team. 
-        Your job is to execute tool calls as directed.
-        After the `Holistic_Assessor` provides the final feedback report, you MUST save it using `save_markdown_file_async`. 
-        You will listen for the `Holistic_Assessor` to say 'TERMINATE', at which point the task will end."""
-    )
-
-    holistic_assessor = ConversableAgent(
-        name="Holistic_Assessor",
-        llm_config=llm_config,
-        system_message="""You are a senior Quality Assurance editor. Your task is a **holistic review** of a set of 5 separate document sections. Your focus is on finding inconsistencies, contradictions, and duplication **between** these files.
-
-    **CRITICAL: REQUIRED OUTPUT STRUCTURE**
-    Your entire output MUST be a single, structured feedback report. The report **MUST** start with the `[FEEDBACK_SUMMARY]` block, followed by the detailed findings separated by `---`. The parser is not flexible.
-
-    **FULL TEMPLATE:**
-    [FEEDBACK_SUMMARY]
-    Overall Status: PASS/FAIL
-    Critical: [Total number of critical issues you found]
-    Major: [Total number of major issues you found]
-    Minor: [Total number of minor issues you found]
-    [END_FEEDBACK_SUMMARY]
-    ---
-    ### Feedback for: `output_s3.md`
-    - **Issue:** [Description of the first issue for this file]
-    - **Details:** [Details of the issue]
-    - **Recommendation:** [Your recommendation, including text to REPLACE or DELETE]
-
-    - **Issue:** [Description of the second issue for this file]
-    - **Details:** ...
-    - **Recommendation:** ...
-    ---
-    ### Feedback for: `output_s4.md`
-    - **Issue:** [Description of the issue for this file]
-    - **Details:** ...
-    - **Recommendation:** ...
-    ---
-    *(Only include sections for files that have issues)*
-
-    Your final output is ONLY this complete, structured report. Do not add any other conversational text. Once it is ready, instruct the `Final_Validator_Proxy` to save it.
-    """
-    )
-
-    # Register tools for the proxy agent to call
-    for func in [read_markdown_file_async, save_markdown_file_async, list_files_in_directory, read_multiple_markdown_files_async]:
-        autogen.agentchat.register_function(
-            func,
-            caller=final_validator_proxy,
-            executor=final_validator_proxy,
-            name=func.__name__,
-            description=func.__doc__,
-        )
-
-    groupchat = GroupChat(
-        agents=[final_validator_proxy, holistic_assessor],
-        messages=[],
-        max_round=20,
-        speaker_selection_method="auto",
-        allow_repeat_speaker=True
-    )
-    
-    manager = GroupChatManager(
-        groupchat=groupchat,
-        llm_config=llm_config_fast,
-        system_message=""" You are the manager of the final validation team. Your role is to coordinate the agents to produce a final feedback report.
-        Follow the workflow:
-        1. Validator_User_Proxy (reads the final output document, source documents and final validation guidelines).
-        2. `Holistic_Assessor` (completes review).
-        3. `Validator_User_Proxy` (save report).
-        4. `Holistic_Assessor` (final termination signal).
-        Ensure the conversation flows in this exact order. """
     )
     
     return manager

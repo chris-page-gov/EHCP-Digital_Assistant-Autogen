@@ -81,36 +81,5 @@ async def process_section(section_number: str, semaphore: asyncio.Semaphore, llm
             loop_logger.critical(f"===== Section {section_number} FAILED with a critical exception: {e} =====")
             return False # Return False to signal failure, but DO NOT re-raise the exception.    
 
-async def correct_section_async(section_number: str, feedback: str, llm_config: dict, llm_config_fast: dict):
-    """
-    Initiates a sectional writer team to correct a single section based on holistic feedback.
-    """
-    logging.info(f"--- Starting correction for Section {section_number} based on holistic feedback. ---")
+
     
-    # We re-use the original writer team for this!
-    writer_manager = create_writer_team(llm_config, llm_config_fast)
-    writer_proxy_agent = writer_manager.groupchat.agent_by_name("Writer_User_Proxy")
-    
-    # Get the original output file to be corrected
-    paths = config.get_path_config(section_number)
-    output_filepath = paths["output"]
-    original_draft = await read_markdown_file_async(output_filepath)
-
-    # The prompt now contains the original draft and the specific feedback for correction
-    correction_prompt = f"""
-    [REVISION_REQUEST]
-    **Document to Revise:**
-    --- START OF DOCUMENT ---
-    {original_draft}
-    --- END OF DOCUMENT ---
-
-    **Revision Instructions:**
-    {feedback}
-    """
-    # We can reuse the existing get_correction_task function for this
-    writer_task = get_correction_task(section_number, correction_prompt)
-
-    await writer_proxy_agent.a_initiate_chat(
-        recipient=writer_manager, message=writer_task, clear_history=True
-    )
-    logging.info(f"--- Correction for Section {section_number} complete. ---")

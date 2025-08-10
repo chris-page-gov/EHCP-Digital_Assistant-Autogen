@@ -2,41 +2,17 @@ import os
 import re
 import pypdf
 import logging
-from typing import List, Dict, Any
+from typing import List, Dict
 from functools import lru_cache
 import aiofiles
 import asyncio
-import threading
-from collections import defaultdict
 import config
 import shutil
-
+import logging
 
 # --- Tool Functions ---
 
 _single_file_cache: Dict[str, str] = {}
-
-# def read_markdown_file(filepath: str) -> str:
-#     """
-#     Reads the content of a markdown file using a custom internal cache
-#     to speed up repeated reads of static files like guidance documents.
-#     """
-#     # 2. Check if the result is already in our cache.
-#     if filepath in _single_file_cache:
-#         # If yes, return the stored content instantly.
-#         return _single_file_cache[filepath]
-    
-#     # 3. If not in the cache, perform the slow disk read.
-#     try:
-#         with open(filepath, 'r', encoding='utf-8') as f:
-#             content = f.read()
-#             # 4. Store the newly read content in the cache before returning it.
-#             _single_file_cache[filepath] = content
-#             return content
-#     except FileNotFoundError:
-#         return f"Error: File not found at {filepath}"
-#     except Exception as e:
-#         return f"Error reading file {filepath}: {e}"
     
 @lru_cache(maxsize=10)
 def _cached_read_files(filepaths_tuple: tuple[str]) -> str:
@@ -59,27 +35,6 @@ def _cached_read_files(filepaths_tuple: tuple[str]) -> str:
         full_content += f"\n\n--- END OF FILE {filename} ---\n\n"
         
     return full_content
-
-# def read_multiple_markdown_files(filepaths: list[str]) -> str:
-#     """
-#     Reads the content of multiple markdown files and concatenates them into a single string.
-#     Each file's content is clearly demarcated.
-
-#     This function now uses an internal cache to speed up repeated reads of the same file set.
-#     Each file's content is clearly demarcated.
-
-#     Args:
-#         filepaths (list[str]): A list of paths to the markdown files.
-
-#     Returns:
-#         str: The combined content of all files, or an error message if any file fails.
-#     """
-#     # Convert the list of filepaths to a tuple so it can be used as a cache key.
-#     # Sorting ensures that the order of files doesn't matter for caching.
-#     filepaths_tuple = tuple(sorted(filepaths))
-    
-#     # Call the internal, cached function
-#     return _cached_read_files(filepaths_tuple)
         
 def read_pdf_file(filepath: str) -> str:
     """
@@ -362,108 +317,4 @@ def is_terminate_message(message):
         if content is not None:
             return content.rstrip().endswith("TERMINATE")
     return False
-class TokenTracker:
-    """
-    A thread-safe class to track token usage for different LLM models.
-    This is designed to be used as a callback with litellm.
-    """
-    def __init__(self):
-        # Use a lock to ensure thread-safe updates from concurrent API calls
-        self._lock = threading.Lock()
-        # Use defaultdict to simplify adding new models
-        self._token_counts = defaultdict(lambda: {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0})
 
-    def log_success(self, kwargs: dict):
-        """
-        Callback function to be registered with litellm.success_callback.
-        Extracts token usage from the API response and updates the counts.
-        """
-        try:
-            # LiteLLM passes the 'response' object in kwargs
-            response_obj = kwargs.get("response")
-            if not response_obj:
-                return
-
-            model_name = response_obj.model
-            usage = response_obj.usage
-
-            if not model_name or not usage:
-                return
-
-            prompt_tokens = usage.prompt_tokens
-            completion_tokens = usage.completion_tokens
-            total_tokens = usage.total_tokens
-
-            # Acquire the lock to prevent race conditions during updates
-            with self._lock:
-                self._token_counts[model_name]["prompt_tokens"] += prompt_tokens
-                self._token_counts[model_name]["completion_tokens"] += completion_tokens
-                self._token_counts[model_name]["total_tokens"] += total_tokens
-        
-        except Exception as e:
-            # A non-critical error in logging should not crash the main application
-            logging.warning(f"[TokenTracker] Error processing callback: {e}")
-
-    def display_summary(self):
-        """
-        Prints a formatted summary of the token usage for each model.
-        Should be called at the end of the main script.
-        """
-        summary_lines = ["\n", "="*50, "           LLM TOKEN USAGE SUMMARY", "="*50]
-        
-        if not self._token_counts:
-            summary_lines.append("No token usage was recorded.")
-        else:
-            grand_total = 0
-            for model, counts in self._token_counts.items():
-                summary_lines.append(f"\nModel: {model}")
-                summary_lines.append(f"  - Prompt Tokens:     {counts['prompt_tokens']:,}")
-                summary_lines.append(f"  - Completion Tokens: {counts['completion_tokens']:,}")
-                summary_lines.append(f"  - Total Tokens:      {counts['total_tokens']:,}")
-                grand_total += counts['total_tokens']
-            
-            summary_lines.append("="*50)
-            summary_lines.append(f"GRAND TOTAL (all models): {grand_total:,} tokens")
-
-        summary_lines.append("="*50)
-        
-        summary_text = "\n".join(summary_lines)
-        
-        # Print to console and also log to the main log file
-        print(summary_text)
-        logging.getLogger('LoopTracer').info(summary_text)
-
-def parse_holistic_feedback(feedback_content: str) -> dict[str, str]:
-    """
-    Parses the structured feedback report from the Holistic_Assessor to extract
-    feedback for each specific section file.
-
-    Args:
-        feedback_content: The full markdown text of the feedback report.
-
-    Returns:
-        A dictionary where keys are section numbers (e.g., "3") and values
-        are the feedback text for that section.
-    """
-    feedback_per_section = {}
-    
-    # Regex to find all feedback blocks.
-    # It looks for "### Feedback for: `output_sX.md`" and captures everything
-    # until it hits the next "---" separator or the end of the string.
-    # re.DOTALL allows '.' to match newlines.
-    pattern = re.compile(r"### Feedback for: `output_s(\d+)\.md`\s*\n(.*?)(?=\n---\n|### Feedback for:|\Z)", re.DOTALL)
-    
-    matches = pattern.finditer(feedback_content)
-    
-    for match in matches:
-        section_number = match.group(1).strip()
-        feedback_text = match.group(2).strip()
-        
-        if section_number and feedback_text:
-            feedback_per_section[section_number] = feedback_text
-            logging.info(f"Parsed feedback for section {section_number}.")
-
-    if not feedback_per_section:
-        logging.warning("Holistic feedback parser did not find any valid feedback blocks.")
-
-    return feedback_per_section

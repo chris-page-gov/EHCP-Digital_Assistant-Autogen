@@ -1,91 +1,95 @@
-# AutoGen Document Assembly & Finalization Engine
+# AutoGen EHCP Document Automation Pipeline
 
-This project showcases an advanced, multi-phase autonomous agent system built with Microsoft's AutoGen framework. It orchestrates a complex workflow to generate, validate, and polish documents from source materials, ensuring a high degree of quality and consistency.
-
-The system follows a three-phase workflow:
-
-1.  **Sectional Generation**: A specialized team of agents builds the document section by section. Each section is created and then immediately passed to a validation team.
-2.  **Iterative Correction**: If a section fails validation, it enters a correction loop. The writer team receives specific feedback and refines the section until it meets the quality criteria.
-3.  **Finalization & Polishing**: Once all sections are successfully created, they are merged into a single document. A new, specialized "finalization team" performs a holistic review to ensure consistency, remove duplication, and polish the entire document, again using an iterative correction loop.
-
-## High-Level Workflow
-
-```mermaid
-graph TD
-    A[Start] --> B{Section 1 Generation Loop};
-    B --> C[Write Section 1];
-    C --> D[Validate Section 1];
-    D -- Critical Errors? --> E{Retry Limit?};
-    E -- No --> C;
-    E -- Yes --> X[FAIL];
-    D -- No Errors --> F{All Sections Done?};
-    F -- No --> G[Next Section Loop];
-    G --> C;
-
-    F -- Yes --> H[Merge All Sections];
-    H --> I{Finalization Loop};
-    I --> J[Holistic Validation];
-    J -- Critical Errors? --> K{Retry Limit?};
-    K -- No --> L[Final Polish/Correction];
-    L --> J;
-    K -- Yes --> X;
-    J -- No Errors --> Y[SUCCESS: Final Document Ready];
-```
+This project is a sophisticated multi-agent system designed to automate the generation of complex, multi-section Education, Health, and Care Plan (EHCP) documents. It leverages the Microsoft AutoGen framework to orchestrate teams of AI agents that perform specialized roles, moving from raw source documents to a fully validated and merged final output in a robust, parallel, and fault-tolerant manner.
 
 ## Key Features
 
--   **Specialized Agent Teams**: Employs distinct teams for initial content creation (`Writer Team`) and final polishing (`Final Writer Team`), each with tailored instructions and capabilities.
--   **Phase-Based Validation**: Uses separate validation teams for sectional content (`Validator Team`) and holistic review (`Final Validator Team`).
--   **Sequential & Iterative Processing**: Combines a section-by-section build process with feedback-driven correction loops to ensure quality at every stage.
--   **Comprehensive Logging**: Generates two timestamped log files for each run:
-    -   `full_run_[timestamp].log`: Captures the **entire terminal output**, including every detailed message between agents, for complete traceability.
-    -   `loop_trace_[timestamp].log`: A high-level log of key milestones, iteration results, and a final summary.
--   **Performance & Cost Tracking**: The loop trace log concludes with a summary of total execution time, total tokens used (prompt vs. completion), and the estimated API cost.
--   **Robust Error Handling**: Automatically handles API rate limits (`429` errors) and transient API failures using `litellm`'s built-in exponential backoff.
--   **Tool-Augmented Agents**: Agents are equipped with tools to read source PDFs, read/write Markdown files, and manage the filesystem.
+-   **Multi-Agent System:** Utilizes distinct agent teams for writing and validation, each with specialized roles (`Planner`, `Document_Writer`, `Quality_Assessor`, `Fact_Checker`).
+-   **Parallel Processing:** Employs Python's `asyncio` and a semaphore to concurrently generate and validate multiple document sections, significantly reducing total runtime.
+-   **Iterative Validation Loop:** Each document section is put through a rigorous write-validate-refine loop, ensuring high quality before the final merge. A mandatory second loop is enforced for robustness.
+-   **Configuration-Driven:** A central `config.py` file manages all application settings, file paths, and LLM configurations, making the system easy to manage and reconfigure.
+-   **Modular Agent Guidance:** Agent instructions and validation rules are externalized into a version-controllable `instructions/` directory with reusable "partials" to ensure consistency and maintain the DRY (Don't Repeat Yourself) principle.
+-   **Comprehensive Logging:** The system generates detailed run logs and a high-level process trace for debugging and monitoring.
+-   **Automated File Management:** Includes a pre-processing step to convert source PDFs to clean text and a guaranteed cleanup process to ensure a clean state for every run.
+-   **Tiered LLM Strategy:** Uses two different LLM tiers—a powerful model for content generation and a faster, cheaper model for orchestration and planning—to optimize for both cost and performance.
+
+## Architectural Overview
+
+The application follows a robust, multi-stage pipeline designed to maximize quality and efficiency.
+
+**Stage 1: Pre-processing**
+-   The script begins by scanning the `/docs` directory for all PDF source documents.
+-   Each PDF is read, its text is extracted, cleaned, and then saved as a `.txt` file in the `/processed_docs` directory. This ensures that the AI agents work with a clean, consistent data source.
+
+**Stage 2: Concurrent Sectional Generation**
+-   The system initiates a writer and validator team for each of the 3 document sections.
+-   Using `asyncio`, these teams work in parallel, up to the concurrency limit set in `config.py`.
+
+**Stage 3: The Write-Validate-Refine Loop**
+-   For each section, the process is as follows:
+    1.  **Writer Team:** A `Planner` agent orchestrates the `Document_Writer` to draft the section's content (`output_sX.md`) based on the source documents and modular guidance files.
+    2.  **Validator Team:** A `Quality_Assessor` and `Fact_Checker` agent team reviews the draft against a strict set of rules, producing a feedback report (`feedback_sX.md`).
+    3.  **Assessment & Loop:** The main script parses the feedback.
+        -   If critical issues are found, a specialist `Prompt_Writer` agent reframes the feedback into constructive, neutral instructions. The process loops back to the Writer Team for revision.
+        -   If no critical issues are found, the section is considered "passed." The process includes a mandatory second loop to ensure robustness.
+-   This loop continues until the section passes validation or `MAX_SECTION_ITERATIONS` is reached.
+
+**Stage 4: Final Merge & Cleanup**
+-   Once all 3 sections have been successfully validated, the `merge_output_files` utility is called.
+-   It concatenates `output_s1.md`, `output_s2.md`, and `output_s3.md` into a single, complete `final_document.md`.
+-   Finally, the `clear_directory` function is called to empty the `/processed_docs` directory, ensuring the next run starts from a clean state.
+
+## Agent Team Structure
+
+#### 1. The Writer Team (`create_writer_team`)
+-   **Purpose:** To draft and revise a specific document section from source files.
+-   **Agents:**
+    -   `Planner`: The orchestrator. Follows a strict plan to read guidance, read sources, delegate drafting, and order the saving of the file. It is the only agent in this team authorized to issue the `TERMINATE` signal.
+    -   `Document_Writer`: The content specialist. Its sole job is to synthesize information and write the document text. It does not engage in conversation.
+    -   `Writer_User_Proxy`: The tool user. Executes file I/O operations (`read`, `save`, `list`) on behalf of the Planner.
+
+#### 2. The Validator Team (`create_validator_team`)
+-   **Purpose:** To validate a single section draft for factual accuracy, structural integrity, and rule compliance.
+-   **Agents:**
+    -   `Quality_Assessor`: The lead validator. It performs structural checks and consolidates all findings into the final feedback report. It is the only agent in this team authorized to issue the `TERMINATE` signal.
+    -   `Fact_Checker`: The accuracy specialist. Its sole job is to compare the draft against the source documents and report any factual discrepancies.
+    -   `Validator_User_Proxy`: The tool user for this team.
 
 ## Project Structure
-
-```
 .
-├── docs/               # Input: Place your source PDF documents here.
-├── instructions/       # Input: Guidance files for all agent teams.
-│   ├── writer_guidance_s1.md
-│   ├── validation_guidance_s1.md
-│   ├── ...
-│   ├── writer_guidance_final.md
-│   └── validation_guidance_final.md
-├── logs/               # Output: Contains all generated log files.
-├── outputs/            # Output: Generated documents and feedback reports.
-├── .env                # Input: Your secret API keys and endpoints.
-├── .gitignore          # Specifies files and folders for Git to ignore.
-├── main.py             # Main application entry point and orchestrator.
-├── writer.py           # Defines the sectional and final writer teams.
-├── validator.py        # Defines the sectional and final validator teams.
-├── utils.py            # Contains shared tool functions and utilities.
-└── README.md           # This file.
-```
+├── 📂 docs/ # Input source PDF documents go here.
+├── 📂 instructions/ # Guidance prompts for all agents.
+│ ├── 📂 partials/ # Reusable markdown components for guidance files.
+│ ├── writer_guidance_s1.md
+│ └── ...
+├── 📂 logs/ # All output logs are saved here.
+├── 📂 outputs/ # Generated documents and feedback files.
+├── 📂 processed_docs/ # Cleaned text versions of source PDFs.
+├── 📄 config.py # Central configuration for all paths, settings, and LLMs.
+├── 📄 main.py # Main application entry point and high-level orchestration.
+├── 📄 orchestrator.py # Contains the core logic for processing and correcting sections.
+├── 📄 tasks.py # Generates the initial prompts for all agent teams.
+├── 📄 utils.py # Helper functions and tools.
+├── 📄 writer.py # Defines the agent teams responsible for writing.
+├── 📄 validator.py # Defines the agent teams responsible for validation.
+├── 📄 specialist_agents.py # Defines standalone specialist agents like the Prompt_Writer.
+├── 📄 .env # Environment variables for API keys and endpoints.
+└── 📄 requirements.txt # Python package dependencies.
 
-## Getting Started
 
-### 1. Prerequisites
 
--   Python 3.10+
--   An Azure OpenAI account with at least two model deployments (a primary model and your specialist "o3" model).
--   Git for cloning the repository.
-
-### 2. Installation
+## Setup and Installation
 
 1.  **Clone the repository:**
     ```bash
-    git clone <your-repository-url>
-    cd <repository-folder-name>
+    git clone <your-repo-url>
+    cd <your-repo-directory>
     ```
 
 2.  **Create and activate a virtual environment:**
     ```bash
     python -m venv venv
-    source venv/bin/activate  # On Windows: `venv\Scripts\activate`
+    source venv/bin/activate  # On Windows, use `venv\Scripts\activate`
     ```
 
 3.  **Install dependencies:**
@@ -93,34 +97,35 @@ graph TD
     pip install -r requirements.txt
     ```
 
-### 3. Configuration
+4.  **Configure environment variables:**
+    -   Create a file named `.env` in the root of the project.
+    -   Add your Azure OpenAI credentials to this file. Use the template below:
 
-1.  **Create your `.gitignore` file** and populate it with standard Python/IDE ignores, and most importantly, `.env`, `logs/`, and `outputs/`.
+    ```env
+    AZURE_OPENAI_API_KEY="your_api_key"
+    AZURE_OPENAI_ENDPOINT="https://your_endpoint.openai.azure.com/"
+    AZURE_OPENAI_API_VERSION="2024-02-15-preview"
 
-2.  **Set up your API Keys in `.env`:**
-    Create a file named `.env` in the project root. Use the following structure and fill in your Azure credentials.
+    # Deployment name for your powerful reasoning model 
+    AZURE_OPENAI_MODEL_NAME="    "
 
-    ```ini
-    #  Model Credentials (e.g., GPT-4)
-    AZURE_OPENAI_API_KEY="YOUR_PRIMARY_API_KEY"
-    AZURE_OPENAI_ENDPOINT="https://YOUR_PRIMARY_ENDPOINT.openai.azure.com/"
-    AZURE_OPENAI_MODEL_NAME="YOUR_PRIMARY_DEPLOYMENT_NAME"
-    AZURE_OPENAI_API_VERSION="2023-07-01-preview"
-
+    # Deployment name for your fast orchestration model 
+    AZURE_OPENAI_MODEL_NAME2="gpt-4o"
     ```
 
-3.  **Add Source Documents:** Place your source PDF files into the `docs/` directory.
+## How to Run
 
-4.  **Review Guidance:** The behavior of all agents is controlled by the Markdown files in the `instructions/` folder. Review and edit these to match your project's specific requirements.
+1.  Place all your source PDF documents into the `/docs` directory.
+2.  Ensure your guidance files in `/instructions` are configured as needed.
+3.  Run the main script from the root directory:
+    ```bash
+    python main.py
+    ```
 
-## How to Run the Application
+## Outputs and Logging
 
-Execute the entire workflow with a single command from the project's root directory:
-
-```bash
-python main.py
-```
-
--   **Monitor Progress:** Watch the agent conversations unfold in your terminal.
--   **Check Outputs:** Find the sectional (`output_sX.md`), final (`final_document.md`), and feedback files in the `outputs/` folder.
--   **Review Logs:** For a full transcript of the run, check `full_run_[timestamp].log`. For a high-level summary, including performance metrics, check `loop_trace_[timestamp].log`.
+After a successful run, you will find:
+-   **The Final Document:** `/outputs/final_document.md`
+-   **Sectional Drafts:** `/outputs/output_sX.md` and their corresponding `/outputs/feedback_sX.md` files.
+-   **Full Console Log:** `/logs/full_run_YYYY-MM-DD_HH-MM-SS.log`
+-   **High-Level Trace Log:** `/logs/loop_trace_YYYY-MM-DD_HH-MM-SS.log`

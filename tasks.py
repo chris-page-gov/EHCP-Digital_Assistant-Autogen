@@ -35,14 +35,16 @@ def get_correction_task(section_number: str, clean_request: str) -> str:
     
     
     return f"""
-Planner, your task is to oversee the revision of the document for section '{section_number}'.
+    You are the writer team. Your task is to revise the document for section '{section_number}' based on a clean set of instructions.
 
-Your first and only action is to direct the `Document_Writer` to execute the revision based *only* on the information provided below inside the [REVISION_REQUEST] block.
+    {clean_request}
 
-After the `Document_Writer` provides the full revised text, your existing plan to save the output to '{output_filepath}' and then terminate will proceed.
-
-{clean_request}
-"""
+    **Your Plan:**
+    1. **Read Files: ** The 'Writer_User_proxy' must read the combined guidance files at '{writer_guidance_files}' and all source documents from the '{config.PROCESSED_DOCS_DIR}' folder.
+    1. **Revise Content:** The `Document_Writer` must execute the revision request.
+    2. **Save Output:** The `Writer_User_Proxy` must save the new draft to '{output_filepath}'.
+    3. **Terminate:** The `Planner` will then confirm the save and terminate the task.
+    """
 
 async def run_validation_async(section_number: str, llm_config: dict, llm_config_fast: dict):
     """Asynchronously initializes and runs the full validator team for a specific section."""
@@ -77,37 +79,3 @@ async def run_validation_async(section_number: str, llm_config: dict, llm_config
         clear_history=True
     )
     
-def get_final_validation_task() -> str:
-    """Generates the structured task for the final holistic validation team."""
-    
-    # Create a list of all sectional output files to be reviewed
-    files_to_review = [config.get_path_config(str(i))["output"] for i in range(1, 6)]
-    
-    return f"""
-    Your task is a holistic review of the 5 complete document sections.
-
-    **Workflow:**
-    1.  **Read All Files:** The `Final_Validator_Proxy` will:
-        a. Read the combined validation rules from the file paths at '{config.FINAL_VALIDATION_GUIDANCE}' using `read_multiple_markdown_files_async`.
-        b. Read the content of ALL 5 sectional documents located at: `{files_to_review}` using `read_multiple_markdown_files_async`.
-        c. Read all source documents from the '{config.PROCESSED_DOCS_DIR}' folder.
-    2.  **Holistic Review:** The `Holistic_Assessor` will perform a full review based on all the provided content.
-    3.  **Save Report:** The `Final_Validator_Proxy` will save the consolidated feedback to '{config.FINAL_FEEDBACK_PATH}'.
-    4.  **Terminate:** The `Final_Validator_Proxy` will then terminate.
-
-    Begin the process.
-    """
-
-def get_final_writer_task(clean_request: str) -> str:
-    """Generates the final correction task using a pre-cleaned revision request."""
-    return f"""
-    The merged document requires polishing. The full document text and a set of explicit instructions are provided below inside the `[REVISION_REQUEST]` block. Your task is to execute these instructions and save the result.
-
-    {clean_request}
-
-    **Your Plan:**
-    1. **Execute Revisions:** The `Planner` must instruct the `Document_Polisher` to execute the revision request contained in this prompt. The `Document_Polisher` will then return the complete, modified document text.
-    2. **Save Output:** The `Planner` must then instruct the `Final_Writer_Proxy` to save the corrected document text to the final output path: '{config.FINAL_DOCUMENT_PATH}'.
-    3. **Terminate:** After the `Final_Writer_Proxy` confirms the save is complete, the `Planner` must reply with the single word "TERMINATE".
-    """
-

@@ -1,10 +1,10 @@
-# EHCP Writer Guidance: Section 3 - Special Educational Needs and Provision
+# EHCP Writer Guidance: Section 3 - Needs, Provisions and Outcomes
 
 ## Your Current Goal
 
 Your sole focus for this task is to create **one single, comprehensive file**: `output_s3.md`.
 
-This file covers all four areas of special educational need. For each area, you must detail the **Needs**, the specific **Provision** to meet those needs, and the **Outcomes** that the provision aims to achieve. Follow the detailed structure and rules below precisely.
+This file covers all four areas of special educational need, as well as health care needs and social care needs. For each area, you must detail the **Needs**, the specific **Provision** to meet those needs, and the **Outcomes** that the provision aims to achieve. Follow the detailed structure and rules below precisely.
 
 ---
 
@@ -17,16 +17,32 @@ This file covers all four areas of special educational need. For each area, you 
 You must create **only one file** in this stage. Use the `save_document_section` tool with the following parameters:
 
 *   **Filename to create:** `output_s3.md`
-*   **`section_name` parameter to use:** `"Special Educational Needs and Provision"`
-
+*   **`section_name` parameter to use:** `"Needs, Provisions and Outcomes"`
 
 ---
 
+## Specific content guidelines Social Care Provisions:
+
+**Social care provisions must be seperated between H1 Social Care Provision and H2 Social Care Provision.**
+**It is NOT essential for each need to have BOTH H1 and H2 provision. Some needs may only have provision under one cateogry (H1 or H2).**
+
+### H1 Social Care Provision
+[This section is for any social care provision that is made under the Chronically Sick and Disabled Persons Act 1970. This includes services like:
+- Practical assistance in the home (e.g., help with personal care).
+- Provision of, or assistance with, recreational and educational facilities.
+- Assistance with travel.
+- Adaptations to the home.
+- Facilitating holidays, meals, or telephone access.]
+
+### Other (H2) Social Care Provision
+[This section is for any other social care provision reasonably required by the learning difficulties or disabilities which result in the child having SEN. This is provision that does **not** fall under the H1 criteria above.] 
+
+
 ## Section 3: Content and Structure Template
 
-The file `output_s3.md` must be structured with the following four main areas of need. 
+The file `output_s3.md` must be structured with the following six main areas of need. Needs should be categorised according to the _need_categoristion_guide. Needs should not be repeated under multiple categories.
 
-### Special Educational Needs and Provision
+### Needs, Provisions and Outcomes
 
 *   ### Communication and Interaction
 [Children and young people with speech, language and communication needs have difficulty in communicating with others.]
@@ -39,6 +55,14 @@ The file `output_s3.md` must be structured with the following four main areas of
 
 *   ### Sensory and/or Physical Needs
 [Some children and young people require special educational provision because they have a disability which prevents or hinders them from making use of the educational facilities generally provided.]
+
+*   ### Health Care Needs
+[This section is for needs that require provision from a health professional.]
+
+*   ### Social Care Needs
+[This section is for needs that require provision from social care services or support for the family.]
+
+
 
 [CRITICAL] The output must be structured exactly as follows:
 
@@ -107,6 +131,43 @@ The file `output_s3.md` must be structured with the following four main areas of
 (etc)
 
 ---
+
+## Health Care Needs and Provision
+
+**Strengths** [any strengths which are identified related to health needs]
+
+**Health Care Need 1:** [a clearly identified health care need]
+**Provision:** [provision which relates to need 1]
+**Outcome:** [outcome which relates to need 1]
+
+**Health Care Need 2:** [a clearly identified health care need]
+**Provision:** [provision which relates to need 2]
+**Outcome:** [outcome which relates to need 2]
+
+**Health Education Need 3:** [a clearly identified health care need]
+(etc)
+
+---
+
+## Social Care Needs and Provision
+
+**Strengths** [any strengths which are identified under the category of social care needs]
+
+**Social Care Need 1:** [a clearly identified social care need]
+**H1 Provision:** [H1 Social Care provision which relates to need 1]
+**H2 Provision:** [H2 Social Care provision which relates to need 1]
+**Outcome:** [outcome which relates to need 1]
+
+**Social Care Need 2:** [a clearly identified social care need]
+**H1 Provision:** [H1 Social Care provision which relates to need 2]
+**H2 Provision:** [H2 Social Care provision which relates to need 2]
+**Outcome:** [outcome which relates to need 2]
+
+**Social Care Need 3:** [a clearly identified social care need]
+(etc)
+
+-----------------------------------
+
 
 
 

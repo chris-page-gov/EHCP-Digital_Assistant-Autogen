@@ -1,19 +1,14 @@
-# Core Autogen framework
-pyautogen~=0.2.20
+# Core library for building multi-agent applications
+pyautogen~=0.2.0
 
-# For handling .env files to store API keys
-python-dotenv
+# LLM provider routing and management, used by AutoGen and configured directly
+litellm~=1.34.0
 
-# For reading PDF source documents
-pypdf
+# Used to load environment variables from the .env file (API keys, etc.)
+python-dotenv~=1.0.0
 
-# For making a custom API call (if you were to use the tool-based approach)
-# It's good practice to keep it even if not currently used by the primary method.
-requests
+# Required for the pre-processing step to read and extract text from PDF files
+pypdf~=4.0.0
 
-# LiteLLM is the underlying library Autogen uses for all LLM API calls.
-# While it's a sub-dependency of Autogen, explicitly listing it can sometimes
-# help with dependency resolution and makes its role in the project clear.
-litellm
-
-functools
+# Enables asynchronous file reading and writing operations
+aiofiles~=23.0.0
