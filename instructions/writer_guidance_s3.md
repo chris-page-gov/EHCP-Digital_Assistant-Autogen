@@ -169,6 +169,11 @@ The file `output_s3.md` must be structured with the following six main areas of 
 -----------------------------------
 
 
+### Output style guide
+All content must be written in accessible languge, using plain english. Where possible, needs, provision and outcomes descriptions should borrow the language used by the professionals in the source documents. Descriptions of need should be concise, but not too concise as to lose some of the important info included in the description in the source documents.
+
+When describing needs, it is important to avoid blunt statements - decriptions must be factual, but written in a way which is sympathetic to the child.
+
 
 
 

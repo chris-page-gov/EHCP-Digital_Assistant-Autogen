@@ -54,6 +54,8 @@ This section is ONLY for the child's strengths. Descriptions of their needs or d
 **Aspirations**
 This should capture the child or young person’s ambitions for their own lives. If the plan relates to a child, parent or carer views should also be included, and any differences in their priorities should be reflected.
 
+---
+
 ### Output Structure
 [CRITICAL] The output must be structured exactly as follows:
 
@@ -72,3 +74,8 @@ This should capture the child or young person’s ambitions for their own lives.
 [Strengths content]
 **Aspirations**
 [Aspirations content]
+
+---
+
+### Output style guide
+All content must be written in accessible languge, using plain english. When capturing the views of the child or their family the content should use a similar writing to style to that use in Appendix A. When describing the difficulties or challenges faced by the it is important to avoid blunt statements - decriptions must be factual, but written in a way which is sympathetic to the child.

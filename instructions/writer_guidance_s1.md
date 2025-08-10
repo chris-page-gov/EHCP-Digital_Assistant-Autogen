@@ -1,4 +1,6 @@
-# EHCP Writer Guidance: output_s1.md # Your Current Goal
+# EHCP Writer Guidance: output_s1.md 
+
+# Your Current Goal
 
 Your sole focus for this task is to create **one single file**: `output_s1.md`.
 
