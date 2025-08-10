@@ -107,10 +107,10 @@ The application follows a robust, multi-stage pipeline designed to maximize qual
     AZURE_OPENAI_API_VERSION="2024-02-15-preview"
 
     # Deployment name for your powerful reasoning model 
-    AZURE_OPENAI_MODEL_NAME="    "
+    AZURE_OPENAI_MODEL_NAME=""
 
     # Deployment name for your fast orchestration model 
-    AZURE_OPENAI_MODEL_NAME2="gpt-4o"
+    AZURE_OPENAI_MODEL_NAME2=""
     ```
 
 ## How to Run
