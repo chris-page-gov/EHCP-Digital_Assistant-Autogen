@@ -7,6 +7,7 @@ This project is a sophisticated multi-agent system designed to automate the gene
 -   **Multi-Agent System:** Utilizes distinct agent teams for writing and validation, each with specialized roles (`Planner`, `Document_Writer`, `Quality_Assessor`, `Fact_Checker`).
 -   **Parallel Processing:** Employs Python's `asyncio` and a semaphore to concurrently generate and validate multiple document sections, significantly reducing total runtime.
 -   **Iterative Validation Loop:** Each document section is put through a rigorous write-validate-refine loop, ensuring high quality before the final merge. A mandatory second loop is enforced for robustness.
+-   **Word Document Export:** Automatically parses the final structured Markdown output and populates a custom `.docx` template, producing a professionally formatted, ready-to-use final document.
 -   **Configuration-Driven:** A central `config.py` file manages all application settings, file paths, and LLM configurations, making the system easy to manage and reconfigure.
 -   **Modular Agent Guidance:** Agent instructions and validation rules are externalized into a version-controllable `instructions/` directory with reusable "partials" to ensure consistency and maintain the DRY (Don't Repeat Yourself) principle.
 -   **Comprehensive Logging:** The system generates detailed run logs and a high-level process trace for debugging and monitoring.
@@ -34,10 +35,18 @@ The application follows a robust, multi-stage pipeline designed to maximize qual
         -   If no critical issues are found, the section is considered "passed." The process includes a mandatory second loop to ensure robustness.
 -   This loop continues until the section passes validation or `MAX_SECTION_ITERATIONS` is reached.
 
-**Stage 4: Final Merge & Cleanup**
+**Stage 4: Final Merge**
 -   Once all 3 sections have been successfully validated, the `merge_output_files` utility is called.
--   It concatenates `output_s1.md`, `output_s2.md`, and `output_s3.md` into a single, complete `final_document.md`.
--   Finally, the `clear_directory` function is called to empty the `/processed_docs` directory, ensuring the next run starts from a clean state.
+-   It concatenates `output_s1.md`, `output_s2.md`, and `output_s3.md` into a single, complete intermediate document: `final_document.md`.
+
+**Stage 5: Word Document Generation**
+-   A robust Python parser reads the structured `final_document.md`.
+-   The parsed data is converted into a flat key-value dictionary.
+-   The `docxtpl` library is used to render this dictionary into a pre-defined Microsoft Word template (`template.docx`).
+-   The final, professionally formatted output is saved as `final_output_document.docx`.
+
+**Stage 6: Cleanup**
+-   Finally, the `clear_directory` function is called to empty the `/processed_docs` directory, ensuring the next run starts from a clean state. This step is guaranteed to run, even if the process fails or is interrupted.
 
 ## Agent Team Structure
 
@@ -57,6 +66,8 @@ The application follows a robust, multi-stage pipeline designed to maximize qual
 
 ## Project Structure
 
+## Project Structure
+
 ```text
 .
 ├── 📂 docs/                # Input source PDF documents go here.
@@ -71,12 +82,14 @@ The application follows a robust, multi-stage pipeline designed to maximize qual
 ├── 📄 main.py               # Main application entry point and high-level orchestration.
 ├── 📄 orchestrator.py        # Contains the core logic for processing and correcting sections.
 ├── 📄 tasks.py               # Generates the initial prompts for all agent teams.
-├── 📄 utils.py               # Helper functions and tools.
+├── 📄 utils.py               # Helper functions, parsers, and tool functions.
 ├── 📄 writer.py              # Defines the agent teams responsible for writing.
 ├── 📄 validator.py           # Defines the agent teams responsible for validation.
 ├── 📄 specialist_agents.py   # Defines standalone specialist agents like the Prompt_Writer.
 ├── 📄 .env                   # Environment variables for API keys and endpoints.
-└── 📄 requirements.txt       # Python package dependencies.
+├── 📄 requirements.txt       # Python package dependencies.
+├── 📄 template.docx          # The Word template for the final output document.
+
 ```
 
 ## Setup and Installation
@@ -114,10 +127,15 @@ The application follows a robust, multi-stage pipeline designed to maximize qual
     AZURE_OPENAI_MODEL_NAME2=""
     ```
 
+5.  **Create the Word Template:**
+    -   Create a Microsoft Word document named `template.docx` in the project's root directory.
+    -   Design this document with your desired final formatting.
+    -   Fill it with Jinja2-style placeholders (e.g., `{{ name }}`, `{{ history_summary }}`) where data should be inserted.
+
 ## How to Run
 
 1.  Place all your source PDF documents into the `/docs` directory.
-2.  Ensure your guidance files in `/instructions` are configured as needed.
+2.  Ensure your guidance files in `/instructions` and your `template.docx` are configured as needed.
 3.  Run the main script from the root directory:
     ```bash
     python main.py
@@ -126,7 +144,8 @@ The application follows a robust, multi-stage pipeline designed to maximize qual
 ## Outputs and Logging
 
 After a successful run, you will find:
--   **The Final Document:** `/outputs/final_document.md`
+-   **The Final Document:** `/outputs/final_output_document.docx`
+-   **Intermediate Markdown:** The merged `/outputs/final_document.md`.
 -   **Sectional Drafts:** `/outputs/output_sX.md` and their corresponding `/outputs/feedback_sX.md` files.
 -   **Full Console Log:** `/logs/full_run_YYYY-MM-DD_HH-MM-SS.log`
 -   **High-Level Trace Log:** `/logs/loop_trace_YYYY-MM-DD_HH-MM-SS.log`
