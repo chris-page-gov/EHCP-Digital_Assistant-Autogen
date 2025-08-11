@@ -37,18 +37,18 @@ Use these rules to assess the document and populate your report.
 1.  **Required Structure (CRITICAL):** The file MUST follow this specific structure:
 
 ## Summary of the Child or Young Person’s History
-**History**
+**History:**
 [History content]
 
 ## Summary of the Views, Interests and Aspirations of the Child and Their Parent, or of the Young Person
 
-**Views**
+**Views:**
 [Views content]
-**Interests**
+**Interests:**
 [Interest content]
-**Strengths**
+**Strengths:**
 [Strengths content]
-**Aspirations**
+**Aspirations:**
 [Aspirations content]
 
 ---

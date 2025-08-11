@@ -28,19 +28,19 @@ Use these rules to assess the document and populate your report.
 **Parent or carer first language:**
 
 ## Main Contact: Parent or Carer 1 (or young person if applying independently)
-**Name:** 
-**Relationship:**
-**Email:**
-**Telephone number:**
-**Home address:** 
+**Parent 1 Name:** 
+**Parent 1 Relationship:**
+**Parent 1 Email:**
+**Parent 1 Telephone number:**
+**Parent 1 Home address:** 
 
 ## Parent or Carer 2
 
-**Name:**
-**Relationship:**
-**Email:**
-**Telephone number:**
-**Home address (if different to parent or carer 1):** 
+**Parent 2 Name:**
+**Parent 2 Relationship:**
+**Parent 2 Email:**
+**Parent 2 Telephone number:**
+**Parent 2 Home address (if different to parent or carer 1):** 
 
 ## Services Currently Involved with this Child or Young Person
 

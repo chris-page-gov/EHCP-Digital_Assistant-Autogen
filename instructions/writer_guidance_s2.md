@@ -60,20 +60,20 @@ This should capture the child or young person’s ambitions for their own lives.
 [CRITICAL] The output must be structured exactly as follows:
 
 ## Summary of the Child or Young Person’s History
-**History**
+**History:**
 [A brief overview of the child or young person’s circumstances.]
 
 [A summary of how to communicate with the child or young person, and how best to engage them in decision making.]
 
 ## Summary of the Views, Interests and Aspirations of the Child and Their Parent, or of the Young Person
 
-**Views**
+**Views:**
 [Views content]
-**Interests**
+**Interests:**
 [Interest content]
-**Strengths**
+**Strengths:**
 [Strengths content]
-**Aspirations**
+**Aspirations:**
 [Aspirations content]
 
 ---

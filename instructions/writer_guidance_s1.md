@@ -33,18 +33,18 @@ The file `output_s1.md` must contain the following three sub-headings and all as
 **Parent or carer first language:**
 
 ## Main Contact: Parent or Carer 1 (or young person if applying independently)
-**Name:** [INSERT, using format Forename, Surname]
-**Relationship:** [Relationship to child]
-**Email:**
-**Telephone number:**
-**Home address:** [Full address, seperated by comma]
+**Parent 1 Name:** [INSERT, using format Forename, Surname]
+**Parent 1 Relationship:** [Relationship to child]
+**Parent 1 Email:**
+**Parent 1 Telephone number:**
+**Parent 1 Home address:** [Full address, seperated by comma]
 
 ## Parent or Carer 2
-**Name:** [INSERT, using format Forename, Surname]
-**Relationship:** [Relationship to child]
-**Email:**
-**Telephone number:**
-**Home address (if different to parent or carer 1):** [Full address, seperated by comma]
+**Parent 2 Name:** [INSERT, using format Forename, Surname]
+**Parent 2 Relationship:** [Relationship to child]
+**Parent 2 Email:**
+**Parent 2 Telephone number:**
+**Parent 2 Home address (if different to parent or carer 1):** [Full address, seperated by comma]
 
 ## Services Currently Involved with this Child or Young Person
 **Education setting:** [Name of young person's school or education setting]

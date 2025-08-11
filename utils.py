@@ -336,78 +336,28 @@ def _sanitise_key(key: str) -> str:
 
 def parse_markdown_to_dict(markdown_filepath: str) -> dict:
     """
-    Parses the final markdown document, which is structured into three distinct
-    parts: a key-value header, a text-block overview, and numbered needs sections.
+    Parses a markdown document assuming every **Key:** is globally unique.
+    It ignores all headers and simply extracts all key-value pairs.
+    This is the simplest and most robust parsing method.
     """
     with open(markdown_filepath, 'r', encoding='utf-8') as f:
         content = f.read()
 
     flat_context = {}
     
-    # --- PHASE 1: Split the document into its major parts ---
-    # The first '---' separates the header from the overviews.
-    # The second '---' separates the overviews from the needs sections.
-    parts = content.split('\n---\n', 2)
-    
-    header_content = parts[0] if len(parts) > 0 else ""
-    overview_content = parts[1] if len(parts) > 1 else ""
-    needs_content = parts[2] if len(parts) > 2 else ""
+    # This regex finds a **Key:** at the start of a line, then captures all content
+    # (including newlines and bullets) until it hits the next **Key:** or Heading (##) or ---
+    pattern = re.compile(r'^\*\*(.*?):\*\*(.*?)(?=^\*\*|^##\s|---\n|\Z)', re.DOTALL | re.MULTILINE)
 
-    # --- PHASE 2: Parse the Header (Personal Details, Contacts, etc.) ---
-    # This part is structured as ## Header -> **Key:** Value
-    sections = re.split(r'(?=^##\s)', header_content, flags=re.MULTILINE)
-    for section_text in sections:
-        section_text = section_text.strip()
-        if not section_text:
-            continue
-
-        lines = section_text.split('\n', 1)
-        header = lines[0].strip()
-        section_content = lines[1] if len(lines) > 1 else ""
+    for match in pattern.finditer(content):
+        # The raw key is something like "Comms & Interaction Need 1"
+        key_raw = match.group(1).strip()
+        value = match.group(2).strip()
         
-        section_prefix = _sanitise_key(header.replace("## ", ""))
-
-        pattern = re.compile(r'^\*\*(.*?):\*\*(.*?)(?=^\*\*|\Z)', re.DOTALL | re.MULTILINE)
-        for match in pattern.finditer(section_content):
-            key = _sanitise_key(match.group(1).strip())
-            value = match.group(2).strip()
-            flat_context[f"{section_prefix}_{key}"] = value
-
-    # --- PHASE 3: Parse the Overviews (History, Views, etc.) ---
-    # This part is also structured as ## Header -> **Key** \n Value
-    sections = re.split(r'(?=^##\s)', overview_content, flags=re.MULTILINE)
-    for section_text in sections:
-        section_text = section_text.strip()
-        if not section_text:
-            continue
-            
-        lines = section_text.split('\n', 1)
-        header = lines[0].strip()
-        section_content = lines[1] if len(lines) > 1 else ""
-
-        section_prefix = _sanitise_key(header.replace("## ", ""))
+        # The sanitiser turns it into "comms_interaction_need_1"
+        final_key = _sanitise_key(key_raw)
         
-        pattern = re.compile(r'^\*\*(.*?)\*\*\n(.*?)(?=^\*\*|\Z)', re.DOTALL | re.MULTILINE)
-        for match in pattern.finditer(section_content):
-            key = _sanitise_key(match.group(1).strip())
-            value = match.group(2).strip()
-            flat_context[f"{section_prefix}_{key}"] = value
-
-    # --- PHASE 4: Parse the Needs Sections ---
-    # This part is structured as ## Header -> **Explicit Key 1:** Value
-    sections = re.split(r'(?=^##\s)', needs_content, flags=re.MULTILINE)
-    for section_text in sections:
-        section_text = section_text.strip()
-        if not section_text:
-            continue
-
-        pattern = re.compile(r'^\*\*(.*?):\*\*(.*?)(?=^\*\*|\Z)', re.DOTALL | re.MULTILINE)
-        for match in pattern.finditer(section_text):
-            key_raw = match.group(1).strip()
-            value = match.group(2).strip()
-            
-            final_key = _sanitise_key(key_raw)
-            flat_context[final_key] = value
+        flat_context[final_key] = value
             
     return flat_context
 
