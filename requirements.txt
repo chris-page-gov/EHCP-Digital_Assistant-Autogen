@@ -11,4 +11,9 @@ python-dotenv~=1.0.0
 pypdf~=4.0.0
 
 # Enables asynchronous file reading and writing operations
-aiofiles~=23.0.0
+aiofiles
+asyncio
+
+# Word document generation
+docxtpl
+python-docx

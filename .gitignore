@@ -35,4 +35,6 @@ __pycache__/
 /docs/
 /appendices/
 
-
+# Local test scripts for final doc parsing
+test_word_generator.py
+generate_placeholders.py

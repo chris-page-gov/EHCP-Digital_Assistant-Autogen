@@ -45,101 +45,105 @@ Deviation from this structure is a **CRITICAL** error.
 
 The file `output_s3.md` must be structured exactly as follows:
 
-### Special Education Needs and Provision
-
 ## Communication and Interaction
-**Strengths** 
+**Communication & Interaction Strengths:** 
 
-**Special Educational Need 1:** 
-**Provision:** 
-**Outcome:** 
+**Communication & Interaction Need 1:** 
+**Communication & Interaction Provision 1:** 
+**Communication & Interaction Outcome 1:** 
 
-**Special Educational Need 2:** 
-**Provision:** 
-**Outcome:** 
+**Communication & Interaction Need 2:** 
+**Communication & Interaction Provision 2:** 
+**Communication & Interaction Outcome 2:** 
 
-**Special Education Need 3:** 
+**Communication & Interaction Need 3:**  
 (etc)
 
 ---
 
 ## Cognition and Learning
-**Strengths** 
+**Cognition & Learning Strengths:** 
 
-**Special Educational Need 1:** 
-**Provision:** 
-**Outcome:** 
+**Cognition & Learning Need 1:** 
+**Cognition & Learning Provision 1:** 
+**Cognition & Learning Outcome 1:** 
 
-**Special Educational Need 2:** 
-**Provision:** 
-**Outcome:** 
+**Cognition & Learning Need 2:** 
+**Cognition & Learning Provision 2:** 
+**Cognition & Learning Outcome 2:** 
 
-**Special Education Need 3:**  
+**Cognition & Learning Need 3:**  
 (etc)
 
 ---
 
 ## Social, Emotional and Mental Health Difficulties
-**Strengths** 
+**SEMH Strengths:** 
 
-**Special Educational Need 1:** 
-**Provision:** 
-**Outcome:** 
+**SEMH Need 1:** 
+**SEMH Provision 1:** 
+**SEMH Outcome 1:** 
 
-**Special Educational Need 2:** 
-**Provision:** 
-**Outcome:** 
+**SEMH Need 2:** 
+**SEMH Provision 2:** 
+**SEMH Outcome 2:** 
 
-**Special Education Need 3:**  
+**SEMH Need 3:**  
 (etc)
 
 ---
 
 ## Sensory and/or Physical Needs
-**Strengths** 
+**Sensory & Physical Strengths:** 
 
-**Special Educational Need 1:** 
-**Provision:** 
-**Outcome:** 
+**Sensory & Physical Need 1:** 
+**Sensory & Physical Provision 1:** 
+**Sensory & Physical Outcome 1:** 
 
-**Special Educational Need 2:** 
-**Provision:** 
-**Outcome:** 
+**Sensory & Physical Need 2:** 
+**Sensory & Physical Provision 2:** 
+**Sensory & Physical Outcome 2:** 
 
-**Special Education Need 3:**  
+**Sensory & Physical Need 3:**  
 (etc)
 
 ---
 
 ## Health Care Needs and Provision
-**Strengths**
 
-**Health Care Need 1:**
-**Provision:**
-**Outcome:**
+**Health Care Strengths:** 
 
-**Health Care Need 2:**
-**Provision:**
-**Outcome:**
+**Health Care Need 1:** 
+**Health Care Provision 1:** 
+**Health Care Outcome 1:** 
 
-**Health Care Need 3:** (etc)
+**Health Care Need 2:** 
+**Health Care Provision 1:** 
+**Health Care Outcome 1:** 
+
+**Health Care Need 3:** 
+(etc)
 
 ---
 
 ## Social Care Needs and Provision
-**Strengths**
 
-**Social Care Need 1:**
-**H1 Provision:**
-**H2 Provision:**
-**Outcome:**
+**Social Care Strengths:** 
 
-**Social Care Need 2:**
-**H1 Provision:**
-**H2 Provision:**
-**Outcome:**
+**Social Care Need 1:** 
+**H1 Provision 1:** 
+**H2 Provision 1:** 
+**Social Care Outcome 1:** 
 
-**Social Care Need 3:** (etc)
+**Social Care Need 2:** 
+**H1 Provision 2:** 
+**H2 Provision 2:** 
+**Social Care Outcome 2:** 
+
+**Social Care Need 3:** 
+(etc)
+
+
 
 ---
-
+Failure to do so is a CRITICAL error

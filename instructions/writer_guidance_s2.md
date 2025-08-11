@@ -60,6 +60,7 @@ This should capture the child or young person’s ambitions for their own lives.
 [CRITICAL] The output must be structured exactly as follows:
 
 ## Summary of the Child or Young Person’s History
+**History**
 [A brief overview of the child or young person’s circumstances.]
 
 [A summary of how to communicate with the child or young person, and how best to engage them in decision making.]

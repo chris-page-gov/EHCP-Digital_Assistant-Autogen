@@ -9,6 +9,7 @@ import asyncio
 import config
 import shutil
 import logging
+from docxtpl import DocxTemplate
 
 # --- Tool Functions ---
 
@@ -318,3 +319,107 @@ def is_terminate_message(message):
             return content.rstrip().endswith("TERMINATE")
     return False
 
+def _sanitize_key(key: str) -> str:
+    """
+    A helper function to clean and sanitize a string to be used as a dictionary key.
+    - Converts to lowercase
+    - Replaces spaces and hyphens with underscores
+    - Removes possessive apostrophes ('s or ’s)
+    - Removes any other non-alphanumeric characters (except underscores)
+    """
+    sanitized = key.lower().replace(" ", "_").replace("-", "_")
+    sanitized = sanitized.replace("'s", "").replace("’s", "")
+    sanitized = re.sub(r'[^\w_]', '', sanitized)
+    sanitized = re.sub(r'__+', '_', sanitized)
+    return sanitized
+
+
+def parse_markdown_to_dict(markdown_filepath: str) -> dict:
+    """
+    Parses the final markdown document, which is structured into three distinct
+    parts: a key-value header, a text-block overview, and numbered needs sections.
+    """
+    with open(markdown_filepath, 'r', encoding='utf-8') as f:
+        content = f.read()
+
+    flat_context = {}
+    
+    # --- PHASE 1: Split the document into its major parts ---
+    # The first '---' separates the header from the overviews.
+    # The second '---' separates the overviews from the needs sections.
+    parts = content.split('\n---\n', 2)
+    
+    header_content = parts[0] if len(parts) > 0 else ""
+    overview_content = parts[1] if len(parts) > 1 else ""
+    needs_content = parts[2] if len(parts) > 2 else ""
+
+    # --- PHASE 2: Parse the Header (Personal Details, Contacts, etc.) ---
+    # This part is structured as ## Header -> **Key:** Value
+    sections = re.split(r'(?=^##\s)', header_content, flags=re.MULTILINE)
+    for section_text in sections:
+        section_text = section_text.strip()
+        if not section_text:
+            continue
+
+        lines = section_text.split('\n', 1)
+        header = lines[0].strip()
+        section_content = lines[1] if len(lines) > 1 else ""
+        
+        section_prefix = _sanitize_key(header.replace("## ", ""))
+
+        pattern = re.compile(r'^\*\*(.*?):\*\*(.*?)(?=^\*\*|\Z)', re.DOTALL | re.MULTILINE)
+        for match in pattern.finditer(section_content):
+            key = _sanitize_key(match.group(1).strip())
+            value = match.group(2).strip()
+            flat_context[f"{section_prefix}_{key}"] = value
+
+    # --- PHASE 3: Parse the Overviews (History, Views, etc.) ---
+    # This part is also structured as ## Header -> **Key** \n Value
+    sections = re.split(r'(?=^##\s)', overview_content, flags=re.MULTILINE)
+    for section_text in sections:
+        section_text = section_text.strip()
+        if not section_text:
+            continue
+            
+        lines = section_text.split('\n', 1)
+        header = lines[0].strip()
+        section_content = lines[1] if len(lines) > 1 else ""
+
+        section_prefix = _sanitize_key(header.replace("## ", ""))
+        
+        pattern = re.compile(r'^\*\*(.*?)\*\*\n(.*?)(?=^\*\*|\Z)', re.DOTALL | re.MULTILINE)
+        for match in pattern.finditer(section_content):
+            key = _sanitize_key(match.group(1).strip())
+            value = match.group(2).strip()
+            flat_context[f"{section_prefix}_{key}"] = value
+
+    # --- PHASE 4: Parse the Needs Sections ---
+    # This part is structured as ## Header -> **Explicit Key 1:** Value
+    sections = re.split(r'(?=^##\s)', needs_content, flags=re.MULTILINE)
+    for section_text in sections:
+        section_text = section_text.strip()
+        if not section_text:
+            continue
+
+        pattern = re.compile(r'^\*\*(.*?):\*\*(.*?)(?=^\*\*|\Z)', re.DOTALL | re.MULTILINE)
+        for match in pattern.finditer(section_text):
+            key_raw = match.group(1).strip()
+            value = match.group(2).strip()
+            
+            # We just need to sanitize them
+            final_key = _sanitize_key(key_raw)
+            flat_context[final_key] = value
+            
+    return flat_context
+
+def generate_word_document(context: dict, template_path: str, output_path: str):
+    """
+    Generates a Word document by rendering a context dictionary into a docx template.
+    """
+    try:
+        doc = DocxTemplate(template_path)
+        doc.render(context)
+        doc.save(output_path)
+        logging.info(f"Successfully generated Word document at: {output_path}")
+    except Exception as e:
+        logging.error(f"Failed to generate Word document. Reason: {e}", exc_info=True)

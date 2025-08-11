@@ -3,11 +3,9 @@ import sys
 import logging
 import time
 import litellm
-import autogen
 from datetime import datetime
 from dotenv import load_dotenv
 import asyncio
-
 
 import config
 from config import llm_config, llm_config_fast
@@ -17,6 +15,8 @@ from utils import (
     preprocess_all_pdfs,
     merge_output_files,
     clear_directory,
+    parse_markdown_to_dict,
+    generate_word_document
 )
 
 # Load environment variables from .env file
@@ -148,6 +148,12 @@ async def main_async():
             process_completed_successfully = False
         else:
             logging.info(f"✅ Final document successfully created at {config.FINAL_DOCUMENT_PATH}")
+
+            logging.info("--- Parsing final markdown to generate Word document. ---")
+            final_data_context = parse_markdown_to_dict(config.FINAL_DOCUMENT_PATH)
+            template_path = os.path.join(config.BASE_DIR, "template.docx")
+            output_doc_path = os.path.join(config.OUTPUTS_DIR, "final_output_document.docx")
+            generate_word_document(final_data_context, template_path, output_doc_path)
     
     logging.info(f"\n{'#'*25} PROCESS COMPLETE {'#'*25}")
     loop_logger.info("Main process finished.")

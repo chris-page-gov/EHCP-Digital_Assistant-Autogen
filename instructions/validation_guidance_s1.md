@@ -16,44 +16,43 @@ Use these rules to assess the document and populate your report.
 
 #### Section-Specific Content and Structure
 1.  **Required Structure (CRITICAL):** The file MUST follow this specific structure:
-    ### Child or Young Person’s Personal Details
 
-- **Name:**
-- **Preferred name:**
-- **Date of Birth:** 
-- **Sex:** 
-- **Ethnicity:**
-- **Child or young person first language:**
-- **Parent or carer first language:**
+## Child or Young Person’s Personal Details
 
-### Main Contact Details
+**Name:**
+**Preferred name:**
+**Date of Birth:** 
+**Sex:** 
+**Ethnicity:**
+**Child or young person first language:**
+**Parent or carer first language:**
 
-#### Main Contact: Parent or Carer 1 (or young person if applying independently)
-- **Name:** 
-- **Relationship:**
-- **Email:**
-- **Telephone number:**
-- **Home address:** 
+## Main Contact: Parent or Carer 1 (or young person if applying independently)
+**Name:** 
+**Relationship:**
+**Email:**
+**Telephone number:**
+**Home address:** 
 
-#### Parent or Carer 2
+## Parent or Carer 2
 
-- **Name:**
-- **Relationship:**
-- **Email:**
-- **Telephone number:**
-- **Home address (if different to parent or carer 1):** 
+**Name:**
+**Relationship:**
+**Email:**
+**Telephone number:**
+**Home address (if different to parent or carer 1):** 
 
-### Services Currently Involved with this Child or Young Person
+## Services Currently Involved with this Child or Young Person
 
-- **Education setting:**
-- **GP and key health professional (where applicable):**
-- **NHS Number (if available):** 
-- **Known to social care:** 
-- **Other professionals involved with this child/young person/family:** 
-- **Currently a looked after child?** 
-- **Has been a looked after child?** 
-- **Is there a one page profile received (append)?** 
-- **Child or young person moving to area with EHCP from a different LA?** 
+**Education setting:**
+**GP and key health professional (where applicable):**
+**NHS Number (if available):** 
+**Known to social care:** 
+**Other professionals involved with this child/young person/family:** 
+**Currently a looked after child:** 
+**Has been a looked after child:** 
+**Is there a one page profile received (append):** 
+**Child or young person moving to area with EHCP from a different LA:** 
 
 Failrue to do so is a CRITICAL error
 
