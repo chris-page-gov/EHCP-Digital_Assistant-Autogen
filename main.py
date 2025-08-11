@@ -152,7 +152,7 @@ async def main_async():
             logging.info("--- Parsing final markdown to generate Word document. ---")
             final_data_context = parse_markdown_to_dict(config.FINAL_DOCUMENT_PATH)
             template_path = os.path.join(config.BASE_DIR, "template.docx")
-            output_doc_path = os.path.join(config.OUTPUTS_DIR, "final_output_document.docx")
+            output_doc_path = os.path.join(config.OUTPUTS_DIR, "draft_EHCP.docx")
             generate_word_document(final_data_context, template_path, output_doc_path)
     
     logging.info(f"\n{'#'*25} PROCESS COMPLETE {'#'*25}")
