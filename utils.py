@@ -319,19 +319,19 @@ def is_terminate_message(message):
             return content.rstrip().endswith("TERMINATE")
     return False
 
-def _sanitize_key(key: str) -> str:
+def _sanitise_key(key: str) -> str:
     """
-    A helper function to clean and sanitize a string to be used as a dictionary key.
+    A helper function to clean and sanitise a string to be used as a dictionary key.
     - Converts to lowercase
     - Replaces spaces and hyphens with underscores
     - Removes possessive apostrophes ('s or ’s)
     - Removes any other non-alphanumeric characters (except underscores)
     """
-    sanitized = key.lower().replace(" ", "_").replace("-", "_")
-    sanitized = sanitized.replace("'s", "").replace("’s", "")
-    sanitized = re.sub(r'[^\w_]', '', sanitized)
-    sanitized = re.sub(r'__+', '_', sanitized)
-    return sanitized
+    sanitised = key.lower().replace(" ", "_").replace("-", "_")
+    sanitised = sanitised.replace("'s", "").replace("’s", "")
+    sanitised = re.sub(r'[^\w_]', '', sanitised)
+    sanitised = re.sub(r'__+', '_', sanitised)
+    return sanitised
 
 
 def parse_markdown_to_dict(markdown_filepath: str) -> dict:
@@ -365,11 +365,11 @@ def parse_markdown_to_dict(markdown_filepath: str) -> dict:
         header = lines[0].strip()
         section_content = lines[1] if len(lines) > 1 else ""
         
-        section_prefix = _sanitize_key(header.replace("## ", ""))
+        section_prefix = _sanitise_key(header.replace("## ", ""))
 
         pattern = re.compile(r'^\*\*(.*?):\*\*(.*?)(?=^\*\*|\Z)', re.DOTALL | re.MULTILINE)
         for match in pattern.finditer(section_content):
-            key = _sanitize_key(match.group(1).strip())
+            key = _sanitise_key(match.group(1).strip())
             value = match.group(2).strip()
             flat_context[f"{section_prefix}_{key}"] = value
 
@@ -385,11 +385,11 @@ def parse_markdown_to_dict(markdown_filepath: str) -> dict:
         header = lines[0].strip()
         section_content = lines[1] if len(lines) > 1 else ""
 
-        section_prefix = _sanitize_key(header.replace("## ", ""))
+        section_prefix = _sanitise_key(header.replace("## ", ""))
         
         pattern = re.compile(r'^\*\*(.*?)\*\*\n(.*?)(?=^\*\*|\Z)', re.DOTALL | re.MULTILINE)
         for match in pattern.finditer(section_content):
-            key = _sanitize_key(match.group(1).strip())
+            key = _sanitise_key(match.group(1).strip())
             value = match.group(2).strip()
             flat_context[f"{section_prefix}_{key}"] = value
 
@@ -406,8 +406,7 @@ def parse_markdown_to_dict(markdown_filepath: str) -> dict:
             key_raw = match.group(1).strip()
             value = match.group(2).strip()
             
-            # We just need to sanitize them
-            final_key = _sanitize_key(key_raw)
+            final_key = _sanitise_key(key_raw)
             flat_context[final_key] = value
             
     return flat_context
