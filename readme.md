@@ -4,19 +4,19 @@ This project is a sophisticated multi-agent system designed to automate the gene
 
 ## Key Features
 
--   **Multi-Agent System:** Utilizes distinct agent teams for writing and validation, each with specialized roles (`Planner`, `Document_Writer`, `Quality_Assessor`, `Fact_Checker`).
+-   **Multi-Agent System:** Utilises distinct agent teams for writing and validation, each with specialised roles (`Planner`, `Document_Writer`, `Quality_Assessor`, `Fact_Checker`).
 -   **Parallel Processing:** Employs Python's `asyncio` and a semaphore to concurrently generate and validate multiple document sections, significantly reducing total runtime.
 -   **Iterative Validation Loop:** Each document section is put through a rigorous write-validate-refine loop, ensuring high quality before the final merge. A mandatory second loop is enforced for robustness.
 -   **Word Document Export:** Automatically parses the final structured Markdown output and populates a custom `.docx` template, producing a professionally formatted, ready-to-use final document.
 -   **Configuration-Driven:** A central `config.py` file manages all application settings, file paths, and LLM configurations, making the system easy to manage and reconfigure.
--   **Modular Agent Guidance:** Agent instructions and validation rules are externalized into a version-controllable `instructions/` directory with reusable "partials" to ensure consistency and maintain the DRY (Don't Repeat Yourself) principle.
+-   **Modular Agent Guidance:** Agent instructions and validation rules are externalised into a version-controllable `instructions/` directory with reusable "partials" to ensure consistency and maintain the DRY (Don't Repeat Yourself) principle.
 -   **Comprehensive Logging:** The system generates detailed run logs and a high-level process trace for debugging and monitoring.
 -   **Automated File Management:** Includes a pre-processing step to convert source PDFs to clean text and a guaranteed cleanup process to ensure a clean state for every run.
--   **Tiered LLM Strategy:** Uses two different LLM tiers—a powerful model for content generation and a faster, cheaper model for orchestration and planning—to optimize for both cost and performance.
+-   **Tiered LLM Strategy:** Uses two different LLM tiers—a powerful model for content generation and a faster model for orchestration and planning.
 
 ## Architectural Overview
 
-The application follows a robust, multi-stage pipeline designed to maximize quality and efficiency.
+The application follows a robust, multi-stage pipeline designed to maximise quality and efficiency.
 
 **Stage 1: Pre-processing**
 -   The script begins by scanning the `/docs` directory for all PDF source documents.
@@ -53,14 +53,14 @@ The application follows a robust, multi-stage pipeline designed to maximize qual
 #### 1. The Writer Team (`create_writer_team`)
 -   **Purpose:** To draft and revise a specific document section from source files.
 -   **Agents:**
-    -   `Planner`: The orchestrator. Follows a strict plan to read guidance, read sources, delegate drafting, and order the saving of the file. It is the only agent in this team authorized to issue the `TERMINATE` signal.
-    -   `Document_Writer`: The content specialist. Its sole job is to synthesize information and write the document text. It does not engage in conversation.
+    -   `Planner`: The orchestrator. Follows a strict plan to read guidance, read sources, delegate drafting, and order the saving of the file. It is the only agent in this team authorised to issue the `TERMINATE` signal.
+    -   `Document_Writer`: The content specialist. Its sole job is to synthesise information and write the document text. It does not engage in conversation.
     -   `Writer_User_Proxy`: The tool user. Executes file I/O operations (`read`, `save`, `list`) on behalf of the Planner.
 
 #### 2. The Validator Team (`create_validator_team`)
 -   **Purpose:** To validate a single section draft for factual accuracy, structural integrity, and rule compliance.
 -   **Agents:**
-    -   `Quality_Assessor`: The lead validator. It performs structural checks and consolidates all findings into the final feedback report. It is the only agent in this team authorized to issue the `TERMINATE` signal.
+    -   `Quality_Assessor`: The lead validator. It performs structural checks and consolidates all findings into the final feedback report. It is the only agent in this team authorised to issue the `TERMINATE` signal.
     -   `Fact_Checker`: The accuracy specialist. Its sole job is to compare the draft against the source documents and report any factual discrepancies.
     -   `Validator_User_Proxy`: The tool user for this team.
 
@@ -144,7 +144,7 @@ The application follows a robust, multi-stage pipeline designed to maximize qual
 ## Outputs and Logging
 
 After a successful run, you will find:
--   **The Final Document:** `/outputs/final_output_document.docx`
+-   **The Final Document:** `/outputs/draft_EHCP.docx`
 -   **Intermediate Markdown:** The merged `/outputs/final_document.md`.
 -   **Sectional Drafts:** `/outputs/output_sX.md` and their corresponding `/outputs/feedback_sX.md` files.
 -   **Full Console Log:** `/logs/full_run_YYYY-MM-DD_HH-MM-SS.log`
