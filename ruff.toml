@@ -1,0 +1,13 @@
+line-length = 120
+extend-exclude = ["logs", "outputs", "processed_docs", "docs"]
+
+[lint]
+select = ["E", "F", "W"]
+ignore = [
+  "E501", # line length
+  "F401", # unused imports (some conditional imports / side-effect loads)
+  "F403", # from module import * (if any appear in auto libs)
+]
+
+[lint.per-file-ignores]
+"tests/*" = ["F811", "F401", "E402"]
