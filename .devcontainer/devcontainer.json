@@ -24,8 +24,10 @@
   "remoteEnv": {
     "PYTHONUNBUFFERED": "1"
   },
-  "forwardPorts": [],
-  "mounts": [
-    "source=${localEnv:HOME}/.azure,target=/home/vscode/.azure,type=bind,consistency=cached"
-  ]
+  "forwardPorts": []
+  // Removed host bind mount (was using ${localEnv:HOME}/.azure) because it failed on container start.
+  // If you need Azure CLI login persistence, uncomment the mounts section below to use a named volume instead of a host path:
+  // "mounts": [
+  //   "source=azure-cli-config,target=/home/vscode/.azure,type=volume"
+  // ]
 }
