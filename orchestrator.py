@@ -1,8 +1,27 @@
+"""Legacy orchestrator module for section processing.
+
+DEPRECATION NOTICE (v0.2.0):
+Superseded by concurrent engine in `core/runner_engine.py`.
+Will be removed in a future minor release once NEW_ENGINE path is stable.
+Set NEW_ENGINE=true to use the preferred engine.
+"""
+
+import warnings
+from config import get_version
 import config
 import logging
 import asyncio
 import os
 from typing import Dict
+
+# One-time import warning (avoid spamming on repeated imports in tests)
+if not globals().get("_ORCH_DEPRECATION_EMITTED"):
+    warnings.warn(
+        f"orchestrator.py is deprecated as of version {get_version()} – enable NEW_ENGINE for the new runner.",
+        DeprecationWarning,
+        stacklevel=1,
+    )
+    _ORCH_DEPRECATION_EMITTED = True
 from autogen import ConversableAgent
 from tasks import get_creation_task, get_correction_task, run_validation_async
 from writer import create_writer_team
