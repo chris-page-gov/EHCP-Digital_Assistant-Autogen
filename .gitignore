@@ -22,6 +22,20 @@ __pycache__/
 *.pyc
 *.pyo
 *.pyd
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.cache/
+
+# --- Coverage Artifacts ---
+.coverage
+coverage.xml
+coverage.svg
+
+# --- SQLite / cache databases ---
+*.db
+*.sqlite
+*.sqlite3
 
 # --- IDE/Editor Specific Configurations ---
 # These files are specific to a developer's local setup.
@@ -48,3 +62,7 @@ __pycache__/
 # Local test scripts for final doc parsing
 test_word_generator.py
 generate_placeholders.py
+
+# --- Temporary scratch / local only ---
+scratch_*/
+tmp/
