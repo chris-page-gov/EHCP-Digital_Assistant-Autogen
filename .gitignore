@@ -25,15 +25,25 @@ __pycache__/
 
 # --- IDE/Editor Specific Configurations ---
 # These files are specific to a developer's local setup.
+/.devcontainer/.env.sample
 .vscode/
 .idea/
 *.DS_Store
 
 
 # Other files that are not part of the source code or configuration
+# Archive or large raw data directories (keep PDFs in docs tracked if needed)
 /archive/
-/docs/
 /appendices/
+
+# Allow docs directory (contains input PDFs) – remove previous ignore
+!docs/
+
+# Devcontainer local overrides
+.devcontainer/local.*.json
+
+# Mac metadata
+.DS_Store
 
 # Local test scripts for final doc parsing
 test_word_generator.py
