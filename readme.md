@@ -132,6 +132,29 @@ The application follows a robust, multi-stage pipeline designed to maximise qual
     -   Design this document with your desired final formatting.
     -   Fill it with Jinja2-style placeholders (e.g., `{{ name }}`, `{{ history_summary }}`) where data should be inserted.
 
+### (Optional) Local Mode with Ollama
+
+You can run the pipeline without Azure by using a locally hosted model via [Ollama](https://ollama.com/). A switch in `config.py` enables this (`USE_OLLAMA`).
+
+1. Install Ollama (Linux/macOS):
+    ```bash
+    curl -fsSL https://ollama.com/install.sh | sh
+    ```
+2. Pull the desired model (default assumed in config: `gpt-oss:20b`):
+    ```bash
+    ollama pull gpt-oss:20b
+    ```
+3. Add (or modify) these entries in your `.env` (keep Azure vars if you also use cloud mode):
+    ```env
+    USE_OLLAMA=true
+    OLLAMA_MODEL_NAME=gpt-oss:20b
+    OLLAMA_BASE_URL=http://localhost:11434
+    OLLAMA_API_KEY=ollama
+    ```
+4. Run the app as normal: `python main.py`.
+
+To switch back to Azure set `USE_OLLAMA=false` (or remove it) and ensure Azure variables are populated.
+
 ## How to Run
 
 1.  Place all your source PDF documents into the `/docs` directory.

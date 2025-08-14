@@ -17,3 +17,9 @@ asyncio
 # Word document generation
 docxtpl
 python-docx
+
+# Testing & coverage
+pytest
+pytest-asyncio
+coverage
+pytest-cov
