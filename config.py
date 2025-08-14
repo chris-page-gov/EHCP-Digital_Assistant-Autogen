@@ -134,8 +134,10 @@ try:
 except Exception:
     __version__ = "0.0.0"
 
+
 def get_version() -> str:
     return __version__
+
 
 if USE_OLLAMA:
     # --- Local Ollama configuration ---

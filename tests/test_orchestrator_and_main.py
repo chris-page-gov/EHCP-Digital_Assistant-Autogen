@@ -144,9 +144,11 @@ async def test_main_async_failure(monkeypatch, tmp_path):
 
 
 async def test_main_async_merge_failure(monkeypatch, tmp_path):
-    import main, utils
+    import main
+    import utils
     monkeypatch.setattr(original_config, "OUTPUTS_DIR", str(tmp_path/"o3"))
-    monkeypatch.setattr(original_config, "PROCESSED_DOCS_DIR", str(tmp_path/"p3"))
+    monkeypatch.setattr(
+        original_config, "PROCESSED_DOCS_DIR", str(tmp_path/"p3"))
     monkeypatch.setattr(original_config, "DOCS_DIR", str(tmp_path/"d3"))
     os.makedirs(original_config.OUTPUTS_DIR, exist_ok=True)
     monkeypatch.setattr(original_config, "TOTAL_SECTIONS", 1)
@@ -160,34 +162,42 @@ async def test_main_async_merge_failure(monkeypatch, tmp_path):
 
 
 async def test_main_async_generate_word_exception(monkeypatch, tmp_path):
-    import main, utils
+    import main
+    import utils
     monkeypatch.setattr(original_config, "OUTPUTS_DIR", str(tmp_path/"o4"))
-    monkeypatch.setattr(original_config, "PROCESSED_DOCS_DIR", str(tmp_path/"p4"))
+    monkeypatch.setattr(
+        original_config, "PROCESSED_DOCS_DIR", str(tmp_path/"p4"))
     monkeypatch.setattr(original_config, "DOCS_DIR", str(tmp_path/"d4"))
     os.makedirs(original_config.OUTPUTS_DIR, exist_ok=True)
     monkeypatch.setattr(original_config, "TOTAL_SECTIONS", 1)
     monkeypatch.setenv("NEW_ENGINE", "false")
     monkeypatch.setattr(utils, "preprocess_all_pdfs", lambda: True)
     monkeypatch.setattr(main, "process_section", lambda *a, **k: True)
+
     def good_merge(num_sections, out_dir, filename):
         Path(out_dir, "output_s1.md").write_text("**K:** V\n")
         Path(out_dir, filename).write_text("**K:** V\n")
         return True
     monkeypatch.setattr(utils, "merge_output_files", good_merge)
-    monkeypatch.setattr(utils, "generate_word_document", lambda *a, **k: (_ for _ in ()).throw(RuntimeError("doc fail")))
+    monkeypatch.setattr(utils, "generate_word_document", lambda *a,
+                        **k: (_ for _ in ()).throw(RuntimeError("doc fail")))
     await main.main_async()
 
 
 async def test_orchestrator_process_section_exception(monkeypatch, tmp_path):
     import orchestrator
     # Force exception inside loop to hit except path
+
     async def bad_create_writer_team(*a, **k):
         raise RuntimeError("boom")
-    monkeypatch.setattr(orchestrator, "create_writer_team", lambda *a, **k: (_ for _ in ()).throw(RuntimeError("boom")))
+    monkeypatch.setattr(orchestrator, "create_writer_team",
+                        lambda *a, **k: (_ for _ in ()).throw(RuntimeError("boom")))
     # patch validation to no-op
-    monkeypatch.setattr(orchestrator, "run_validation_async", lambda *a, **k: None)
+    monkeypatch.setattr(
+        orchestrator, "run_validation_async", lambda *a, **k: None)
     sem = __import__('asyncio').Semaphore(1)
-    prompt_writer = type('PW', (), {"a_generate_reply": lambda self, messages: "[REVISION_REQUEST]"})()
+    prompt_writer = type(
+        'PW', (), {"a_generate_reply": lambda self, messages: "[REVISION_REQUEST]"})()
     assert await orchestrator.process_section("1", sem, {}, {}, prompt_writer) is False
 
 # --- Config branch coverage ---

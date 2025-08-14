@@ -1,4 +1,7 @@
-import os, io, runpy, asyncio
+import os
+import io
+import runpy
+import asyncio
 import builtins
 import types
 import pytest
@@ -56,10 +59,12 @@ def test_main_entry_exceptions(monkeypatch, exc_type, tmp_path, capsys, caplog):
     monkeypatch.setattr(utils, "generate_word_document", lambda *a, **k: None)
     # Track clear_directory calls
     called = {}
-    monkeypatch.setattr(utils, "clear_directory", lambda path: called.setdefault("cleared", path))
+    monkeypatch.setattr(utils, "clear_directory",
+                        lambda path: called.setdefault("cleared", path))
 
     # Fake asyncio.run
-    monkeypatch.setattr(asyncio, "run", lambda coro: (_ for _ in ()).throw(exc_type("boom")))
+    monkeypatch.setattr(asyncio, "run", lambda coro: (
+        _ for _ in ()).throw(exc_type("boom")))
 
     # Execute main module under __main__ guard
     runpy.run_path("main.py", run_name="__main__")
