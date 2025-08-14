@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, crpage ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        task: [lint, typecheck, tests]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest-cov
+      - name: Run lint (ruff)
+        if: matrix.task == 'lint'
+        run: ruff check . --output-format=github
+      - name: Run type checking (mypy)
+        if: matrix.task == 'typecheck'
+        run: mypy .
+      - name: Run tests with coverage
+        if: matrix.task == 'tests'
+        run: pytest -q --cov --cov-report=xml --cov-report=term
+      - name: Upload coverage artifact
+        if: matrix.task == 'tests'
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-xml
+          path: coverage.xml

@@ -24,3 +24,4 @@ pytest-asyncio
 coverage
 pytest-cov
 ruff
+mypy
