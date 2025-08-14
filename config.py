@@ -1,6 +1,7 @@
 import os
 from typing import Any
 from dotenv import load_dotenv
+from pathlib import Path
 
 load_dotenv()
 
@@ -127,6 +128,14 @@ Both tiers (fast + main) currently share the same local model; can be split late
 
 # Feature toggle
 USE_OLLAMA = os.getenv("USE_OLLAMA", "false").lower() == "true"
+_VERSION_FILE = Path(__file__).parent / "VERSION"
+try:
+    __version__ = _VERSION_FILE.read_text(encoding="utf-8").strip()
+except Exception:
+    __version__ = "0.0.0"
+
+def get_version() -> str:
+    return __version__
 
 if USE_OLLAMA:
     # --- Local Ollama configuration ---

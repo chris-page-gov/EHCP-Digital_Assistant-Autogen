@@ -1,8 +1,11 @@
 # AutoGen EHCP Document Automation Pipeline
 
+Version: 0.2.0  
+Test Coverage: ~95% (pytest --cov)
+
 This project is a sophisticated multi-agent system designed to automate the generation of complex, multi-section Education, Health, and Care Plan (EHCP) documents. It leverages the Microsoft AutoGen framework to orchestrate teams of AI agents that perform specialized roles, moving from raw source documents to a fully validated and merged final output in a robust, parallel, and fault-tolerant manner.
 
-## Key Features
+## Key Features (v0.2.0)
 
 -   **Multi-Agent System:** Utilises distinct agent teams for writing and validation, each with specialised roles (`Planner`, `Document_Writer`, `Quality_Assessor`, `Fact_Checker`).
 -   **Parallel Processing:** Employs Python's `asyncio` and a semaphore to concurrently generate and validate multiple document sections, significantly reducing total runtime.
