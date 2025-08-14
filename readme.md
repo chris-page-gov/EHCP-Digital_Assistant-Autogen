@@ -1,7 +1,7 @@
 # AutoGen EHCP Document Automation Pipeline
 
 Version: 0.2.0  
-Test Coverage: ~95% (pytest --cov)
+![Coverage](coverage.svg)
 
 This project is a sophisticated multi-agent system designed to automate the generation of complex, multi-section Education, Health, and Care Plan (EHCP) documents. It leverages the Microsoft AutoGen framework to orchestrate teams of AI agents that perform specialized roles, moving from raw source documents to a fully validated and merged final output in a robust, parallel, and fault-tolerant manner.
 
