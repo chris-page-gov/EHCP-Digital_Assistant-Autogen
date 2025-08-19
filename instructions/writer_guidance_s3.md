@@ -40,7 +40,7 @@ You must create **only one file** in this stage. Use the `save_document_section`
 
 ## Section 3: Content and Structure Template
 
-The file `output_s3.md` must be structured with the following six main areas of need. Needs should be categorised according to the _need_categoristion_guide. Needs should not be repeated under multiple categories. Not all setions must have needs included - only if there are needs which fit that category in the source documents. Each section may have between 0 and 5 needs.
+The file `output_s3.md` must be structured with the following six main areas of need. Needs should be categorised according to the _need_categoristion_guide. Needs should not be repeated under multiple categories. Not all setions must have needs included - only if there are needs which fit that category in the source documents. Each section may have between 0 and 10 needs. 
 
 ### Needs, Provisions and Outcomes
 
@@ -139,8 +139,8 @@ The file `output_s3.md` must be structured with the following six main areas of 
 **Health Care Outcome 1:** [outcome which relates to need 1]
 
 **Health Care Need 2:** [a clearly identified health care need]
-**Health Care Provision 1:** [provision which relates to need 2]
-**Health Care Outcome 1:** [outcome which relates to need 2]
+**Health Care Provision 2:** [provision which relates to need 2]
+**Health Care Outcome 2:** [outcome which relates to need 2]
 
 **Health Care Need 3:** [a clearly identified health care need]
 (etc)

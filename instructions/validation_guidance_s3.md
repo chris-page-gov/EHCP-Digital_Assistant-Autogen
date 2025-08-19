@@ -10,7 +10,7 @@ You MUST strictly follow the required format for the report and use the validati
 
 ## Content Validation Rules for Section 3
 
-**Relevance to SEN (CRITICAL):** The health needs and social care needs described MUST relate to the child's special educational needs. A purely medical nor social care need with no impact on education should not be here. Failure to follow this is a **CRITICAL** issue.
+*   **Relevance to SEN (CRITICAL):** The health needs and social care needs described MUST relate to the child's special educational needs. A purely medical nor social care need with no impact on education should not be here. Failure to follow this is a **CRITICAL** issue.
 *   **Prohibited Content (CRITICAL):** The file MUST NOT mention the names of specific prescribed drugs or medications. This is a **CRITICAL** error.
 *   **No Needs Statement (Correctness Check):** If no needs are present under a specific cateogry, the file MUST use the exact phrase "Child or young person has no identified special educational needs in this area".
 
@@ -118,8 +118,8 @@ The file `output_s3.md` must be structured exactly as follows:
 **Health Care Outcome 1:** 
 
 **Health Care Need 2:** 
-**Health Care Provision 1:** 
-**Health Care Outcome 1:** 
+**Health Care Provision 2:** 
+**Health Care Outcome 2:** 
 
 **Health Care Need 3:** 
 (etc)

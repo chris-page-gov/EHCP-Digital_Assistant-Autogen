@@ -35,7 +35,7 @@ This should conatin:
 *   A brief overview of the child or young person’s history circumstances.
 *   A summary of how to communicate with the child or young person, and how best to engage them in decision making.
 
-The summary of their history should be a brief story of their life so far. It should include positive points about them. Description of some of their challenges and diagnoses are allowed, but these should not be the entire focus.
+The summary of their history should be a brief story of their life so far. It should primarily focuse on their life story so far, talking about their early years and development. It should include positive points about them. Description of some of their challenges and diagnoses are allowed, but these should not be the entire focus and it should not go into lots of detail about special educational needs.
 Do not mention the child's current age or school year.
 
 ## Summary of the Views, Interests and Aspirations of the Child and Their Parent, or of the Young Person
