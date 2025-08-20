@@ -1,10 +1,11 @@
 # AutoGen EHCP Document Automation Pipeline
 
-This project is a sophisticated multi-agent system designed to automate the generation of complex, multi-section Education, Health, and Care Plan (EHCP) documents. It leverages the Microsoft AutoGen framework to orchestrate teams of AI agents that perform specialized roles, moving from raw source documents to a fully validated and merged final output in a robust, parallel, and fault-tolerant manner.
+This project is a sophisticated multi-agent system designed to automate the generation of complex, multi-section Education, Health, and Care Plan (EHCP) documents. It leverages the Microsoft AutoGen framework to orchestrate teams of AI agents that perform specialized roles. The entire data pipeline is built on Azure Blob Storage, moving from raw source documents in the cloud to a fully validated and merged final output in a robust, parallel, and fault-tolerant manner.
 
 ## Key Features
 
 -   **Multi-Agent System:** Utilises distinct agent teams for writing and validation, each with specialised roles (`Planner`, `Document_Writer`, `Quality_Assessor`, `Fact_Checker`).
+-   **Azure Blob Storage Integration:** All document I/O (source, processed, and final outputs) is handled through Azure Blob Storage, making the system scalable, cloud-native, and independent of local file systems.
 -   **Parallel Processing:** Employs Python's `asyncio` and a semaphore to concurrently generate and validate multiple document sections, significantly reducing total runtime.
 -   **Iterative Validation Loop:** Each document section is put through a rigorous write-validate-refine loop, ensuring high quality before the final merge. A mandatory second loop is enforced for robustness.
 -   **Word Document Export:** Automatically parses the final structured Markdown output and populates a custom `.docx` template, producing a professionally formatted, ready-to-use final document.
@@ -36,7 +37,7 @@ The application follows a robust, multi-stage pipeline designed to maximise qual
 -   This loop continues until the section passes validation or `MAX_SECTION_ITERATIONS` is reached.
 
 **Stage 4: Final Merge**
--   Once all 3 sections have been successfully validated, the `merge_output_files` utility is called.
+-   Once all sections have been successfully validated, the `merge_output_files` utility is called.
 -   It concatenates `output_s1.md`, `output_s2.md`, and `output_s3.md` into a single, complete intermediate document: `final_document.md`.
 
 **Stage 5: Word Document Generation**
@@ -70,14 +71,12 @@ The application follows a robust, multi-stage pipeline designed to maximise qual
 
 ```text
 .
-├── 📂 docs/                # Input source PDF documents go here.
 ├── 📂 instructions/         # Guidance prompts for all agents.
 │   ├── 📂 partials/         # Reusable markdown components for guidance files.
 │   ├── writer_guidance_s1.md
 │   └── ...
 ├── 📂 logs/                 # All output logs are saved here.
-├── 📂 outputs/              # Generated documents and feedback files.
-├── 📂 processed_docs/       # Cleaned text versions of source PDFs.
+├── 📂 outputs/              # Copy of finished output is saved here.
 ├── 📄 config.py             # Central configuration for all paths, settings, and LLMs.
 ├── 📄 main.py               # Main application entry point and high-level orchestration.
 ├── 📄 orchestrator.py        # Contains the core logic for processing and correcting sections.
@@ -94,26 +93,30 @@ The application follows a robust, multi-stage pipeline designed to maximise qual
 
 ## Setup and Installation
 
-1.  **Clone the repository:**
+1.  **Prerequisites:**
+    -   You must have an Azure account and an Azure Storage Account.
+    -   Create three blob containers within your storage account: source-docs, processed-docs, and outputs.
+
+2.  **Clone the repository:**
     ```bash
     git clone <your-repo-url>
     cd <your-repo-directory>
     ```
 
-2.  **Create and activate a virtual environment:**
+3.  **Create and activate a virtual environment:**
     ```bash
     python -m venv venv
     source venv/bin/activate  # On Windows, use `venv\Scripts\activate`
     ```
 
-3.  **Install dependencies:**
+4.  **Install dependencies:**
     ```bash
     pip install -r requirements.txt
     ```
 
-4.  **Configure environment variables:**
+5.  **Configure environment variables:**
     -   Create a file named `.env` in the root of the project.
-    -   Add your Azure OpenAI credentials to this file. Use the template below:
+    -   Add your Azure Sotrage and Azure OpenAI credentials to this file. Use the template below:
 
     ```env
     AZURE_OPENAI_API_KEY="your_api_key"
@@ -125,16 +128,20 @@ The application follows a robust, multi-stage pipeline designed to maximise qual
 
     # Deployment name for your fast orchestration model 
     AZURE_OPENAI_MODEL_NAME2=""
+
+    # Azure Storage Account Credentials
+    AZURE_STORAGE_ACCOUNT_NAME="your_storage_account_name"
+    AZURE_STORAGE_ACCOUNT_KEY="your_storage_account_key"
     ```
 
-5.  **Create the Word Template:**
+6.  **Create the Word Template:**
     -   Create a Microsoft Word document named `template.docx` in the project's root directory.
     -   Design this document with your desired final formatting.
     -   Fill it with Jinja2-style placeholders (e.g., `{{ name }}`, `{{ history_summary }}`) where data should be inserted.
 
 ## How to Run
 
-1.  Place all your source PDF documents into the `/docs` directory.
+1.  Upload Source Documents: Using the Azure Portal, Azure Storage Explorer, or the Azure CLI, upload all your source PDF documents into the source-docs blob container.
 2.  Ensure your guidance files in `/instructions` and your `template.docx` are configured as needed.
 3.  Run the main script from the root directory:
     ```bash
@@ -143,9 +150,9 @@ The application follows a robust, multi-stage pipeline designed to maximise qual
 
 ## Outputs and Logging
 
-After a successful run, you will find:
--   **The Final Document:** `/outputs/draft_EHCP.docx`
--   **Intermediate Markdown:** The merged `/outputs/final_document.md`.
--   **Sectional Drafts:** `/outputs/output_sX.md` and their corresponding `/outputs/feedback_sX.md` files.
--   **Full Console Log:** `/logs/full_run_YYYY-MM-DD_HH-MM-SS.log`
--   **High-Level Trace Log:** `/logs/loop_trace_YYYY-MM-DD_HH-MM-SS.log`
+After a successful run:
+-   **Final Document:** The final draft_EHCP.docx and the merged final_document.md will be located in your outputs Azure Blob Storage container.
+-   **Intermediate Files:** Sectional drafts (output_sX.md) and their feedback reports (feedback_sX.md) will also be in the outputs container.
+-   **Local Logs:** Detailed logs are saved locally in the /logs directory.
+    -   /logs/full_run_YYYY-MM-DD_HH-MM-SS.log contains the full, verbose console output.
+    -   /logs/loop_trace_YYYY-MM-DD_HH-MM-SS.log contains a high-level summary of the process flow.
