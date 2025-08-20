@@ -67,8 +67,6 @@ The application follows a robust, multi-stage pipeline designed to maximise qual
 
 ## Project Structure
 
-## Project Structure
-
 ```text
 .
 ├── 📂 instructions/         # Guidance prompts for all agents.
