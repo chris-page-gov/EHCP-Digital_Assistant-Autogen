@@ -38,7 +38,9 @@ Use these rules to assess the document and populate your report.
 
 ## Summary of the Child or Young Person’s History
 **History:**
-[History & communication styles content]
+[History content]
+
+[Communication styles content]
 
 ## Summary of the Views, Interests and Aspirations of the Child and Their Parent, or of the Young Person
 

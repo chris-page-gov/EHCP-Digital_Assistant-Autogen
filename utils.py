@@ -2,74 +2,229 @@ import os
 import re
 import pypdf
 import logging
-from typing import List, Dict
-from functools import lru_cache
-import aiofiles
-import asyncio
+from typing import List, Dict, Any
 import config
-import shutil
-import logging
+import asyncio
+import io
+from azure.storage.blob import BlobServiceClient
+from azure.core.exceptions import ResourceNotFoundError
 from docxtpl import DocxTemplate
 
-# --- Tool Functions ---
+# ==============================================================================
+# 1. AZURE BLOB STORAGE UTILITIES
+# ==============================================================================
+# Low-level functions for interacting with Azure Blob Storage.
+# Includes a singleton client to manage the connection efficiently.
 
-_single_file_cache: Dict[str, str] = {}
-    
-@lru_cache(maxsize=10)
-def _cached_read_files(filepaths_tuple: tuple[str]) -> str:
-    """
-    Internal, cached function for reading multiple files.
-    IMPORTANT: This function MUST take a tuple as input, because lists are not hashable for caching.
-    """
-    full_content = ""
-    for filepath in filepaths_tuple:
-        filename = os.path.basename(filepath)
-        full_content += f"--- START OF FILE {filename} ---\n\n"
+_blob_service_client = None
+
+def _get_blob_service_client():
+    global _blob_service_client
+    if _blob_service_client is None:
+        logging.info("Initializing singleton BlobServiceClient...")
+        if not all([config.AZURE_STORAGE_ACCOUNT_URL, config.AZURE_STORAGE_ACCOUNT_KEY]):
+            raise ValueError("Storage account URL or Key is not set in the environment.")
+        _blob_service_client = BlobServiceClient(
+            account_url=config.AZURE_STORAGE_ACCOUNT_URL, credential=config.AZURE_STORAGE_ACCOUNT_KEY
+        )
+        logging.info("BlobServiceClient initialized successfully.")
+    return _blob_service_client
+
+async def list_blobs_async(container_name: str) -> List[str]:
+    """Asynchronously lists the names of all blobs in a container."""
+    loop = asyncio.get_running_loop()
+    def _list_blobs_sync():
+        logging.info(f"Listing blobs in container: {container_name}")
         try:
-            with open(filepath, 'r', encoding='utf-8') as f:
-                full_content += f.read()
-        except FileNotFoundError:
-            full_content += f"Error: File not found at {filepath}"
+            container_client = _get_blob_service_client().get_container_client(container_name)
+            return [blob.name for blob in container_client.list_blobs()]
         except Exception as e:
-            full_content += f"Error reading file {filepath}: {e}"
-        
+            logging.error(f"Failed to list blobs in container '{container_name}'. Reason: {e}")
+            return []
+    return await loop.run_in_executor(None, _list_blobs_sync)
+
+async def upload_blob_async(container_name: str, blob_name: str, data: str | bytes, overwrite: bool = True) -> None:
+    """Asynchronously uploads string or byte data to a blob."""
+    loop = asyncio.get_running_loop()
+    def _upload_blob_sync():
+        logging.info(f"Uploading to blob: {container_name}/{blob_name}")
+        try:
+            container_client = _get_blob_service_client().get_container_client(container_name)
+            container_client.upload_blob(name=blob_name, data=data, overwrite=overwrite)
+        except Exception as e:
+            logging.error(f"Failed to upload blob '{blob_name}'. Reason: {e}")
+            raise
+    await loop.run_in_executor(None, _upload_blob_sync)
+
+async def download_blob_as_text_async(container_name: str, blob_name: str) -> str:
+    """Asynchronously downloads a blob and returns its content as a UTF-8 string."""
+    loop = asyncio.get_running_loop()
+    def _download_sync():
+        logging.info(f"Downloading text blob: {container_name}/{blob_name}")
+        try:
+            container_client = _get_blob_service_client().get_container_client(container_name)
+            blob_client = container_client.get_blob_client(blob_name)
+            return blob_client.download_blob().readall().decode("utf-8")
+        except ResourceNotFoundError: # Be specific about the most common error
+            error_message = f"ERROR: Blob '{blob_name}' was not found in container '{container_name}'."
+            logging.error(error_message)
+            return error_message
+        except Exception as e:
+            error_message = f"ERROR: Failed to download blob '{blob_name}' as text. Reason: {e}"
+            logging.error(error_message)
+            return error_message
+    return await loop.run_in_executor(None, _download_sync)
+
+async def download_blob_as_bytes_async(container_name: str, blob_name: str) -> bytes:
+    """Asynchronously downloads a blob and returns its content as raw bytes."""
+    loop = asyncio.get_running_loop()
+    def _download_sync():
+        logging.info(f"Downloading bytes blob: {container_name}/{blob_name}")
+        try:
+            container_client = _get_blob_service_client().get_container_client(container_name)
+            blob_client = container_client.get_blob_client(blob_name)
+            return blob_client.download_blob().readall()
+        except Exception as e:
+            logging.error(f"Failed to download blob '{blob_name}' as bytes. Reason: {e}")
+            return b""
+    return await loop.run_in_executor(None, _download_sync)
+
+async def download_all_sources_from_container_async(container_name: str) -> str:
+    """
+    Asynchronously lists all blobs in a container, downloads their text content,
+    and returns it as a single concatenated string. This is the primary tool
+    for providing source context to agents.
+    """
+    logging.info(f"--- Downloading all source documents from container: {container_name} ---")
+    blob_names = await list_blobs_async(container_name)
+    if not blob_names:
+        logging.warning(f"No blobs found in container '{container_name}'.")
+        return "ERROR: No source documents found in the specified container."
+
+    full_content = ""
+    for blob_name in blob_names:
+        filename = os.path.basename(blob_name)
+        logging.info(f"Reading source file: {blob_name}")
+        full_content += f"--- START OF FILE {filename} ---\n\n"
+        full_content += await download_blob_as_text_async(container_name, blob_name)
         full_content += f"\n\n--- END OF FILE {filename} ---\n\n"
-        
+    
+    logging.info(f"--- Finished downloading all source documents from {container_name} ---")
     return full_content
+
+async def clear_blob_container_async(container_name: str) -> None:
+    """Asynchronously deletes all blobs within a specified Azure Blob Storage container."""
+    logging.info(f"--- Starting cleanup of blob container: {container_name} ---")
+    try:
+        blobs_to_delete = await list_blobs_async(container_name)
+        if not blobs_to_delete:
+            logging.info(f"Container '{container_name}' is already empty.")
+            return
+
+        logging.info(f"Found {len(blobs_to_delete)} blobs to delete in container '{container_name}'.")
         
-def read_pdf_file(filepath: str) -> str:
-    """
-    Reads the text content of a single PDF file.
-    Args:
-        filepath (str): The path to the PDF file.
-    Returns:
-        str: The extracted text content of the PDF.
-    """
-    try:
-        with open(filepath, 'rb') as f:
-            reader = pypdf.PdfReader(f)
-            text = ""
-            for page in reader.pages:
-                text += page.extract_text() or ""
-        return text
-    except FileNotFoundError:
-        return f"Error: PDF file not found at {filepath}"
+        # This can be slow if there are many blobs. For this project, it's fine.
+        for blob_name in blobs_to_delete:
+            logging.info(f"Deleting blob: {blob_name}")
+            container_client = _get_blob_service_client().get_container_client(container_name)
+            container_client.delete_blob(blob_name)
+            
+        logging.info(f"--- Cleanup of container '{container_name}' complete. ---")
     except Exception as e:
-        return f"Error reading PDF file {filepath}: {e}"
+        logging.error(f"Failed to clear container '{container_name}'. Reason: {e}", exc_info=True)
 
-def list_files_in_directory(directory: str) -> List[str]:
-    """
-    Lists all files in a given directory.
-    Args:
-        directory (str): The path to the directory.
-    Returns:
-        List[str]: A list of filenames in the directory.
-    """
+
+# ==============================================================================
+# 2. DATA PIPELINE UTILITIES
+# ==============================================================================
+# High-level functions that orchestrate the application's data workflow.
+
+async def preprocess_all_pdfs_async() -> bool:
+    """Asynchronously downloads, processes, and re-uploads all PDFs."""
+    logging.info("--- Starting PDF Pre-processing from Blob Storage ---")
     try:
-        return [os.path.join(directory, f) for f in os.listdir(directory) if os.path.isfile(os.path.join(directory, f))]
-    except FileNotFoundError:
-        return []
+        source_container = config.SOURCE_BLOB_CONTAINER
+        processed_container = config.PROCESSED_BLOB_CONTAINER
+        pdf_blob_names = await list_blobs_async(source_container)
+        pdf_blob_names = [name for name in pdf_blob_names if name.lower().endswith('.pdf')]
 
+        if not pdf_blob_names:
+            logging.warning(f"No PDF files found in container '{source_container}'.")
+            return True
+
+        for pdf_blob_name in pdf_blob_names:
+            logging.info(f"Processing blob: {pdf_blob_name}")
+            pdf_bytes = await download_blob_as_bytes_async(source_container, pdf_blob_name)
+            if not pdf_bytes:
+                logging.warning(f"Skipping empty blob: {pdf_blob_name}")
+                continue
+
+            reader = pypdf.PdfReader(io.BytesIO(pdf_bytes))
+            extracted_text = "".join(page.extract_text() or "" for page in reader.pages)
+            cleaned_content = _clean_text(extracted_text)
+            
+            output_blob_name = pdf_blob_name + ".txt"
+            await upload_blob_async(processed_container, output_blob_name, cleaned_content)
+
+        logging.info("--- PDF Pre-processing Finished ---")
+        return True
+    except Exception as e:
+        logging.critical(f"A critical error occurred during PDF pre-processing: {e}", exc_info=True)
+        return False
+
+async def merge_output_files_async() -> bool:
+    """Asynchronously merges sectional outputs from blob storage."""
+    logging.info(f"--- Merging sectional outputs from blob storage ---")
+    try:
+        output_container = config.OUTPUT_BLOB_CONTAINER
+        all_blobs = await list_blobs_async(output_container)
+        section_blob_names = sorted([b for b in all_blobs if re.match(r'output_s\d+\.md', b)])
+        
+        if len(section_blob_names) != config.TOTAL_SECTIONS:
+            logging.error(f"Merge failed: Expected {config.TOTAL_SECTIONS} files, found {len(section_blob_names)}.")
+            return False
+
+        content_tasks = [download_blob_as_text_async(output_container, blob_name) for blob_name in section_blob_names]
+        full_content = await asyncio.gather(*content_tasks)
+        merged_content = "\n\n---\n\n".join(full_content)
+        
+        await upload_blob_async(output_container, config.FINAL_DOCUMENT_FILENAME, merged_content)
+        logging.info(f"Successfully merged all sections into blob: {config.FINAL_DOCUMENT_FILENAME}")
+        return True
+    except Exception as e:
+        logging.error(f"An I/O error occurred during blob merging: {e}", exc_info=True)
+        return False
+
+
+# ==============================================================================
+# 3. PARSING AND TEXT UTILITIES
+# ==============================================================================
+# Functions for cleaning, sanitising, and parsing text from documents.
+
+def _clean_text(text: str) -> str:
+    """
+    Performs basic text cleaning. (Helper function, prefixed with _).
+    """
+    if not text:
+        return ""
+    cleaned_text = re.sub(r'\n{3,}', '\n\n', text)
+    lines = [line.strip() for line in cleaned_text.split('\n')]
+    return '\n'.join(lines)
+
+def _sanitise_key(key: str) -> str:
+    """
+    A helper function to clean and sanitise a string to be used as a dictionary key.
+    - Converts to lowercase
+    - Replaces spaces and hyphens with underscores
+    - Removes possessive apostrophes ('s or ’s)
+    - Removes any other non-alphanumeric characters (except underscores)
+    """
+    sanitised = key.lower().replace(" ", "_").replace("-", "_")
+    sanitised = sanitised.replace("'s", "").replace("’s", "")
+    sanitised = re.sub(r'[^\w_]', '', sanitised)
+    sanitised = re.sub(r'__+', '_', sanitised)
+    return sanitised
+        
 def parse_feedback_and_count_issues(feedback_content: str) -> Dict[str, int]:
     """
     Parses a feedback document to find a [FEEDBACK_SUMMARY] block and extract issue counts.
@@ -104,207 +259,54 @@ def parse_feedback_and_count_issues(feedback_content: str) -> Dict[str, int]:
 
     return counts
 
-def _clean_text(text: str) -> str:
+def parse_markdown_to_dict(markdown_content: str) -> dict[str,any]:
     """
-    Performs basic text cleaning. (Helper function, prefixed with _).
+    Parses a markdown document assuming every **Key:** is globally unique.
+    It ignores all headers and simply extracts all key-value pairs.
+    This is the simplest and most robust parsing method.
     """
-    if not text:
-        return ""
-    cleaned_text = re.sub(r'\n{3,}', '\n\n', text)
-    lines = [line.strip() for line in cleaned_text.split('\n')]
-    return '\n'.join(lines)
 
-def preprocess_all_pdfs() -> bool:
-    """
-    Finds all PDFs in the DOCS_DIR, extracts clean text, and saves them
-    to PROCESSED_DOCS_DIR. This function orchestrates the pre-processing.
-
-    Returns:
-        bool: True if successful, False if a critical error occurred.
-    """
-    logging.info("--- Starting PDF Pre-processing ---")
+    flat_context = {}
     
-    try:
-        if not os.path.exists(config.PROCESSED_DOCS_DIR):
-            os.makedirs(config.PROCESSED_DOCS_DIR)
-            logging.info(f"Created directory: '{config.PROCESSED_DOCS_DIR}'")
-
-        if not os.path.exists(config.DOCS_DIR):
-            logging.error(f"Source directory '{config.DOCS_DIR}' not found. Cannot pre-process PDFs.")
-            return False
-
-        pdf_files: List[str] = [f for f in os.listdir(config.DOCS_DIR) if f.lower().endswith('.pdf')]
-
-        if not pdf_files:
-            logging.warning(f"No PDF files found in '{config.DOCS_DIR}'. Pre-processing step will be skipped.")
-            return True # Not an error, just nothing to do.
-
-        logging.info(f"Found {len(pdf_files)} PDF(s) to process.")
-
-        for pdf_file in pdf_files:
-            pdf_path = os.path.join(config.DOCS_DIR, pdf_file)
-            logging.info(f"Processing '{os.path.basename(pdf_path)}'...")
-            
-            reader = pypdf.PdfReader(pdf_path)
-            extracted_text = ""
-            for page in reader.pages:
-                page_text = page.extract_text()
-                if page_text:
-                    extracted_text += page_text + "\n\n"
-
-            if not extracted_text.strip():
-                logging.warning(f"No text extracted from '{pdf_path}'. Skipping.")
-                continue
-
-            cleaned_content = _clean_text(extracted_text)
-            
-            output_filename = os.path.basename(pdf_path) + ".txt"
-            output_path = os.path.join(config.PROCESSED_DOCS_DIR, output_filename)
-
-            with open(output_path, 'w', encoding='utf-8') as f:
-                f.write(cleaned_content)
-            logging.info(f"Successfully saved cleaned text to '{output_path}'")
-
-        logging.info("--- PDF Pre-processing Finished ---")
-        return True
-
-    except Exception as e:
-        logging.critical(f"A critical error occurred during PDF pre-processing: {e}")
-        return False
-
-def clear_directory(directory_path: str):
-    """
-    Deletes all files and subdirectories within a given directory,
-    but does not delete the directory itself.
-    """
-    logging.info(f"--- Starting cleanup of directory: {directory_path} ---")
-    if not os.path.isdir(directory_path):
-        logging.warning(f"Cleanup skipped: Directory '{directory_path}' does not exist.")
-        return
-
-    # Loop through all the items in the directory
-    for filename in os.listdir(directory_path):
-        file_path = os.path.join(directory_path, filename)
-        try:
-            # If it's a file or a symbolic link, delete it
-            if os.path.isfile(file_path) or os.path.islink(file_path):
-                os.unlink(file_path)
-            # If it's a subdirectory, delete it and all its contents
-            elif os.path.isdir(file_path):
-                shutil.rmtree(file_path)
-        except Exception as e:
-            # Log an error if a specific file couldn't be deleted, but continue the process
-            logging.error(f"Failed to delete {file_path}. Reason: {e}")
+    # This regex finds a **Key:** at the start of a line, then captures all content
+    # (including newlines and bullets) until it hits the next **Key:** or Heading (##) or ---
+    pattern = re.compile(r'^\*\*(.*?):\*\*(.*?)(?=^\*\*|^##\s|---\n|\Z)', re.DOTALL | re.MULTILINE)
     
-    logging.info(f"--- Cleanup of {directory_path} complete. ---")
-
-def merge_output_files(num_sections: int, output_dir: str, final_filename: str) -> bool:
-    """
-    Merges sectional output files into a single final document.
-
-    Args:
-        num_sections (int): The total number of sections to merge.
-        output_dir (str): The directory containing the output files.
-        final_filename (str): The name of the final merged file.
-
-    Returns:
-        bool: True if merging was successful, False otherwise.
-    """
-    final_doc_path = os.path.join(output_dir, final_filename)
-    logging.info(f"Starting merge process for {final_doc_path}")
-    
-    try:
-        with open(final_doc_path, 'w', encoding='utf-8') as outfile:
-            for i in range(1, num_sections + 1):
-                section_filename = f"output_s{i}.md"
-                section_filepath = os.path.join(output_dir, section_filename)
-                
-                if not os.path.exists(section_filepath):
-                    logging.error(f"Merge failed: Section file not found at {section_filepath}")
-                    return False
-                
-                with open(section_filepath, 'r', encoding='utf-8') as infile:
-                    outfile.write(infile.read())
-                    # Add a separator between sections for clarity, except for the last one
-                    if i < num_sections:
-                        outfile.write("\n\n---\n\n")
-            
-            logging.info(f"Successfully merged all sections into {final_doc_path}")
-            return True
-    except IOError as e:
-        logging.error(f"An I/O error occurred during merging: {e}")
-        return False
-
-_async_single_file_cache: Dict[str, str] = {}
-
-async def read_markdown_file_async(filepath: str) -> str:
-    """Asynchronously reads a markdown file using a custom in-memory cache."""
-    if filepath in _async_single_file_cache:
-        return _async_single_file_cache[filepath]
-    
-    try:
-        async with aiofiles.open(filepath, 'r', encoding='utf-8') as f:
-            content = await f.read()
-            _async_single_file_cache[filepath] = content
-            return content
-    except FileNotFoundError:
-        return f"Error: File not found at {filepath}"
-    except Exception as e:
-        return f"Error reading file {filepath}: {e}"
-
-async def save_markdown_file_async(filepath: str, content: str) -> str:
-    """Asynchronously saves content to a markdown file and invalidates its cache entry."""
-    try:
-        os.makedirs(os.path.dirname(filepath), exist_ok=True)
-        async with aiofiles.open(filepath, 'w', encoding='utf-8') as f:
-            await f.write(content)
+    for match in pattern.finditer(markdown_content):
+        # The raw key is something like "Comms & Interaction Need 1"
+        key_raw = match.group(1).strip()
+        value = match.group(2).strip()
         
-        if filepath in _async_single_file_cache:
-            del _async_single_file_cache[filepath]
+        # The sanitiser turns it into "comms_interaction_need_1"
+        final_key = _sanitise_key(key_raw)
+        
+        flat_context[final_key] = value
             
-        return f"Successfully saved file to {filepath} and invalidated its cache entry."
+    return flat_context
+
+
+# ==============================================================================
+# 4. DOCUMENT GENERATION UTILITIES
+# ==============================================================================
+# Functions for creating final output documents (e.g., .docx).
+
+def generate_word_document(context: dict, template_path: str, output_path: str) -> None:
+    """
+    Generates a Word document by rendering a context dictionary into a docx template.
+    """
+    try:
+        doc = DocxTemplate(template_path)
+        doc.render(context)
+        doc.save(output_path)
+        logging.info(f"Successfully generated Word document at: {output_path}")
     except Exception as e:
-        return f"Error saving file {filepath}: {e}"    
+        logging.error(f"Failed to generate Word document. Reason: {e}", exc_info=True)
 
-@lru_cache(maxsize=10)
-def _read_and_cache_multiple_files_sync(filepaths_tuple: tuple[str]) -> str:
-    """
-    Internal SYNCHRONOUS function to read and cache the combined source documents.
-    This will block ONCE per run, the very first time it's called. All subsequent
-    calls will be instantaneous memory reads.
-    """
-    full_content = ""
-    for filepath in filepaths_tuple:
-        filename = os.path.basename(filepath)
-        full_content += f"--- START OF FILE {filename} ---\n\n"
-        try:
-            with open(filepath, 'r', encoding='utf-8') as f:
-                full_content += f.read()
-        except FileNotFoundError:
-            full_content += f"Error: File not found at {filepath}"
-        except Exception as e:
-            full_content += f"Error reading file {filepath}: {e}"
-        
-        full_content += f"\n\n--- END OF FILE {filename} ---\n\n"
-        
-    return full_content
 
-async def read_multiple_markdown_files_async(filepaths: list[str]) -> str:
-    """
-    Asynchronously reads multiple markdown files.
-    This tool is now a non-blocking wrapper around a synchronous, cached function.
-    """
-    filepaths_tuple = tuple(sorted(filepaths))
-    
-    # Run the synchronous, blocking function in a separate thread pool executor
-    # so that it doesn't block the main asyncio event loop.
-    loop = asyncio.get_running_loop()
-    content = await loop.run_in_executor(
-        None,  # Use the default thread pool executor
-        _read_and_cache_multiple_files_sync,
-        filepaths_tuple
-    )
-    return content
+# ==============================================================================
+# 5. AUTOGEN AGENT HELPER FUNCTIONS
+# ==============================================================================
+# Functions required specifically by the AutoGen agent framework.
 
 def is_terminate_message(message):
     """
@@ -319,56 +321,7 @@ def is_terminate_message(message):
             return content.rstrip().endswith("TERMINATE")
     return False
 
-def _sanitise_key(key: str) -> str:
-    """
-    A helper function to clean and sanitise a string to be used as a dictionary key.
-    - Converts to lowercase
-    - Replaces spaces and hyphens with underscores
-    - Removes possessive apostrophes ('s or ’s)
-    - Removes any other non-alphanumeric characters (except underscores)
-    """
-    sanitised = key.lower().replace(" ", "_").replace("-", "_")
-    sanitised = sanitised.replace("'s", "").replace("’s", "")
-    sanitised = re.sub(r'[^\w_]', '', sanitised)
-    sanitised = re.sub(r'__+', '_', sanitised)
-    return sanitised
 
 
-def parse_markdown_to_dict(markdown_filepath: str) -> dict:
-    """
-    Parses a markdown document assuming every **Key:** is globally unique.
-    It ignores all headers and simply extracts all key-value pairs.
-    This is the simplest and most robust parsing method.
-    """
-    with open(markdown_filepath, 'r', encoding='utf-8') as f:
-        content = f.read()
 
-    flat_context = {}
-    
-    # This regex finds a **Key:** at the start of a line, then captures all content
-    # (including newlines and bullets) until it hits the next **Key:** or Heading (##) or ---
-    pattern = re.compile(r'^\*\*(.*?):\*\*(.*?)(?=^\*\*|^##\s|---\n|\Z)', re.DOTALL | re.MULTILINE)
 
-    for match in pattern.finditer(content):
-        # The raw key is something like "Comms & Interaction Need 1"
-        key_raw = match.group(1).strip()
-        value = match.group(2).strip()
-        
-        # The sanitiser turns it into "comms_interaction_need_1"
-        final_key = _sanitise_key(key_raw)
-        
-        flat_context[final_key] = value
-            
-    return flat_context
-
-def generate_word_document(context: dict, template_path: str, output_path: str):
-    """
-    Generates a Word document by rendering a context dictionary into a docx template.
-    """
-    try:
-        doc = DocxTemplate(template_path)
-        doc.render(context)
-        doc.save(output_path)
-        logging.info(f"Successfully generated Word document at: {output_path}")
-    except Exception as e:
-        logging.error(f"Failed to generate Word document. Reason: {e}", exc_info=True)

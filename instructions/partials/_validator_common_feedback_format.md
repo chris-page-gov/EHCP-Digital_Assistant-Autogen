@@ -40,10 +40,10 @@ Minor: [Number of minor issues found]
 
 #### Anti-Hallucination and Source Verification
 *   **(CRITICAL)** All information in the file being validated MUST be verifiable against the source documents. Flag any content that appears fabricated or cannot be traced back to the source PDFs as a **CRITICAL** hallucination error.
-*   **(MAJOR)** Flag any content that seems embellished (e.g., adding details not present in the sources).
-*   **CRITICAL** The presence of placeholder text such as [INSERT] is a CRITICAL error.
-*   **CRITICAL** Conversational text such as "information not provided in the source documents" is a CRITICAL error.
+*   **--> (CRITICAL) Special check for Provisions and Outcomes:** Pay extremely close attention to any quantifiable details for provisions and outcomes. Fabricating details like durations ("for 6 weeks"), frequencies ("weekly", "daily"), or specific quantities ("2 sessions of 30 minutes") when they are not explicitly stated in the source documents is a **CRITICAL** factual error. For example, if the source says "speech therapy is required" and the draft says "weekly speech therapy is required," you must flag "weekly" as a critical hallucination.
+*   **(CRITICAL)** Flag any content that seems embellished (e.g., adding details not present in the sources).
+*   **(CRITICAL)** The presence of placeholder text such as `[INSERT]` is a CRITICAL error.
+*   **(CRITICAL)** Conversational text such as "information not provided in the source documents" is a CRITICAL error.
 
-**Important** - Missing information should be flagged, but do not suggest that the writer should state “Not known” when a field has been left blank. NEVER suggest that field headings are removed.
-Where detail is missing for a particular field, LEAVE IT BLANK. the document should NEVER state 'Not specified in source'
+**Important** - Missing information should be flagged, but do not suggest that the writer should state “Not known” when a field has been left blank. NEVER suggest that field headings are removed. Where detail is missing for a particular field, LEAVE IT BLANK. the document should NEVER state 'Not specified in source'
 ---
