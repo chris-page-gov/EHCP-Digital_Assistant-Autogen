@@ -112,7 +112,10 @@ The application follows a robust, multi-stage pipeline designed to maximise qual
     pip install -r requirements.txt
     ```
 
-5.  **Configure environment variables:**
+5. **Deploy AI models in Azure AI Foundry**
+    This project requires two separate large language model deployments — a reasoning model for complex tasks and a faster model for orchestration tasks.
+
+6.  **Configure environment variables:**
     -   Create a file named `.env` in the root of the project.
     -   Add your Azure Sotrage and Azure OpenAI credentials to this file. Use the template below:
 
@@ -132,7 +135,7 @@ The application follows a robust, multi-stage pipeline designed to maximise qual
     AZURE_STORAGE_ACCOUNT_KEY="your_storage_account_key"
     ```
 
-6.  **Create the Word Template:**
+7.  **Create the Word Template:**
     -   Create a Microsoft Word document named `template.docx` in the project's root directory.
     -   Design this document with your desired final formatting.
     -   Fill it with Jinja2-style placeholders (e.g., `{{ name }}`, `{{ history_summary }}`) where data should be inserted.
