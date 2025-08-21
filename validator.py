@@ -40,7 +40,7 @@ def create_validator_team(llm_config: Dict, llm_config_fast: Dict) -> GroupChatM
         1.  **Wait** for the `Fact_Checker` to provide its complete and detailed report on all content-related matters.
         2.  **After** the `Fact_Checker` has spoken, you will perform your structural/formatting check.
         3.  You will then create the **single, consolidated feedback report**. This report must integrate your structural findings with the `Fact_Checker`'s entire factual report.
-        4.  After the report is saved, you will provide the final "TERMINATE" signal.
+        4.  After the report is saved, your entire response must be the single word TERMINATE to end the task.
 
         You MUST treat the `Fact_Checker`'s report as the absolute truth for all content issues. You are a report compiler, not a second-level fact-checker. You do not need to consult the source documents.
         """

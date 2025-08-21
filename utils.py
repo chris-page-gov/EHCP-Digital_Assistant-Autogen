@@ -263,7 +263,6 @@ def parse_markdown_to_dict(markdown_content: str) -> dict[str,any]:
     """
     Parses a markdown document assuming every **Key:** is globally unique.
     It ignores all headers and simply extracts all key-value pairs.
-    This is the simplest and most robust parsing method.
     """
 
     flat_context = {}
@@ -310,7 +309,7 @@ def generate_word_document(context: dict, template_path: str, output_path: str) 
 
 def is_terminate_message(message):
     """
-    Custom function to check for termination message.
+    Custom function to check for termination message in groupchat.
     Safely handles messages that are not simple strings.
     """
     # Check if the message is a dictionary and has a "content" key
@@ -318,7 +317,7 @@ def is_terminate_message(message):
         content = message["content"]
         # Check if the content is not None before calling string methods
         if content is not None:
-            return content.rstrip().endswith("TERMINATE")
+            return content.strip() == "TERMINATE"
     return False
 
 
