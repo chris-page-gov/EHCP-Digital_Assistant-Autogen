@@ -46,10 +46,10 @@ azure_api_version = os.getenv("AZURE_OPENAI_API_VERSION")
 
 # --- Build LLM Config Dictionaries ---
 config_list = [{"model": azure_model_name, "api_key": azure_api_key, "base_url": azure_endpoint, "api_type": "azure", "api_version": azure_api_version}]
-llm_config = {"config_list": config_list, "timeout": 300}
+llm_config = {"config_list": config_list, "timeout": 300, "cache_seed": None}
 
 config_list_fast = [{"model": azure_model_name2, "api_key": azure_api_key, "base_url": azure_endpoint, "api_type": "azure", "api_version": azure_api_version}]
-llm_config_fast = {"config_list": config_list_fast, "timeout": 300}
+llm_config_fast = {"config_list": config_list_fast, "timeout": 300, "cache_seed": None}
 
 if not all([azure_api_key, azure_endpoint, azure_model_name, azure_model_name2, azure_api_version]):
     raise ValueError("One or more critical Azure OpenAI environment variables are not set in .env")
