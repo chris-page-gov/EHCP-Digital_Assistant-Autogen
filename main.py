@@ -63,6 +63,8 @@ async def main_async():
     run_timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     setup_logging(run_timestamp)
 
+    litellm.caching = False
+
     litellm.max_retries = 5
     loop_logger = logging.getLogger('LoopTracer')
     process_completed_successfully = False
