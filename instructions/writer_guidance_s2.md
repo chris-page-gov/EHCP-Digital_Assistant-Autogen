@@ -2,7 +2,7 @@
 
 ## Your Current Goal
 
-Your sole focus for this task is to create **one single file**: `output_s2.md`.
+Your sole focus for this task is to create **one single output file**.
 
 This file must contain two distinct parts based on the source documents:
 1.  A concise summary of the child's history.
@@ -16,9 +16,9 @@ Adhere strictly to the formatting and content rules, especially the word count l
 
 ## Required Output File for This Stage
 
-You must create **only one file** in this stage. Use the `save_document_section` tool with the following parameters:
+You must create **only one file** in this stage:
 
-*   **Filename to create:** `output_s2.md`
+*   **Filename to create:** `output_s2_i#.md`
 *   **Correct Naming:** Use the exact `section_name` "Child Overview" in the tool.
 
 ---
@@ -49,7 +49,7 @@ This should be a summary of the views of the child and the family. You must stat
 All interests should be as purposeful and specific as possible, forming a starting point for the rest of the plan. Statements like “X cares about spending time with their friends, and likes to play guitar” are helpful. Bland, generic statements like “X has a lovely smile” should be avoided.
 
 **Strengths**
-This section is ONLY for the child's strengths. Descriptions of their needs or difficulties do not belong here.
+This section is ONLY for the child's strengths. Descriptions of their needs or difficulties do not belong here. Content should be written as a block of text, rather than a bullet-point list.
 
 **Aspirations**
 This should capture the child or young person’s ambitions for their own lives. If the plan relates to a child, parent or carer views should also be included, and any differences in their priorities should be reflected.

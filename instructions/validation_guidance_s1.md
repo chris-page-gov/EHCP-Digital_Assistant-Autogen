@@ -1,6 +1,6 @@
 # Validation Guidance: Section 1 - Personal Details
 
-Your task is to validate a single file, `output_s1.md`, and produce a feedback report. You MUST strictly follow the required format for the report and use the validation rules below to identify and categorise issues.
+Your task is to validate a single file and produce a feedback report. You MUST strictly follow the required format for the report and use the validation rules below to identify and categorise issues.
 
 ---
 
@@ -10,9 +10,9 @@ Use these rules to assess the document and populate your report.
 
 ### Overall File Structure
 
-*   **Expected File (CRITICAL):** The file `output_s1.md` MUST exist. If it is missing, this is a **CRITICAL** error.
+*   **Expected File (CRITICAL):** The file `output_s1_i#.md` MUST exist. If it is missing, this is a **CRITICAL** error.
 
-### Content Validation Rules for `output_s1.md`
+### Content Validation Rules for `output_s1_i#.md`
 
 #### Section-Specific Content and Structure
 1.  **Required Structure (CRITICAL):** The file MUST follow this specific structure:

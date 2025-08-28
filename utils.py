@@ -173,18 +173,44 @@ async def preprocess_all_pdfs_async() -> bool:
         return False
 
 async def merge_output_files_async() -> bool:
-    """Asynchronously merges sectional outputs from blob storage."""
+    """Finds the latest iteration of each section's output file, then merges them into a single final document."""
     logging.info(f"--- Merging sectional outputs from blob storage ---")
     try:
         output_container = config.OUTPUT_BLOB_CONTAINER
         all_blobs = await list_blobs_async(output_container)
-        section_blob_names = sorted([b for b in all_blobs if re.match(r'output_s\d+\.md', b)])
+
+        # This dictionary will store the latest iteration found for each section.
+        # Format: { section_number: (blob_name, iteration_number) }
+        latest_iterations = {}
         
-        if len(section_blob_names) != config.TOTAL_SECTIONS:
-            logging.error(f"Merge failed: Expected {config.TOTAL_SECTIONS} files, found {len(section_blob_names)}.")
+        # Define the regex pattern to match and extract numbers from versioned filenames.
+        pattern = re.compile(r'output_s(\d+)_i(\d+)\.md')
+
+        for blob_name in all_blobs:
+            match = pattern.match(blob_name)
+            if match:
+                section_number = int(match.group(1))
+                iteration_number = int(match.group(2))
+
+                # If we haven't seen this section yet, or if the current iteration is higher
+                # than the one we've stored, update the dictionary.
+                if section_number not in latest_iterations or iteration_number > latest_iterations[section_number][1]:
+                    latest_iterations[section_number] = (blob_name, iteration_number)
+
+        # Sanity check: Ensure we found a final version for every expected section.
+        if len(latest_iterations) != config.TOTAL_SECTIONS:
+            logging.error(f"Merge failed: Expected to find a final output for {config.TOTAL_SECTIONS} sections, but only found {len(latest_iterations)}.")
             return False
 
-        content_tasks = [download_blob_as_text_async(output_container, blob_name) for blob_name in section_blob_names]
+        # Sort the dictionary by section number to ensure the correct merge order.
+        sorted_iterations = sorted(latest_iterations.items())
+        
+        # Extract just the blob names in the correct order.
+        final_blob_names = [data[1][0] for data in sorted_iterations]
+        
+        logging.info(f"Found latest files to merge: {final_blob_names}")
+
+        content_tasks = [download_blob_as_text_async(output_container, blob_name) for blob_name in final_blob_names]
         full_content = await asyncio.gather(*content_tasks)
         merged_content = "\n\n---\n\n".join(full_content)
         
@@ -230,6 +256,11 @@ def parse_feedback_and_count_issues(feedback_content: str) -> Dict[str, int]:
     Parses a feedback document to find a [FEEDBACK_SUMMARY] block and extract issue counts.
     This is robust against formatting changes in the rest of the document.
     """
+
+    if not feedback_content or feedback_content.strip().startswith("ERROR:"):
+        logging.warning("Feedback file was not found or was empty. Forcing a validation retry by reporting 99 critical issues.")
+        return {"critical": 99, "major": 99, "minor": 99}
+
     counts = {"critical": 0, "major": 0, "minor": 0}
     
     try:

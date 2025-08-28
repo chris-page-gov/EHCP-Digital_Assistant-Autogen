@@ -2,7 +2,7 @@
 
 ## Your Current Goal
 
-Your sole focus for this task is to create **one single, comprehensive file**: `output_s3.md`.
+Your sole focus for this task is to create **one single output file**.
 
 This file covers all four areas of special educational need, as well as health care needs and social care needs. For each area, you must detail the **Needs**, the specific **Provision** to meet those needs, and the **Outcomes** that the provision aims to achieve. Follow the detailed structure and rules below precisely.
 
@@ -14,9 +14,9 @@ This file covers all four areas of special educational need, as well as health c
 
 ## Required Output File for This Stage
 
-You must create **only one file** in this stage. Use the `save_document_section` tool with the following parameters:
+You must create **only one file** in this stage:
 
-*   **Filename to create:** `output_s3.md`
+*   **Filename to create:** `output_s3_i#.md`
 *   **`section_name` parameter to use:** `"Needs, Provisions and Outcomes"`
 
 ---

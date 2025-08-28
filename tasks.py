@@ -20,10 +20,9 @@ async def _read_local_guidance_files_async(file_paths: list) -> str:
         return full_content
     return await loop.run_in_executor(None, _read_sync)
 
-async def get_creation_task(section_number: str) -> str:
+async def get_creation_task(section_number: str, output_blob_name: str) -> str:
     """Asynchronously generates the initial creation task prompt."""
     paths = config.get_section_config(section_number) 
-    output_blob_name = paths["output_blob_name"]
     guidance_content = await _read_local_guidance_files_async(paths["writer_guidance"])
     
     return f"""
@@ -35,10 +34,9 @@ async def get_creation_task(section_number: str) -> str:
     The Planner must now create a plan.
     """
 
-async def get_correction_task(section_number: str, clean_request: str) -> str:
+async def get_correction_task(section_number: str, clean_request: str, output_blob_name: str) -> str:
     """Asynchronously generates the correction task prompt."""
     paths = config.get_section_config(section_number) 
-    output_blob_name = paths["output_blob_name"]
     guidance_content = await _read_local_guidance_files_async(paths["writer_guidance"])
 
     return f"""
@@ -49,12 +47,10 @@ async def get_correction_task(section_number: str, clean_request: str) -> str:
     {clean_request}
     """
 
-async def run_validation_async(section_number: str, llm_config: dict, llm_config_fast: dict):
+async def run_validation_async(section_number: str, llm_config: dict, llm_config_fast: dict, output_blob_name: str, feedback_blob_name: str):
     """Asynchronously runs the validator team for a section."""
     logging.info(f"\n--- Kicking off Validator Team for Section {section_number} ---")
     paths = config.get_section_config(section_number)
-    output_blob_name = paths["output_blob_name"]
-    feedback_blob_name = paths["feedback_blob_name"]
     guidance_content = await _read_local_guidance_files_async(paths["validation_guidance"])
 
     validator_manager = create_validator_team(llm_config, llm_config_fast)

@@ -1,6 +1,6 @@
 # EHCP Validator Guidance: Section 2 - Child Overview
 
-Your task is to validate a single file, `output_s2.md`, and produce a feedback report.
+Your task is to validate a single file and produce a feedback report.
 You MUST strictly follow the required format for the report and use the validation rules below to identify and categorise issues, paying close attention to the strict word count limits and content requirements for the 'History' and 'Views' sections.
 
 ---
@@ -11,9 +11,9 @@ Use these rules to assess the document and populate your report.
 
 ### Overall File Structure
 
-*   **Expected File (CRITICAL):** The file `output_s2.md` MUST exist. If it is missing, this is a **CRITICAL** error.
+*   **Expected File (CRITICAL):** The file `output_s2_i#.md` MUST exist. If it is missing, this is a **CRITICAL** error.
 
-### Content Validation Rules for `output_s2.md`
+### Content Validation Rules for `output_s2_i#.md`
 
 *   **CRITICAL:** All views, interests, strengths, and aspirations MUST be verifiable against the source documents. It is a common error to invent hobbies or career goals. Flag any such fabrication as a **CRITICAL** hallucination error.
 *   **CRITICAL:** The summary of history must be based entirely on the source documents.

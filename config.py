@@ -88,9 +88,6 @@ def get_section_config(section_number: str) -> dict:
         "3": {"writer_guidance": [writer_guidance_s, WRITER_COMMON_RULES, NEED_CATEGORISATION_GUIDE, NEEDS_PROVISION_OUTCOMES_RULES], "validation_guidance": validation_common_detailed},
     }
 
-    config_data = {
-        "output_blob_name": f"output_s{section_str}.md",
-        "feedback_blob_name": f"feedback_s{section_str}.md",
-    }
+    config_data = {}
     config_data.update(path_map.get(section_str, {}))
     return config_data

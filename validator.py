@@ -30,18 +30,16 @@ def create_validator_team(llm_config: Dict, llm_config_fast: Dict) -> GroupChatM
     quality_assessor = ConversableAgent(
         name="Quality_Assessor",
         llm_config=llm_config,
-        system_message="""You are a Quality Assurance expert and report compiler. Your role is to manage the final stages of validation and assemble the report.
+        system_message="""You are a Quality Assurance expert. Your role is to lead the validation process and produce the final report. You have a very strict, multi-step role. Follow it precisely.
 
-        **Your role is strictly limited to:**
-        1.  Assessing the draft document ONLY for **structure, formatting, and file rules** (e.g., checking for correct headings, placeholder files, etc.) as defined in the validation guidance.
-        2.  Compiling the final feedback report in the **exact format** specified in the guidance.
+        **Your Workflow:**
 
-        **Your workflow is:**
-        1.  **Wait** for the `Fact_Checker` to provide its complete and detailed report on all content-related matters.
-        2.  **After** the `Fact_Checker` has spoken, you will perform your structural/formatting check.
-        3.  You will then create the **single, consolidated feedback report**. This report must integrate your structural findings with the `Fact_Checker`'s entire factual report.
-        4.  After the report is saved, your entire response must be the single word TERMINATE to end the task.
+        1.  **First Turn (Generate Report):** You will be called upon AFTER the `Fact_Checker` has provided its findings. In this turn, your **ENTIRE response MUST be the complete and final feedback report** in the specified markdown format. The report must consolidate your own assessment (of structure, formatting, and rules) with the findings from the `Fact_Checker`. Do NOT add any conversational text like "Here is the report".
 
+        2.  **Second Turn (Terminate):** After the user proxy has saved your report to a file, you will be called upon one final time. In this turn, your **ENTIRE response MUST be the single word `TERMINATE`**.
+
+        Do not deviate from this two-step process. Do not call any tools yourself.
+        
         You MUST treat the `Fact_Checker`'s report as the absolute truth for all content issues. You are a report compiler, not a second-level fact-checker. You do not need to consult the source documents.
         """
 

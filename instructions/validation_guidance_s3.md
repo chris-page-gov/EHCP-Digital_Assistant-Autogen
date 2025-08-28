@@ -1,12 +1,12 @@
 # EHCP Validator Guidance: Section 3 - Needs, Provisions and Outcomes
 
-Your task is to validate a single file, `output_s3.md`, and produce a feedback report.
+Your task is to validate a single file, and produce a feedback report.
 You MUST strictly follow the required format for the report and use the validation rules below to identify and categorise issues, paying close attention to the "Golden Thread" connecting Needs, Provisions, and Outcomes within all four areas of need. You must also validate the correct classification of social care provision into H1 and H2 categories.
 
 
 ## Overall File Structure 
 
-*   **Expected File:** `output_s3.md` MUST exist. If missing, it's a **CRITICAL** error.
+*   **Expected File:** `output_s3_i#.md` MUST exist. If missing, it's a **CRITICAL** error.
 
 ## Content Validation Rules for Section 3
 
