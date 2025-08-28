@@ -15,11 +15,11 @@ You MUST strictly follow the required format for the report and use the validati
 *   **No Needs Statement (Correctness Check):** If no needs are present under a specific cateogry, the file MUST use the exact phrase "Child or young person has no identified special educational needs in this area".
 
 ### Need and provision categorisiton
-*   Each need should appear under only one category. A specific need appearing under more that one cateogry is a MAJOR error.
+*   Each need should appear under only one category. A specific need appearing under more that one cateogry is a STANDARD error.
 
 **Social care provision classification**
-*   **Relevance to SEN (MAJOR):** The social care needs described MUST relate to the child's SEN or disability.
-*   **H1/H2 Classification (MAJOR):** Check if the provision seems correctly placed. For example, 'help with personal care at home' belongs in H1. 'Referral for family support' might belong in H2. Misclassification is a **MAJOR** error.
+*   **Relevance to SEN (STANDARD):** The social care needs described MUST relate to the child's SEN or disability.
+*   **H1/H2 Classification (STANDARD):** Check if the provision seems correctly placed. For example, 'help with personal care at home' belongs in H1. 'Referral for family support' might belong in H2. Misclassification is a **STANDARD** error.
 [H1 includes social care provision that is made under the Chronically Sick and Disabled Persons Act 1970. This includes services like:
 - Practical assistance in the home (e.g., help with personal care).
 - Provision of, or assistance with, recreational and educational facilities.
@@ -146,4 +146,4 @@ The file `output_s3.md` must be structured exactly as follows:
 
 
 ---
-Failure to do so is a CRITICAL error
+Failure to follow this structure is a **CRITICAL** error

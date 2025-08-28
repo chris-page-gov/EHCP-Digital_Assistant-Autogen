@@ -8,8 +8,7 @@ This is the most important instruction. Your entire response **MUST** begin with
 [FEEDBACK_SUMMARY]
 Overall Status: [PASS or FAIL]
 Critical: [Number of critical issues found]
-Major: [Number of major issues found]
-Minor: [Number of minor issues found]
+Standard: [Number of standard issues found]
 [END_FEEDBACK_SUMMARY]
 
 **Note:** A document FAILS only if there is one or more CRITICAL issue.
@@ -20,14 +19,12 @@ Minor: [Number of minor issues found]
 [State clearly whether the document PASSES or FAILS. Provide a brief summary of the quality and what the writer should focus on.]
 **Critical Issues:**
 [List all critical issues found, or write "None". Provide specific examples and recommend actions for the writer, e.g., "CRITICAL: Remove hallucinated GP name 'Dr. Smith' and replace with information from the source documents."]
-**Major Issues:**
-[List all major issues found, or write "None". e.g., "Correct the file to include the 'Services Currently Involved' heading."]
-**Minor Issues:**
-[List all minor issues found, or write "None".]
+**Standard Issues:**
+[List all standrad issues found, or write "None". e.g., "The dates are in an inconsistent format, correct these for improved consistency"]
 
 ---
 
-*   List all **CRITICAL**, **MAJOR**, and **MINOR** issues found.
+*   List all **CRITICAL** and **STANDARD** issues found.
 *   Be specific when describing issues.
 
 ###  File Structure rules

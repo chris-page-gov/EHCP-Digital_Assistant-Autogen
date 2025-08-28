@@ -16,6 +16,6 @@ You must use the SMART definition to validate the outcomes in the draft against 
 
 1.  **Check for Hallucination (CRITICAL Error):** Compare the draft outcome to the source text. If the writer has added a specific **timeframe** or **metric** (e.g., "by the end of the term," "3 occasions per week") that was **NOT** explicitly stated in the source documents, this is a **CRITICAL** hallucination error.
 
-2.  **Check for Omission (MAJOR Error):** **Only if** no hallucination is found, check the reverse. If the source documents **DID** contain all the elements required for a SMART outcome but the writer **failed to synthesize them** into a single, SMART outcome, this is a **MAJOR** error.
+2.  **Check for Omission (Standard Error):** **Only if** no hallucination is found, check the reverse. If the source documents **DID** contain all the elements required for a SMART outcome but the writer **failed to synthesize them** into a single, SMART outcome, this is a **STANDARD** error.
 
-3.  **Check for Vagueness (NOT an Error):** If an outcome in the draft is not SMART (e.g., "To improve social skills") because the source text itself provided a non-SMART outcome, the writer has acted correctly by not inventing details. This is **NOT an error** and should not be flagged.
+3.  **Check for Vagueness (NOT an Error if the SMART detail is not present in source documents):** If an outcome in the draft is not SMART (e.g., "To improve social skills") because the source text itself provided a non-SMART outcome, the writer has acted correctly by not inventing details. This is **NOT an error** and should not be flagged.

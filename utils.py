@@ -261,7 +261,7 @@ def parse_feedback_and_count_issues(feedback_content: str) -> Dict[str, int]:
         logging.warning("Feedback file was not found or was empty. Forcing a validation retry by reporting 99 critical issues.")
         return {"critical": 99, "major": 99, "minor": 99}
 
-    counts = {"critical": 0, "major": 0, "minor": 0}
+    counts = {"critical": 0, "standard": 0}
     
     try:
         # Use regex to find the content within the [FEEDBACK_SUMMARY] block
@@ -286,7 +286,7 @@ def parse_feedback_and_count_issues(feedback_content: str) -> Dict[str, int]:
     except Exception as e:
         print(f"Error parsing feedback summary block: {e}. Returning default counts.")
         # Return the default counts in case of any parsing error
-        return {"critical": 0, "major": 0, "minor": 0}
+        return {"critical": 0, "standard": 0}
 
     return counts
 

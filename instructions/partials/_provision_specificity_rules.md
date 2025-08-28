@@ -14,6 +14,6 @@ You must use the definition above to validate the provisions in the draft agains
 
 1.  **Check for Hallucination (CRITICAL Error):** For every provision, compare the draft to the source text. If the writer has added **any** specific, quantifiable detail (like a ratio, frequency, or duration) that was **NOT** explicitly stated in the source documents, this is a **CRITICAL** hallucination error.
 
-2.  **Check for Omission (MINOR Error):** **Only if** no hallucination is found, check the reverse. If the source documents **DID** contain a specific detail (like a ratio, frequency, or duration) but the writer **failed to include it** in the draft, this is a **MINOR** error.
+2.  **Check for Omission (Standard Error):** **Only if** no hallucination is found, check the reverse. If the source documents **DID** contain a specific detail (like a ratio, frequency, or duration) but the writer **failed to include it** in the draft, this is a **STANDARD** error.
 
-3.  **Check for Vagueness (NOT an Error):** If a provision in the draft is vague (e.g., "regular support from a TA") because the source text itself was vague, the writer has acted correctly. This is **NOT an error** and should not be flagged.
+3.  **Check for Vagueness (NOT an Error if detail is not present in source documents):** If a provision in the draft is vague (e.g., "regular support from a TA") because the source text itself was vague, the writer has acted correctly. This is **NOT an error** and should not be flagged.

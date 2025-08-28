@@ -50,7 +50,7 @@ async def process_section(section_number: str, semaphore: asyncio.Semaphore, llm
                 # --- ASSESSMENT ---
                 feedback_content = await download_blob_as_text_async(config.OUTPUT_BLOB_CONTAINER, feedback_name)
                 issue_counts = parse_feedback_and_count_issues(feedback_content)
-                logging.info(f"Section {section_number} Issues Found: Critical={issue_counts['critical']}, Major={issue_counts['major']}, Minor={issue_counts['minor']}")
+                logging.info(f"Section {section_number} Issues Found: Critical={issue_counts.get('critical', 0)}, Standard={issue_counts.get('standard', 0)}")
 
                 # --- SUCCESS CONDITION ---        
                 if issue_counts['critical'] == 0 and i >= 2:

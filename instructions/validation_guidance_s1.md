@@ -54,7 +54,7 @@ Use these rules to assess the document and populate your report.
 **Is there a one page profile received (append):** 
 **Child or young person moving to area with EHCP from a different LA:** 
 
-Failrue to do so is a CRITICAL error
+Failure to follow this structure is a **CRITICAL** error
 
 2.  **Required Content (CRITICAL):**
     *   Under `Child or Young Person’s Personal Details`, the file must contain at least the child's full name and date of birth.
@@ -62,7 +62,7 @@ Failrue to do so is a CRITICAL error
     *   Under `Services Currently Involved...`, the file must clearly identify the education setting.
     *   *Failure to include any of these is a **CRITICAL** error.*
 
-3.  **Quality Checks (MINOR):**
+3.  **Quality Checks (STANDARD):**
     *   Check for inconsistent formatting (e.g., Date of Birth format is not DD/MM/CCYY).
     *   Ensure professional services are listed by department/practice name, not by individuals' names.
 
