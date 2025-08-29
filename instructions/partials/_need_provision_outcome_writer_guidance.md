@@ -1,5 +1,6 @@
 **Identified Special Educational Need(s):**
-[Describe the child's needs relating to [area of need]. It is a legal requirement to list all identified needs. Each need should be concise and specific. Briefly describe the impact the needs are having on the child to maintain the "golden thread" between need, provision, and outcome. If there are no needs in this category, you must enter: ‘Child/young person has no identified special educational needs in this area’. Only include needs which are clearly identified by professionals]
+[Describe the child's needs relating to [area of need]. It is a legal requirement to list all identified needs. Each need should be concise and specific. Briefly describe the impact the needs are having on the child to maintain the "golden thread" between need, provision, and outcome. If there are no needs in this category, you must enter ‘[Child's name] has no identified special educational needs in this area’ for need 1 in the category and leave all other fields blank.
+Only include needs which are clearly identified by professionals]
 
 **Provisions:**
 [**CRITICAL:** Provision must be specified for **each and every need**. The provision should be specific, detailed, and quantified. Provisions must have been clearly proposed by professionals in the source documents to be included here. Where information is available in the source documents, include the following five elements for each provision:

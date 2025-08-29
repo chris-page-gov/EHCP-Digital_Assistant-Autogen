@@ -28,22 +28,29 @@ You must create **only one file** in this stage:
 The file `output_s2.md` must contain the following two main sections with their sub-headings.
 
 ## Summary of the Child or Young Person’s History
-**CRITICAL: This summary MUST NOT exceed 500 words (approximately 3000 characters).**
-It should be written as a short block of text. Some use of bullet points is allowed, but the output should not be fully bullet-pointed
+This should be arranged under the following 2 sub-headings
 
-This should conatin:
-*   A brief overview of the child or young person’s history circumstances.
-*   A summary of how to communicate with the child or young person, and how best to engage them in decision making.
+**History**
+The History summary MUST NOT exceed 500 words (approximately 3000 characters).**
 
-The summary of their history should be a brief story of their life so far. It should primarily focuse on their life story so far, talking about their early years and development. It should include positive points about them. Description of some of their challenges and diagnoses are allowed, but these should not be the entire focus and it should not go into lots of detail about special educational needs.
+It should be written as a short block of text. Some use of bullet points is allowed, but the output should not be fully bullet-pointed.
+
+The summary of their history should be a brief story of their life so far and their current circumstances. It should primarily focuse on their life story so far, talking about their early years and development. It should include positive points about them. Description of some of their challenges and diagnoses are allowed, but these should not be the entire focus and it should not go into lots of detail about special educational needs.
 Do not mention the child's current age or school year.
 
-## Summary of the Views, Interests and Aspirations of the Child and Their Parent, or of the Young Person
-**This summary should also be approximately 500 words or 3000 characters.**
-**It must be arranged under the following four subheadings and must not be in bullet points.**
+**Communication**
+This should be a summary of how to communicate with the child or young person, and how best to engage them in decision making. It should be no more than a couple of sentences. It should not be written as bullet points.
 
-**Views**
-This should be a summary of the views of the child and the family. You must state how this information was collected, including if another person provided this information on the child or young person’s behalf.
+
+## Summary of the Views, Interests and Aspirations of the Child and Their Parent, or of the Young Person
+This summary should also be approximately 500 words or 3000 characters.
+It must be arranged under the following four subheadings and must not be in bullet points.
+
+**Child Views**
+This should be a summary of the views of the child. You must state how this information was collected, including if another person provided this information on the child or young person’s behalf. If the child is unable to provide their own views, this should be stated.
+
+**Family views**
+This should be a summary of the views of the family (if any are provided). It must state how the information was collected.
 
 **Interests**
 All interests should be as purposeful and specific as possible, forming a starting point for the rest of the plan. Statements like “X cares about spending time with their friends, and likes to play guitar” are helpful. Bland, generic statements like “X has a lovely smile” should be avoided.

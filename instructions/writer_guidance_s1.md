@@ -26,8 +26,8 @@ The file `output_s1.md` must contain the following three sub-headings and all as
 ## Child or Young Person’s Personal Details
 **Name:** [INSERT, using format Forename, middle names (if available), Surname]
 **Preferred name:**
-**Date of Birth:** DD/MM/CCYY
-**Sex:** Sex of the child or young person at birth. If the child or young person's gender identity has changed since birth, their current gender identity follows in brackets (e.g., 'Male (now identifying as non-binary)')
+**Date of Birth:** [DD/MM/CCYY]
+**Sex:** [Sex of the child or young person at birth. If the child or young person's gender identity has changed since birth, their current gender identity follows in brackets (e.g., 'Male (now identifying as non-binary)')]
 **Ethnicity:**
 **Child or young person first language:**
 **Parent or carer first language:**
@@ -48,11 +48,11 @@ The file `output_s1.md` must contain the following three sub-headings and all as
 
 ## Services Currently Involved with this Child or Young Person
 **Education setting:** [Name of young person's school or education setting]
-**GP and key health professional (where applicable):** [INSERT NAME OF PRACTICE/ HOSPITAL DEPARTMENT providing oversight of the case. Do not mention any individuals by name]
+**GP and key health professional (where applicable):** [Name of GP Practice/ Hospital Department providing oversight of the case, if known. Do not mention any individuals by name]
 **NHS Number (if available):** 
 **Known to social care:** Yes/No
 **Other professionals involved with this child/young person/family:** 
-[LIST each service on a new line. Do not include named individuals, but only service/department names]
+[LIST each service on a new line. Do not include named individuals, only service/department names]
 **Currently a looked after child:** Yes/No
 **Has been a looked after child:** Yes/No
 **Is there a one page profile received (append):** Yes/No

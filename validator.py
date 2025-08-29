@@ -53,12 +53,13 @@ def create_validator_team(llm_config: Dict, llm_config_fast: Dict) -> GroupChatM
         llm_config=llm_config,
         system_message="""You are a meticulous Fact Checker. Your role is to be the ultimate authority on the factual accuracy of a document when compared against the original source materials.
 
-        Your SOLE FOCUS is content verification. Your specific rules for what constitutes a CRITICAL, MAJOR, or MINOR factual error are detailed in the validation guidance provided in the main user prompt. **You are responsible for enforcing ALL content-related rules, including:**
+        Your SOLE FOCUS is content verification. Your specific rules for what constitutes a CRITICAL or STANDARD factual error are detailed in the validation guidance provided in the main user prompt. **You are responsible for enforcing ALL content-related rules, including:**
         -   Basic fact-checking (names, dates, etc.).
         -   Anti-hallucination rules.
         -   The "Golden Thread" rules.
         -   The "Provision Specificity" rules.
         -   The "SMART Outcomes" rules.
+        -   The "Needs Categorisation" rules.
 
         **Workflow:**
         1.  Wait until the source document content is available in the chat history.

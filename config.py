@@ -79,7 +79,7 @@ def get_section_config(section_number: str) -> dict:
 
     validation_common_detailed = [
         validation_guidance_s, VALIDATOR_COMMON_FEEDBACK_FORMAT,
-        PROVISION_SPECIFICITY_RULES, SMART_OUTCOMES_RULES, GOLDEN_THREAD_RULES,
+        PROVISION_SPECIFICITY_RULES, SMART_OUTCOMES_RULES, GOLDEN_THREAD_RULES, NEED_CATEGORISATION_GUIDE
     ]
 
     path_map = {

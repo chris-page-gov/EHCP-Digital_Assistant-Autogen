@@ -1,6 +1,8 @@
 # Guidance: How to Categorise Needs
 
-This guide is your single source of truth for deciding which section a specific need belongs in.
+This guide is your single source of truth for deciding which section a specific need belongs in. 
+
+**Important** - Not all sections must have needs included. Only if there are needs which fit that category in the source documents should they be included in the ouput file. Each section may have between 0 and 10 needs. All special educational needs identified in the source documents should appear in the output file.
 
 **The Golden Rule: A single, distinct need should only be placed in ONE section.** Your primary task is to avoid duplication by correctly categorising each need at the source.
 

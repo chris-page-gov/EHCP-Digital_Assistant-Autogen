@@ -33,19 +33,21 @@ Use these rules to assess the document and populate your report.
     *   **Strengths:** The `Strengths` sub-section must ONLY contain strengths. If it describes needs or difficulties, it is a **CRITICAL** error.
     *   **Interests:** Interests should be specific and purposeful. Flag generic or bland statements like "enjoys TV" as a **STANDARD** error, but flag statements that are clearly not interests (e.g., "has a nice smile") as a **CRITICAL** error.
 
-    #### Section-Specific Content and Structure
-1.  **Required Structure (CRITICAL):** The file MUST follow this specific structure:
+4.  **Required Structure (CRITICAL):** The file MUST follow this specific structure:
 
 ## Summary of the Child or Young Person’s History
 **History:**
 [History content]
 
-[Communication styles content]
+**Communication**
+[Communication content]
 
 ## Summary of the Views, Interests and Aspirations of the Child and Their Parent, or of the Young Person
 
-**Views:**
-[Views content]
+**Child Views:**
+[Child Views content]
+**Family Views:**
+[Family Views content]
 **Interests:**
 [Interest content]
 **Strengths:**
