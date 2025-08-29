@@ -24,7 +24,7 @@ Before attempting to classify a need yourself, you **MUST** first check if the s
 
 #### **Step 2: If No Explicit Category Exists, Determine the "Best Fit"**
 
-If, and only if, a need is described in a general section of a document without a clear category heading, you will use the principles below to determine the single best fit.
+If, and only if, a need is described in a source document without a clear category heading, you will use the principles below to determine the single best fit.
 
 Evaluate the need against all six categories and choose the one where the **primary focus** of the need lies. Use the document source as a **strong indicator** to help you decide.
 
@@ -64,7 +64,7 @@ Evaluate the need against all six categories and choose the one where the **prim
 ---
 
 #### **Tie-Breaker Rule for "Best Fit" Analysis**
-If a need is uncategorized in the source and still seems to fit in multiple categories, decide based on the **primary provision recommended to meet the need.**
+If a need is uncategorised in the source and still seems to fit in multiple categories, decide based on the **primary provision recommended to meet the need.**
 
 *   *Example: A child's anxiety (SEMH) causes them to have difficulty speaking to teachers (Communication).*
     *   *If the provision is "Speech and Language Therapy to build verbal confidence," the best fit is **Communication & Interaction**.*
