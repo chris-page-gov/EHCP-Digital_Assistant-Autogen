@@ -34,7 +34,7 @@ async def get_creation_task(section_number: str, output_blob_name: str) -> str:
     The Planner must now create a plan.
     """
 
-async def get_correction_task(section_number: str, clean_request: str, output_blob_name: str) -> str:
+async def get_correction_task(section_number: str, previous_draft: str, revision_request: str, output_blob_name: str) -> str:
     """Asynchronously generates the correction task prompt."""
     paths = config.get_section_config(section_number) 
     guidance_content = await _read_local_guidance_files_async(paths["writer_guidance"])
@@ -42,9 +42,15 @@ async def get_correction_task(section_number: str, clean_request: str, output_bl
     return f"""
     The document for section '{section_number}' requires revision. Your general guidance is below:
     {guidance_content}
-    **To the Document_Writer:** Execute the revision based ONLY on the [REVISION_REQUEST] block.
+**IMPORTANT:** You are not starting from scratch. Apply the instructions in the [REVISION_REQUEST] block to the [PREVIOUS_DRAFT] provided below. Preserve all correct information and only change what is requested.
+
+    {revision_request}
+
+    [PREVIOUS_DRAFT]
+    {previous_draft}    
+    
     **To the Planner:** Ensure the revised text is saved to blob '{output_blob_name}' in container '{config.OUTPUT_BLOB_CONTAINER}' and then terminate.
-    {clean_request}
+    
     """
 
 async def run_validation_async(section_number: str, llm_config: dict, llm_config_fast: dict, output_blob_name: str, feedback_blob_name: str):

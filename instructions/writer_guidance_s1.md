@@ -1,59 +1,22 @@
-# EHCP Writer Guidance: output_s1.md 
+# Writer Guidance: Section 1 - Personal Details
 
-# Your Current Goal
+Your goal is to create `output_s1_i#.md` by extracting personal details, contact information, and involved services from the source documents. Follow the structure below precisely.
 
-Your sole focus for this task is to create **one single output file**.
 
-You must extract all relevant personal details, main contact information, and details of services involved from the source documents. Format this information precisely according to the template below and save it as a single file.
+1.  Your output file **MUST** use the exact structure and all headings from the `_structure_s1.md` file.
+2.  Populate the fields according to the rules below.
 
----
-
-## CRITICAL INSTRUCTIONS FOR DOCUMENT GENERATION
-
-## Required Output File for This Stage
-
-You must create **only one file** in this stage:
-
-*   **Filename to create:** `output_s1_i#.md`
-*   **Correct Naming:** Use the exact `section_name` "Personal Details" in the tool.
-
----
-
-## Content and Structure Template
-
-The file `output_s1.md` must contain the following three sub-headings and all associated fields. Consolidate all of this information into the single file.
-
-## Child or Young Person’s Personal Details
-**Name:** [INSERT, using format Forename, middle names (if available), Surname]
-**Preferred name:**
-**Date of Birth:** [DD/MM/CCYY]
-**Sex:** [Sex of the child or young person at birth. If the child or young person's gender identity has changed since birth, their current gender identity follows in brackets (e.g., 'Male (now identifying as non-binary)')]
-**Ethnicity:**
-**Child or young person first language:**
-**Parent or carer first language:**
-
-## Main Contact: Parent or Carer 1 (or young person if applying independently)
-**Parent 1 Name:** [INSERT, using format Forename, Surname]
-**Parent 1 Relationship:** [Relationship to child]
-**Parent 1 Email:**
-**Parent 1 Telephone number:**
-**Parent 1 Home address:** [Full address, seperated by comma]
-
-## Parent or Carer 2
-**Parent 2 Name:** [INSERT, using format Forename, Surname]
-**Parent 2 Relationship:** [Relationship to child]
-**Parent 2 Email:**
-**Parent 2 Telephone number:**
-**Parent 2 Home address (if different to parent or carer 1):** [Full address, seperated by comma]
-
-## Services Currently Involved with this Child or Young Person
-**Education setting:** [Name of young person's school or education setting]
-**GP and key health professional (where applicable):** [Name of GP Practice/ Hospital Department providing oversight of the case, if known. Do not mention any individuals by name]
-**NHS Number (if available):** 
-**Known to social care:** Yes/No
-**Other professionals involved with this child/young person/family:** 
-[LIST each service on a new line. Do not include named individuals, only service/department names]
-**Currently a looked after child:** Yes/No
-**Has been a looked after child:** Yes/No
-**Is there a one page profile received (append):** Yes/No
-**Child or young person moving to area with EHCP from a different Local Authority:** Yes/No. If Yes, Name of Local Authority
+### Field-Specific Content Rules:
+*   **Name:** Use format: Forename, middle names (if any), Surname.
+*   **Date of Birth:** Use format: DD/MM/CCYY.
+*   **Sex:** State sex at birth. If gender identity has changed, add it in brackets, e.g., 'Male (identifies as non-binary)'.
+*   **Parent Names:** Use format: Forename, Surname.
+*   **Parent Relationships:** Relationship to child.
+*   **Home address:** Provide the full address, separated by commas.
+*   **GP and key health professional:** List the GP Practice or Hospital Department name providing oversight of the case. **DO NOT** name individual doctors.
+*   **Other professionals involved:** List each service/department on a new line. **DO NOT** name individuals.
+*   **Known to social care:** Yes/No
+*   **Currently a looked after child:** Yes/No
+*   **Has been a looked after child:** Yes/No
+*   **Is there a one page profile received (append):** Yes/No
+*   **Child or young person moving to area with EHCP from a different Local Authority:** Yes/No. If Yes, Name of Local Authority

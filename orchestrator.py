@@ -83,11 +83,11 @@ async def process_section(section_number: str, semaphore: asyncio.Semaphore, llm
 
                 clean_request_message = await prompt_writer.a_generate_reply(messages=[{"role": "user", "content": prompt_writer_task}])
                 
-                clean_request = clean_request_message.get("content", "") if isinstance(clean_request_message, dict) else str(clean_request_message)
+                revision_instructions = clean_request_message.get("content", "") if isinstance(clean_request_message, dict) else str(clean_request_message)
                 
                 # Define the name for the NEXT output file
                 next_output_name = f"output_s{section_number}_i{i+1}.md"
-                correction_task = await get_correction_task(section_number, clean_request, next_output_name)
+                correction_task = await get_correction_task(section_number, previous_draft, revision_instructions, next_output_name)
 
                 # --- CORRECTION WRITER TEAM ---
                 await writer_proxy_agent.a_initiate_chat(

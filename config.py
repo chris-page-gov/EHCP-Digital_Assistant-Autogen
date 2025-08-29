@@ -61,11 +61,11 @@ if not all([azure_api_key, azure_endpoint, azure_model_name, azure_model_name2, 
 _PARTIALS_DIR = os.path.join(INSTRUCTIONS_DIR, "partials")
 WRITER_COMMON_RULES = os.path.join(_PARTIALS_DIR, "_writer_common_rules.md")
 NEED_CATEGORISATION_GUIDE = os.path.join(_PARTIALS_DIR, "_need_categorisation_guide.md")
-NEEDS_PROVISION_OUTCOMES_RULES = os.path.join(_PARTIALS_DIR, "_need_provision_outcome_writer_guidance.md")
+VALIDATOR_COMMON_RULES = os.path.join(_PARTIALS_DIR, "_validator_common_rules.md")
 VALIDATOR_COMMON_FEEDBACK_FORMAT = os.path.join(_PARTIALS_DIR, "_validator_common_feedback_format.md")
-PROVISION_SPECIFICITY_RULES = os.path.join(_PARTIALS_DIR, "_provision_specificity_rules.md")
-SMART_OUTCOMES_RULES = os.path.join(_PARTIALS_DIR, "_smart_outcomes_rules.md")
-GOLDEN_THREAD_RULES = os.path.join(_PARTIALS_DIR, "_golden_thread_rules.md")
+STRUCTURE_S1 = os.path.join(_PARTIALS_DIR, "_structure_s1.md")
+STRUCTURE_S2 = os.path.join(_PARTIALS_DIR, "_structure_s2.md")
+STRUCTURE_S3 = os.path.join(_PARTIALS_DIR, "_structure_s3.md")
 
 def get_section_config(section_number: str) -> dict:
     """
@@ -77,15 +77,19 @@ def get_section_config(section_number: str) -> dict:
     writer_guidance_s = os.path.join(INSTRUCTIONS_DIR, f"writer_guidance_s{section_str}.md")
     validation_guidance_s = os.path.join(INSTRUCTIONS_DIR, f"validation_guidance_s{section_str}.md")
 
-    validation_common_detailed = [
-        validation_guidance_s, VALIDATOR_COMMON_FEEDBACK_FORMAT,
-        PROVISION_SPECIFICITY_RULES, SMART_OUTCOMES_RULES, GOLDEN_THREAD_RULES, NEED_CATEGORISATION_GUIDE
-    ]
-
     path_map = {
-        "1": {"writer_guidance": [writer_guidance_s, WRITER_COMMON_RULES], "validation_guidance": [validation_guidance_s, VALIDATOR_COMMON_FEEDBACK_FORMAT]},
-        "2": {"writer_guidance": [writer_guidance_s, WRITER_COMMON_RULES], "validation_guidance": [validation_guidance_s, VALIDATOR_COMMON_FEEDBACK_FORMAT]},
-        "3": {"writer_guidance": [writer_guidance_s, WRITER_COMMON_RULES, NEED_CATEGORISATION_GUIDE, NEEDS_PROVISION_OUTCOMES_RULES], "validation_guidance": validation_common_detailed},
+        "1": {
+            "writer_guidance": [writer_guidance_s, WRITER_COMMON_RULES, STRUCTURE_S1],
+            "validation_guidance": [validation_guidance_s, VALIDATOR_COMMON_RULES, VALIDATOR_COMMON_FEEDBACK_FORMAT, STRUCTURE_S1]
+        },
+        "2": {
+            "writer_guidance": [writer_guidance_s, WRITER_COMMON_RULES, STRUCTURE_S2],
+            "validation_guidance": [validation_guidance_s, VALIDATOR_COMMON_RULES, VALIDATOR_COMMON_FEEDBACK_FORMAT, STRUCTURE_S2]
+        },
+        "3": {
+            "writer_guidance": [writer_guidance_s, WRITER_COMMON_RULES, NEED_CATEGORISATION_GUIDE, STRUCTURE_S3],
+            "validation_guidance": [validation_guidance_s, VALIDATOR_COMMON_RULES, VALIDATOR_COMMON_FEEDBACK_FORMAT, NEED_CATEGORISATION_GUIDE, STRUCTURE_S3]
+        },
     }
 
     config_data = {}
