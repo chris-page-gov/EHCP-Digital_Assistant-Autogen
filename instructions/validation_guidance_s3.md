@@ -1,149 +1,36 @@
-# EHCP Validator Guidance: Section 3 - Needs, Provisions and Outcomes
+# Validation Guidance: Section 3 - Needs, Provisions, Outcomes
 
-Your task is to validate a single file, `output_s3.md`, and produce a feedback report.
-You MUST strictly follow the required format for the report and use the validation rules below to identify and categorise issues, paying close attention to the "Golden Thread" connecting Needs, Provisions, and Outcomes within all four areas of need. You must also validate the correct classification of social care provision into H1 and H2 categories.
+Your task is to validate `output_s3_i#.md` and produce a feedback report.
 
+## Section-Specific Validation Rules
 
-## Overall File Structure 
+### Structure
+*   **(CRITICAL)** The file structure **MUST** perfectly match the template defined in the `_structure_s3.md` guidance file. All six main headings must be present.
 
-*   **Expected File:** `output_s3.md` MUST exist. If missing, it's a **CRITICAL** error.
+### The Golden Thread
+The "Golden Thread" is the logical link between Needs, Provisions, and Outcomes. A broken thread is a **STANDARD** error.
+1.  **Every Need must have a Provision:** Is there a specific provision listed for every single need identified?
+2.  **Outcomes must be supported by Provisions:** Are the outcomes achievable based on the provisions listed?
 
-## Content Validation Rules for Section 3
+### Provision and Outcome Specificity
+*   **(CRITICAL) Hallucination of Specifics:** For any Provision or Outcome, if the writer has added a quantifiable detail (e.g., a ratio like "1:1", a frequency like "weekly", a duration like "30 minutes", or a timeframe like "by the end of term") that was **NOT** explicitly stated in the source documents, this is a **CRITICAL** hallucination error.
+*   **(STANDARD) Omission of Specifics:** If the source documents **DID** provide a specific detail for a provision or outcome, but the writer failed to include it, this is a **STANDARD** error.
+*   **(NOT an Error) Correctly Recording a Vague Provision or Outcome:** If a provision or outcome in the draft is vague (e.g., "regular support from a TA") because the source text itself was vague, the writer has acted correctly. This is **NOT an error** and should not be flagged.
 
-*   **Relevance to SEN (CRITICAL):** The health needs and social care needs described MUST relate to the child's special educational needs. A purely medical nor social care need with no impact on education should not be here. Failure to follow this is a **CRITICAL** issue.
-*   **Prohibited Content (CRITICAL):** The file MUST NOT mention the names of specific prescribed drugs or medications. This is a **CRITICAL** error.
-*   **No Needs Statement (Correctness Check):** If no needs are present under a specific cateogry, the file MUST use the exact phrase "Child or young person has no identified special educational needs in this area".
+### SMART Outcome Rules
+*   **Definition:** An outcome is SMART if it is Specific, Measurable, Achievable, Relevant, and Time-bound. "To improve social skills" is not SMART. "By the end of the term, Gemma will initiate a conversation with a peer on at least 3 occasions per week" is SMART.
+*   **(STANDARD) Failure to Synthesize a SMART Outcome:** If the source documents contained all the necessary elements for a SMART outcome but the writer produced a vague, non-SMART outcome, this is a **STANDARD** error.
 
-### Need and provision categorisiton
-*   Each need should appear under only one category. A specific need appearing under more that one cateogry is a MAJOR error.
+### Field Formatting Rules
+*   **(NOT an Error) Use of Bullet Points:** It is acceptable for the `Provision` and `Outcome` fields to contain a bulleted list (using hyphens) if a single need is associated with multiple provisions or outcomes. This is **NOT** a formatting error and should be considered correct.
 
-**Social care provision classification**
-*   **Relevance to SEN (MAJOR):** The social care needs described MUST relate to the child's SEN or disability.
-*   **H1/H2 Classification (MAJOR):** Check if the provision seems correctly placed. For example, 'help with personal care at home' belongs in H1. 'Referral for family support' might belong in H2. Misclassification is a **MAJOR** error.
-[H1 includes social care provision that is made under the Chronically Sick and Disabled Persons Act 1970. This includes services like:
-- Practical assistance in the home (e.g., help with personal care).
-- Provision of, or assistance with, recreational and educational facilities.
-- Assistance with travel.
-- Adaptations to the home.
-- Facilitating holidays, meals, or telephone access.
-
-H2 is for any other social care provision reasonably required by the learning difficulties or disabilities which result in the child having SEN. This is provision that does **not** fall under the H1 criteria above]
-*   **Needs without provision (CRITICAL):** The social care needs described must be clearly outlined in the source documents by professionals along with clearly defined provisions.
-*   **No Needs Statement (Correctness Check):** If no social care needs are present, the file MUST contain the exact phrase "Child or young person has no identified special educational needs in this area".
-
-**All needs must have corresponding provision under either H1 or H2, or both. It is not essential for every need to have both H1 and H2 provisions**
-
-### Section Structure (CRITICAL)
-*   The file MUST contain all six main headings: `Communication and Interaction`, `Cognition and Learning`, `Social, Emotional and Mental Health Difficulties`, `Sensory and/or Physical Needs`, `Health Needs`, and `Social Care Needs`.
-*   Under each main heading, needs MUST be written in the following format:
-**Strengths**
-**Special Educational Need 1:**
-**Provision:** [Split between H1 and H2 for Social Care needs]
-**Outcome:**
-Deviation from this structure is a **CRITICAL** error.
-
-
-The file `output_s3.md` must be structured exactly as follows:
-
-## Communication and Interaction
-**Communication & Interaction Strengths:** 
-
-**Communication & Interaction Need 1:** 
-**Communication & Interaction Provision 1:** 
-**Communication & Interaction Outcome 1:** 
-
-**Communication & Interaction Need 2:** 
-**Communication & Interaction Provision 2:** 
-**Communication & Interaction Outcome 2:** 
-
-**Communication & Interaction Need 3:**  
-(etc)
-
----
-
-## Cognition and Learning
-**Cognition & Learning Strengths:** 
-
-**Cognition & Learning Need 1:** 
-**Cognition & Learning Provision 1:** 
-**Cognition & Learning Outcome 1:** 
-
-**Cognition & Learning Need 2:** 
-**Cognition & Learning Provision 2:** 
-**Cognition & Learning Outcome 2:** 
-
-**Cognition & Learning Need 3:**  
-(etc)
-
----
-
-## Social, Emotional and Mental Health Difficulties
-**SEMH Strengths:** 
-
-**SEMH Need 1:** 
-**SEMH Provision 1:** 
-**SEMH Outcome 1:** 
-
-**SEMH Need 2:** 
-**SEMH Provision 2:** 
-**SEMH Outcome 2:** 
-
-**SEMH Need 3:**  
-(etc)
-
----
-
-## Sensory and/or Physical Needs
-**Sensory & Physical Strengths:** 
-
-**Sensory & Physical Need 1:** 
-**Sensory & Physical Provision 1:** 
-**Sensory & Physical Outcome 1:** 
-
-**Sensory & Physical Need 2:** 
-**Sensory & Physical Provision 2:** 
-**Sensory & Physical Outcome 2:** 
-
-**Sensory & Physical Need 3:**  
-(etc)
-
----
-
-## Health Care Needs and Provision
-
-**Health Care Strengths:** 
-
-**Health Care Need 1:** 
-**Health Care Provision 1:** 
-**Health Care Outcome 1:** 
-
-**Health Care Need 2:** 
-**Health Care Provision 2:** 
-**Health Care Outcome 2:** 
-
-**Health Care Need 3:** 
-(etc)
-
----
-
-## Social Care Needs and Provision
-
-**Social Care Strengths:** 
-
-**Social Care Need 1:** 
-**H1 Provision 1:** 
-**H2 Provision 1:** 
-**Social Care Outcome 1:** 
-
-**Social Care Need 2:** 
-**H1 Provision 2:** 
-**H2 Provision 2:** 
-**Social Care Outcome 2:** 
-
-**Social Care Need 3:** 
-(etc)
+### Content Categorisation & Rules
+*   **(STANDARD) Need Duplication:** A single, distinct need appearing under more than one category is a **STANDARD** error. Any deviation from the classification in the _need_categorisation_guidance.md should be flagged as a **STANDARD** error.
+*   **(STANDARD) Social Care H1/H2:** Check for plausible classification of social care provision. Misclassification is a **STANDARD** error.
+*   **(CRITICAL) Relevance to SEN:** Health and Social Care needs described MUST relate to the child's special educational needs.
+*   **(CRITICAL) Prohibited Content:** The file MUST NOT mention the names of specific prescribed drugs or medications.
+*   **(STANDARD) No Needs Statement:** If no needs are present under a specific category, the file MUST use the exact phrase "[Child's name] has no identified special educational needs in this area" in the 'Need 1' field for that category.
 
 
 
----
-Failure to do so is a CRITICAL error
+

@@ -17,3 +17,5 @@ asyncio
 # Word document generation
 docxtpl
 python-docx
+
+azure-storage-blob

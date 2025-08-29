@@ -23,6 +23,11 @@ __pycache__/
 *.pyo
 *.pyd
 
+# AutoGen cache and logs
+.cache/
+*.log
+logs/
+
 # --- IDE/Editor Specific Configurations ---
 # These files are specific to a developer's local setup.
 .vscode/

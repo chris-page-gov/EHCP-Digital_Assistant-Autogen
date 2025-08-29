@@ -1,0 +1,14 @@
+EHCP Questions
+Context Accuracy Question - The key sections are populated with relevant and coherent content
+Context Accuracy Question - The key sections are populated with relevant and coherent content
+Context Accuracy Question - Information is factually correct and aligns with source documents
+Context Accuracy Question - There are no critical omissions or hallucinations present
+Context Accuracy Question - It avoids naming practitioners or referencing legal acts, future proofing the EHCP
+Context Accuracy Question - Aspirations of the child and family are present
+Context Accuracy Question - The information has been drawn from appendices into the correct sections of the plan
+Tone and Language - The language is professional, clear and appropriate
+Tone and Language - The emotional tone is balanced, neither too clinical or too overly emotive
+Tone and Language - The recommendations are using the SMART structure
+Structure and Formatting - The draft follows the expected EHCP template or structure
+Structure and Formatting - Formatting is consistent and readable
+Time saving - Reviewing / refining the draft is faster than starting from scratch

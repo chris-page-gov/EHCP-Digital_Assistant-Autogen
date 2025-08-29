@@ -1,41 +1,71 @@
 # Guidance: How to Categorise Needs
 
-This guide is your single source of truth for deciding which section a specific need belongs in.
+This guide is the single source of truth for deciding which section a specific need belongs in. 
 
-**The Golden Rule: A single, distinct need should only be placed in ONE section.** Your primary task is to avoid duplication by correctly categorising each need at the source.
+1.  **THE MASTER RULE: OBEY THE SOURCE DOCUMENT'S CATEGORISATION.** If a source document explicitly states a need under a specific heading (e.g., "Communication and Interaction Needs," "Social Care Advice"), you **MUST** place it in that corresponding category. Do not re-evaluate or change it. Your primary job is to respect the professional's original classification.
+
+2.  **THE GOLDEN RULE:** A single, distinct need **MUST** be placed in **ONLY ONE** section. Your secondary task is to avoid duplication.
+
+---
+
+### [THE CATEGORISATION PROCESS]
+
+To decide where a need belongs, you MUST follow this 2-step process in order.
+
+#### **Step 1: First, Check for an Explicit Category Heading in the Source Document**
+
+Before attempting to classify a need yourself, you **MUST** first check if the source document has already done it for you by placing the need under a clear heading.
+
+*   **Look for Section Headings:** Does the need appear directly under a heading like "Cognition and Learning," "Social, Emotional and Mental Health," or similar within the text?
+
+**If you find an explicit category in the source, use that category. Your job is done for that need. Move on to the next one.**
 
 ---
 
-### How to Decide Where a Need Belongs
+#### **Step 2: If No Explicit Category Exists, Determine the "Best Fit"**
 
-Use the following decision tree based on the **primary focus** of the need and the **source document** it comes from.
+If, and only if, a need is described in a source document without a clear category heading, you will use the principles below to determine the single best fit.
 
-**1. Is the need about how the child thinks, learns, understands, or communicates?**
-   *   **YES -> Use the source document appendix to determine the sub-category:**
-        *   **Source: Appendix B / EY SEND Support Review ->** It likely belongs under one of these four SEN headings:
-            *   **Communication and Interaction:** For needs related to speech, language, understanding social cues, or interacting with others.
-            *   **Cognition and Learning:** For needs related to academic skills, memory, attention, and processing information.
-            *   **Social, Emotional and Mental Health (SEMH):** For needs related to managing feelings, behavior, anxiety, or mental health conditions.
-            *   **Sensory and/or Physical Needs:** For needs related to mobility, motor skills, vision, hearing, or sensory processing disorders.
+Evaluate the need against all six categories and choose the one where the **primary focus** of the need lies. Use the document source as a **strong indicator** to help you decide.
 
-**2. Is the need about the child's medical condition, diagnosis, or access to therapy/healthcare?**
-   *   **YES -> Place it in Health Care Needs.**
-   *   This section is for needs that require provision from a health professional.
-   *   **Source Hint:** If the information comes from a **Children and Young People’s Therapy Service document, a medical report (Appendix C), or a Paediatrician's letter**, it is likely a Health Care Need.
-   *   *Example: A need for "Occupational Therapy to develop fine motor skills" is a Health Need.*
+*   **Communication & Interaction:**
+    *   **Focus:** Speech, language, understanding social rules, interacting with others.
+    *   ***Strong Indicator:*** Often found in Speech and Language Therapy reports or under this heading in an Educational Psychologist (EP) report.
+    *   *Example: "Difficulty making friends."*
 
-**3. Is the need about care, safety, or support outside of school hours, or access to social services?**
-   *   **YES -> Place it in Social Care Needs.**
-   *   This section is for needs that require provision from social care services or support for the family.
-   *   **Source Hint:** If the information comes from **Appendix E (Advice from Social Care) or a Family Intervention Service (FIS) report**, it is likely a Social Care Need.
-   *   *Example: A need for "practical assistance in the home" is a Social Care Need.*
+*   **Cognition & Learning:**
+    *   **Focus:** Academic skills, memory, attention, processing information, learning pace.
+    *   ***Strong Indicator:*** Often the primary focus of an EP report.
+    *   *Example: "Needs instructions to be broken down into small, single steps."*
+
+*   **Social, Emotional & Mental Health (SEMH):**
+    *   **Focus:** Managing feelings, behavior, anxiety, building relationships, mental health conditions.
+    *   ***Strong Indicator:*** Often found in reports from CAMHS or under this heading in an EP report.
+    *   *Example: "Experiences high levels of anxiety about attending school."*
+
+*   **Sensory and/or Physical:**
+    *   **Focus:** Mobility, motor skills (fine and gross), vision, hearing, sensory processing.
+    *   ***Strong Indicator:*** Often found in reports from Occupational Therapy, Physiotherapy, or Sensory Integration specialists.
+    *   *Example: "Is hypersensitive to loud noises in the classroom."*
+
+*   **Health Care:**
+    *   **Focus:** Medical conditions, diagnoses, or provisions that require a health professional (doctor, nurse, therapist).
+    *   ***Strong Indicator:*** Information from a medical report (Appendix C) or a Paediatrician's letter.
+    *   *Example: "Requires a special diet for a diagnosed medical condition."*
+
+*   **Social Care:**
+    *   **Focus:** Care, safety, or support outside of school hours, or provisions that require social care services.
+    *   ***Strong Indicator:*** Information from Social Care Advice (Appendix E).
+    *   *Example: "Needs support with personal care routines at home."*
+    *   **Classification:** When you identify a Social Care Provision, you **MUST** also classify it as H1 or H2.
+        *   **H1 Provision:** Statutory services like personal care, home adaptations, travel assistance.
+        *   **H2 Provision:** All other services like family support referrals or parenting programs.
 
 ---
-### Summary of Demarcations
 
-*   **"Difficulty making friends"** -> Primarily a **Communication and Interaction** need.
-*   **"Anxiety about attending school"** -> Primarily a **Social, Emotional and Mental Health** need.
-*   **"Requires a special diet for a medical condition"** -> Primarily a **Health Care Need** .
-*   **"Needs support with personal care routines at home"** -> Primarily a **Social Care Need**.
+#### **Tie-Breaker Rule for "Best Fit" Analysis**
+If a need is uncategorised in the source and still seems to fit in multiple categories, decide based on the **primary provision recommended to meet the need.**
 
-By following these rules, you will ensure the final document is consistent and free of duplication.
+*   *Example: A child's anxiety (SEMH) causes them to have difficulty speaking to teachers (Communication).*
+    *   *If the provision is "Speech and Language Therapy to build verbal confidence," the best fit is **Communication & Interaction**.*
+    *   *If the provision is "sessions with a school counsellor to manage anxiety," the best fit is **SEMH**.*

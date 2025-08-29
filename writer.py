@@ -1,13 +1,10 @@
 import autogen
 from autogen import ConversableAgent, UserProxyAgent, GroupChat, GroupChatManager
-from typing import List, Dict
-
+from typing import Dict
 from utils import (
-    list_files_in_directory,
     is_terminate_message,
-    read_markdown_file_async,
-    read_multiple_markdown_files_async,
-    save_markdown_file_async,
+    upload_blob_async,
+    download_all_sources_from_container_async
 )
 
 # This team is responsible for drafting the document
@@ -31,11 +28,13 @@ def create_writer_team(llm_config: Dict, llm_config_fast: Dict) -> GroupChatMana
     document_writer = ConversableAgent(
         name="Document_Writer",
         llm_config=llm_config,
-        system_message= """You are a professional document writer. Your job is to synthesise information from the provided text into a document.
-                        If you receive a [REVISION_REQUEST], refine the document based on the instructions provided. Do not start over unless explicitly told to.
-                        Any changes which you make must comply with the writer's guidance. 
-                        Your response must always follow the writer's guidance and only contain information that is clearly referenced in the source documents.
-                        Your entire response must be ONLY the content of the document itself. Do not add conversational text. Do not add comments or parentheses to explain where information was taken from """
+        system_message= """You are a professional document writer. Your job is to synthesise information from provided source documents into a final draft.
+
+        Your primary directive is to **strictly and precisely follow all rules and instructions** provided to you in the user's prompt under the heading "writer's guidance". This guidance is your absolute source of truth for formatting, structure, and content generation rules.
+
+        **Execution Rules:**
+        - If you receive a [REVISION_REQUEST], refine the document based ONLY on the revision instructions provided, while continuing to adhere to the original writer's guidance.
+        - Your entire response must be ONLY the content of the document itself. Do not add any conversational text, comments, or explanations."""
     )
 
     planner = ConversableAgent(
@@ -45,25 +44,32 @@ def create_writer_team(llm_config: Dict, llm_config_fast: Dict) -> GroupChatMana
         
         """You are a meticulous planner. Your role is to create a step-by-step plan and ensure it is followed precisely.
 
+        The initial prompt already contains all the necessary guidance and rules for the `Document_Writer`. Your first step is to read the source documents.
+
         **Your plan is ALWAYS:**
-        1.  **Read Guidance:** Direct the `Writer_User_Proxy` to read ALL guidance files specified in the task, likely using the `read_multiple_markdown_files_async` tool.
-        2.  **Read Sources:** After the guidance is read, direct the `Writer_User_Proxy` to read ALL the source documents from the `processed_docs` folder.
-        3.  **Draft Content:** After all sources are read, direct the `Document_Writer` to synthesise ALL the provided information to write the document.
-        4.  **Save Output:** After the draft is complete, direct the `Writer_User_Proxy` to save the result.
-        5.  **Terminate:** After the save is confirmed, you MUST respond with the single word: "TERMINATE".
+        1.  **Read Sources:** Direct the `Writer_User_Proxy` to call `download_all_sources_from_container_async` on the 'processed-docs' container. This single tool call will provide all necessary source document content.
+        2.  **Draft Content:** After all sources are provided, direct the `Document_Writer` to synthesize the information to write the document. **You must explicitly remind the `Document_Writer` to strictly follow the writer's guidance provided in the initial user prompt.**
+        3.  **Save Output:** After the `Document_Writer` has provided the complete draft, direct the `Writer_User_Proxy` to save the result using the `upload_blob_async` tool, specifying the exact container and blob name as instructed in the initial user prompt.
+        4.  **Terminate:** After the save is confirmed, you MUST respond with the single word: "TERMINATE".
 
         You will output one step of the plan at a time and wait for it to be completed before announcing the next step. Do not combine steps."""
     )
  
     
-    # Register tools for the UserProxyAgent to call
-    for func in [read_markdown_file_async, list_files_in_directory, save_markdown_file_async, read_multiple_markdown_files_async]:
+    agent_tools = [
+        upload_blob_async,
+        download_all_sources_from_container_async
+    ]
+
+    for func in agent_tools:
+        description = f"{func.__doc__} The `container_name` argument is required."
+        
         autogen.agentchat.register_function(
             func,
-            caller=writer_user_proxy,
-            executor=writer_user_proxy,
+            caller=writer_user_proxy, 
+            executor=writer_user_proxy, 
             name=func.__name__,
-            description=func.__doc__,
+            description=description
         )
     
     # Create the group chat and manager

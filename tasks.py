@@ -2,80 +2,81 @@ import os
 import logging
 from validator import create_validator_team
 import config
-import re
+import asyncio
 
+async def _read_local_guidance_files_async(file_paths: list) -> str:
+    """Asynchronously reads local guidance files without blocking."""
+    loop = asyncio.get_running_loop()
+    def _read_sync():
+        full_content = ""
+        for path in file_paths:
+            try:
+                with open(path, 'r', encoding='utf-8') as f:
+                    full_content += f"--- START OF GUIDANCE FILE: {os.path.basename(path)} ---\n"
+                    full_content += f.read()
+                    full_content += f"\n--- END OF GUIDANCE FILE ---\n\n"
+            except FileNotFoundError:
+                logging.error(f"Guidance file not found: {path}")
+        return full_content
+    return await loop.run_in_executor(None, _read_sync)
 
-def get_creation_task(section_number: str) -> str:
-    """
-    Generates the initial creation task prompt for a given section.
-    This is used for the very first attempt (Iteration 1).
-    """
-    paths = config.get_path_config(section_number)
-    writer_guidance_files = paths["writer_guidance"]
-    output_filepath = paths["output"]
+async def get_creation_task(section_number: str, output_blob_name: str) -> str:
+    """Asynchronously generates the initial creation task prompt."""
+    paths = config.get_section_config(section_number) 
+    guidance_content = await _read_local_guidance_files_async(paths["writer_guidance"])
     
     return f"""
     Your task is to generate the summary document for section '{section_number}'.
-    The combined guidance files are at the following paths: {writer_guidance_files}. 
-    The 'Writer_User_Proxy' must read ALL of these files using the `read_multiple_markdown_files_async` tool.
-
-    The source document folder is: '{config.PROCESSED_DOCS_DIR}'
-    The final output file must be saved to: '{output_filepath}'
-
-    The Planner must now create a step-by-step plan to achieve this.
+    Your full instructions and rules are provided below:
+    {guidance_content}
+    First, list all source documents by calling `list_blobs_async` on the '{config.PROCESSED_BLOB_CONTAINER}' container. Then read their content.
+    Finally, save your completed document by calling `upload_blob_async` with container '{config.OUTPUT_BLOB_CONTAINER}' and blob name '{output_blob_name}'.
+    The Planner must now create a plan.
     """
 
-def get_correction_task(section_number: str, clean_request: str) -> str:
-    """
-    Generates the correction task using a pre-cleaned revision request.
-    """
-    paths = config.get_path_config(section_number)
-    writer_guidance_files = paths["writer_guidance"]
-    output_filepath = paths["output"]
-    
-    
+async def get_correction_task(section_number: str, previous_draft: str, revision_request: str, output_blob_name: str) -> str:
+    """Asynchronously generates the correction task prompt."""
+    paths = config.get_section_config(section_number) 
+    guidance_content = await _read_local_guidance_files_async(paths["writer_guidance"])
+
     return f"""
-    You are the writer team. Your task is to revise the document for section '{section_number}' based on a clean set of instructions.
+    The document for section '{section_number}' requires revision. Your general guidance is below:
+    {guidance_content}
+**IMPORTANT:** You are not starting from scratch. Apply the instructions in the [REVISION_REQUEST] block to the [PREVIOUS_DRAFT] provided below. Preserve all correct information and only change what is requested.
 
-    {clean_request}
+    {revision_request}
 
-    **Your Plan:**
-    1. **Read Files: ** The 'Writer_User_proxy' must read the combined guidance files at '{writer_guidance_files}' and all source documents from the '{config.PROCESSED_DOCS_DIR}' folder.
-    1. **Revise Content:** The `Document_Writer` must execute the revision request.
-    2. **Save Output:** The `Writer_User_Proxy` must save the new draft to '{output_filepath}'.
-    3. **Terminate:** The `Planner` will then confirm the save and terminate the task.
+    [PREVIOUS_DRAFT]
+    {previous_draft}    
+    
+    **To the Planner:** Ensure the revised text is saved to blob '{output_blob_name}' in container '{config.OUTPUT_BLOB_CONTAINER}' and then terminate.
+    
     """
 
-async def run_validation_async(section_number: str, llm_config: dict, llm_config_fast: dict):
-    """Asynchronously initializes and runs the full validator team for a specific section."""
+async def run_validation_async(section_number: str, llm_config: dict, llm_config_fast: dict, output_blob_name: str, feedback_blob_name: str):
+    """Asynchronously runs the validator team for a section."""
     logging.info(f"\n--- Kicking off Validator Team for Section {section_number} ---")
-
-    paths = config.get_path_config(section_number)
-    output_filepath = paths["output"]
-    feedback_filepath = paths["feedback"]
-    validation_guidance_files = paths["validation_guidance"]
+    paths = config.get_section_config(section_number)
+    guidance_content = await _read_local_guidance_files_async(paths["validation_guidance"])
 
     validator_manager = create_validator_team(llm_config, llm_config_fast)
     validator_proxy_agent = validator_manager.groupchat.agent_by_name("Validator_User_Proxy")
 
     validator_task = f"""
-    Please perform a full validation of the document at '{output_filepath}'.
-
+    Validate the document '{output_blob_name}'. Your rules are below:
+    {guidance_content}
     **Workflow:**
-    1.  **Read Initial Files:** `Validator_User_Proxy` will read the validation guidance at '{validation_guidance_files}' and the target document at '{output_filepath}'.
-    2.  **Quality Check:** `Quality_Assessor` will review the document for structural and rule-based issues based on the files just read.
-    3.  **Read Source Files for Fact-Checking:** `Validator_User_Proxy` must now list all files in the '{config.PROCESSED_DOCS_DIR}' directory and use the `read_markdown_file` tool to read the content of **each one**, providing this content to the chat for the next step.
-    4.  **Fact Check:** Now that the source content is available, the `Fact_Checker` will review the document for factual accuracy.
-    5.  **Consolidate and Report:** `Quality_Assessor` will create the final, consolidated feedback report, including findings from both agents.
-    6.  **Save Report:** `Validator_User_Proxy` will save this final report to '{feedback_filepath}'.
-    7.  **Terminate:** `Validator_User_Proxy` will then terminate by replying with 'VALIDATION_COMPLETE'.
-
+    1. Call `download_blob_as_text_async` on container '{config.OUTPUT_BLOB_CONTAINER}' to read '{output_blob_name}'.
+    2. Call `download_all_sources_from_container_async` on container '{config.PROCESSED_BLOB_CONTAINER}' to get all source documents.
+    3. `Fact_Checker` reviews.
+    4. `Quality_Assessor` creates the final report.
+    5. Call `upload_blob_async` on container '{config.OUTPUT_BLOB_CONTAINER}' to save the report as '{feedback_blob_name}'.
+    6. `Quality_Assessor` terminates.
     Begin.
     """
-
     await validator_proxy_agent.a_initiate_chat(
-        recipient=validator_manager,
-        message=validator_task,
+        recipient=validator_manager, 
+        message=validator_task, 
         clear_history=True
     )
     
