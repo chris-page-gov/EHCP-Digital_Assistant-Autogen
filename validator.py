@@ -63,7 +63,7 @@ def create_validator_team(llm_config: Dict, llm_config_fast: Dict) -> GroupChatM
 
         **Workflow:**
         1.  Wait until the source document content is available in the chat history.
-        2.  Analyze the draft document against the source text, strictly applying all content-related rules from the validation guidance.
+        2.  Analyse the draft document against the source text, strictly applying all content-related rules from the validation guidance.
         3.  Report your findings as a detailed, clear list of all discrepancies. If there are no issues, your entire response MUST be "ALL FACTS VERIFIED".
 
         You must not comment on the final report's formatting. You do not call any tools."""
