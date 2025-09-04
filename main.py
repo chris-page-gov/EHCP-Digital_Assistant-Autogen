@@ -24,7 +24,7 @@ from utils import (
 # Load environment variables
 load_dotenv()
 
-def setup_logging(run_timestamp: str):
+def setup_logging(run_timestamp: str) -> tuple[str, str]:
     """Configures logging to capture all output to both the console and a file."""
     root_logger = logging.getLogger()
     root_logger.handlers.clear()
@@ -57,11 +57,36 @@ def setup_logging(run_timestamp: str):
     
     logging.info(f"Logging initialized. Full log: {full_log_filename}, Loop trace: {loop_log_filename}")
 
+    return full_log_path, loop_log_path
+
+async def _upload_log_files_async(container_name: str, full_log_path: str, loop_log_path: str):
+    """Reads the final log files and uploads them to blob storage."""
+    logging.info(f"--- Uploading log files to container: {container_name} ---")
+    try:
+        # Read the full log file and upload it
+        with open(full_log_path, "rb") as data:
+            full_log_blob_name = os.path.basename(full_log_path)
+            await upload_blob_async(container_name, full_log_blob_name, data)
+            logging.info(f"Successfully uploaded full log: {full_log_blob_name}")
+
+        # Read the loop trace log file and upload it
+        with open(loop_log_path, "rb") as data:
+            loop_log_blob_name = os.path.basename(loop_log_path)
+            await upload_blob_async(container_name, loop_log_blob_name, data)
+            logging.info(f"Successfully uploaded loop trace: {loop_log_blob_name}")
+            
+    except FileNotFoundError:
+        logging.error("Log files not found, could not upload to blob storage.")
+    except Exception as e:
+        logging.error(f"Failed to upload log files to blob storage. Reason: {e}", exc_info=True)
+
 async def main_async():
     """Main async function that contains the entire application lifecycle."""
     start_time = time.monotonic()
     run_timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    setup_logging(run_timestamp)
+    #setup_logging(run_timestamp)
+
+    full_log_path, loop_log_path = setup_logging(run_timestamp)
 
     litellm.caching = False
 
@@ -146,6 +171,10 @@ async def main_async():
 
     finally:
         print("\n--- Running final cleanup process. ---")
+
+        # UPLOAD LOGS FIRST - This is critical so we have logs even if cleanup fails.
+        await _upload_log_files_async(config.LOG_BLOB_CONTAINER, full_log_path, loop_log_path)
+
         await clear_blob_container_async(config.PROCESSED_BLOB_CONTAINER)
 
 if __name__ == "__main__":

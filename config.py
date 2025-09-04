@@ -25,6 +25,7 @@ AZURE_STORAGE_ACCOUNT_URL = f"https://{AZURE_STORAGE_ACCOUNT_NAME}.blob.core.win
 SOURCE_BLOB_CONTAINER = "source-docs"
 PROCESSED_BLOB_CONTAINER = "processed-docs"
 OUTPUT_BLOB_CONTAINER = "outputs"
+LOG_BLOB_CONTAINER = "logs"
 
 # --- Application-Level Settings ---
 TOTAL_SECTIONS = 3
