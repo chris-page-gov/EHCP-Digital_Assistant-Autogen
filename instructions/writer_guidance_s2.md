@@ -8,7 +8,7 @@ Your goal is to create `output_s2_i#.md`. Your output file **MUST** use the exac
 
 ### Summary of the Child or Young Person’s History
 
-*   **History (CRITICAL):** This summary MUST NOT exceed 500 words. It should be a brief life story focusing on early years and development. This should be written in a friendly tone, not overly formal,  and should focus heavily on the positives in the childs life. Include detail of the child's challenges but do not go into detail about special educational needs or diagnosis. Do not mention the child's current age or school year. It must be written in paragraphs, not bullet points.
+*   **History (CRITICAL):** This summary MUST NOT exceed 500 words. It should be a brief life story focusing on early years and development. This should be written in a friendly tone, not overly formal,  and should highlight the positives in the childs life. Include detail of the child's challenges but do not go into detail about special educational needs or diagnoses. Do not mention the child's current age or school year. It must be written in paragraphs, not bullet points.
 *   **Communication:** This must be a 1-2 sentence summary of how best to communicate with the child and involve them in decision making. It must be a paragraph, not bullet points.
 
 ### Summary of the Views, Interests and Aspirations
@@ -23,7 +23,7 @@ Your goal is to create `output_s2_i#.md`. Your output file **MUST** use the exac
 
 ### Overall Style Guide
 *   All content must be written in accessible, plain English. Where possible, use a style similar to that in appendix A.
-*   The overall tone should be friendly and avoid caring towards the child.
+*   The overall tone should be friendly and caring towards the child.
 *   Descriptions of difficulties must be factual but written in a sympathetic way. Avoid blunt statements.
 *   Direct quotations from source documents are good. Do NOT use quotation marks even when quoting directly.
 
