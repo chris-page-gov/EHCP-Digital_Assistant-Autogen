@@ -217,6 +217,19 @@ async def main_async():
         loop_logger.info("=" * 40)
 
     finally:
+        if not process_completed_successfully:
+            try:
+                logging.warning("--- Process failed. Uploading 'fail.txt' to the output container. ---")
+                await upload_blob_async(
+                    container_name=config.OUTPUT_BLOB_CONTAINER,
+                    blob_name="fail.txt",
+                    data=b""  # Upload empty bytes to create an empty file
+                )
+                logging.info("Successfully uploaded 'fail.txt'.")
+            except Exception as e:
+                # Log an error if the fail marker itself fails, but don't crash.
+                logging.error(f"Failed to upload 'fail.txt' failure marker. Reason: {e}", exc_info=True)
+                
         print("\n--- Archiving run artifacts. ---")
         await archive_run_artifacts(run_id, run_timestamp)
 
