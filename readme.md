@@ -102,6 +102,7 @@ The application follows a robust, multi-stage pipeline designed to maximise qual
 ## Setup and Installation
 
 1.  **Prerequisites:**
+    -   You must have Python 3.11+ installed on your local machine.
     -   You must have an Azure account and an Azure Storage Account.
     -   Create five blob containers within your storage account: source-docs, processed-docs, outputs, final-document, and run-archive
 
