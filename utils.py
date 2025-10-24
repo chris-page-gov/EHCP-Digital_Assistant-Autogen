@@ -1,3 +1,27 @@
+"""
+utils.py
+
+This module provides a collection of reusable helper functions that support
+the main application logic. It abstracts away common, low-level operations
+into well-defined, asynchronous functions.
+
+The utilities are categorized into several key areas:
+1.  **Azure Blob Storage Utilities:** A suite of async functions for all blob
+    operations (list, upload, download, clear, copy), managed through a 
+    singleton BlobServiceClient.
+2.  **Data Pipeline Utilities:** High-level functions that orchestrate complex
+    data workflows, such as the PDF pre-processing pipeline
+    (`preprocess_all_pdfs_async`) and the final merging of sectional outputs
+    (`merge_output_files_async`).
+3.  **Parsing and Text Utilities:** Functions for cleaning text, sanitising
+    strings for use as keys, and parsing structured data from markdown
+    and feedback files.
+4.  **Document Generation Utilities:** Functions for creating the final
+    output document (e.g., generating a Word document from a template).
+5.  **AutoGen Agent Helper Functions:** Functions required by the AutoGen
+    framework, such as the custom termination message checker.
+"""
+
 import os
 import re
 import pypdf
@@ -20,13 +44,16 @@ from docxtpl import DocxTemplate
 _blob_service_client = None
 
 async def _get_blob_service_client():
+    # This singleton pattern ensures that we create only one BlobServiceClient
+    # instance for the entire application lifecycle. This is more efficient than
+    # creating a new client for every blob operation, as it reuses the connection pool.
     """
     Gets the singleton async instance of the BlobServiceClient.
     If it doesn't exist, it creates one.
     """
     global _blob_service_client
     if _blob_service_client is None:
-        logging.info("Initializing singleton async BlobServiceClient...")
+        logging.info("Initialising singleton async BlobServiceClient...")
         if not all([config.AZURE_STORAGE_ACCOUNT_URL, config.AZURE_STORAGE_ACCOUNT_KEY]):
             raise ValueError("Storage account URL or Key is not set in the environment.")
         
@@ -36,7 +63,7 @@ async def _get_blob_service_client():
             credential=config.AZURE_STORAGE_ACCOUNT_KEY
         )
         _blob_service_client = client
-        logging.info("Async BlobServiceClient initialized successfully.")
+        logging.info("Async BlobServiceClient initialised successfully.")
     return _blob_service_client
 
 async def get_blob_container_client(container_name: str):
@@ -99,7 +126,8 @@ async def download_all_sources_from_container_async(container_name: str, exclude
     if exclude_files is None:
         exclude_files = []
 
-    # Convert exclusion list to lowercase for case-insensitive comparison
+    # A case-insensitive comparison is used for the exclusion list to make the
+    # configuration more robust against user input variations (e.g., 'appendix a.pdf').
     exclude_files_lower = [f.lower() for f in exclude_files]
 
     logging.info(f"--- Downloading source documents from container: {container_name} ---")
@@ -114,9 +142,13 @@ async def download_all_sources_from_container_async(container_name: str, exclude
         return "ERROR: No source documents found in the specified container."
     
     full_content = ""
+    # The source files are downloaded and concatenated serially (one after another)
+    # rather than concurrently. This is a deliberate design choice to guarantee
+    # that the order of documents in the final concatenated string is predictable.
     for blob_name in blob_names:
         filename = os.path.basename(blob_name)
-        # Check against the original name (e.g., appendix_a.pdf.txt) and the name without .txt
+        # Check against both the full filename (e.g., 'appendix a.pdf.txt') and the
+        # name without the '.txt' extension to provide flexibility in the config file.
         if filename.lower() in exclude_files_lower or filename.lower().replace(".txt", "") in exclude_files_lower:
             logging.info(f"Skipping excluded source file: {filename}")
             continue
@@ -157,6 +189,9 @@ async def _read_local_guidance_files_async(file_paths: list) -> str:
             except FileNotFoundError:
                 logging.error(f"Guidance file not found: {path}")
         return full_content
+    # Local file I/O in standard Python is blocking. To prevent this from stalling
+    # the entire async event loop, we run the synchronous file-reading operations
+    # in a separate thread pool using `run_in_executor`.
     return await loop.run_in_executor(None, _read_sync)
 
 async def clear_blob_container_async(container_name: str):
@@ -253,7 +288,8 @@ async def merge_output_files_async() -> bool:
         # Format: { section_number: (blob_name, iteration_number) }
         latest_iterations = {}
         
-        # Define the regex pattern to match and extract numbers from versioned filenames.
+        # This regex is used to parse the section and iteration numbers from the
+        # versioned filenames (e.g., 'output_s1_i2.md' -> section=1, iteration=2).
         pattern = re.compile(r'output_s(\d+)_i(\d+)\.md')
 
         for blob_name in all_blobs:
@@ -328,6 +364,9 @@ def parse_feedback_and_count_issues(feedback_content: str) -> Dict[str, int]:
     """
 
     if not feedback_content or feedback_content.strip().startswith("ERROR:"):
+        # If the feedback file is missing or empty, it signifies a failure in the
+        # validator team. We return a high number of critical issues to force the
+        # orchestrator's correction loop to retry the validation step.
         logging.warning("Feedback file was not found or was empty. Forcing a validation retry by reporting 99 critical issues.")
         return {"critical": 99, "major": 99, "minor": 99}
 
@@ -368,8 +407,10 @@ def parse_markdown_to_dict(markdown_content: str) -> dict[str,any]:
 
     flat_context = {}
     
-    # This regex finds a **Key:** at the start of a line, then captures all content
-    # (including newlines and bullets) until it hits the next **Key:** or Heading (##) or ---
+    # This regex is designed to find key-value pairs. It looks for a **Key:** at the
+    # start of a line (`^`), captures the key (`.*?`), and then captures all content
+    # (`.*?`) until it hits the next key, a markdown header, a horizontal rule,
+    # or the end of the file (`\Z`). This makes it robust to multi-line values.
     pattern = re.compile(r'^\*\*(.*?):\*\*(.*?)(?=^\*\*|^##\s|---\n|\Z)', re.DOTALL | re.MULTILINE)
     
     for match in pattern.finditer(markdown_content):

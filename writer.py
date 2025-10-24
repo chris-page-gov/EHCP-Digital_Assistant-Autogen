@@ -1,3 +1,22 @@
+"""
+writer.py
+
+This module defines the multi-agent "Writer Team" responsible for all content
+generation and revision tasks. It constructs and configures the agents and the
+group chat manager that form this team.
+
+The Writer Team's purpose is to synthesise information from the source documents
+and follow detailed guidance to produce a structured markdown document for a
+specific section. It operates in two modes: initial creation and correction,
+where it refines a previous draft based on feedback.
+
+The team consists of:
+- Planner: A fast orchestrator agent that directs the workflow and ensures tasks are completed in order.
+- Document_Writer: The specialist content generation agent that synthesises information and writes the draft.
+- Writer_User_Proxy: The tool-executing agent for saving the final document to blob storage.
+"""
+
+
 import autogen
 from autogen import ConversableAgent, UserProxyAgent, GroupChat, GroupChatManager
 from typing import Dict

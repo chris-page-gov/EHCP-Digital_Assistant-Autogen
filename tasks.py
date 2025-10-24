@@ -1,10 +1,25 @@
-import os
+"""
+tasks.py
+
+This module is responsible for the dynamic generation of the main prompts
+(tasks) that are assigned to the AutoGen agent teams.
+
+It acts as a prompt factory, abstracting the complexity of assembling the
+correct guidance files, source content, and runtime instructions into a
+single, coherent prompt. By centralising prompt construction here, the main
+orchestration logic in `orchestrator.py` remains clean and focused on workflow
+management rather than prompt engineering.
+
+The module provides functions to create tasks for:
+- Initial document creation (`get_creation_task`).
+- Document correction/revision (`get_correction_task`).
+- Kicking off the validation process (`run_validation_async`).
+"""
+
 import logging
 from validator import create_validator_team
 import config
-import asyncio
 from utils import _read_local_guidance_files_async
-
 
 
 async def get_creation_task(section_number: str, output_blob_name: str, source_content: str) -> str:

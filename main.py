@@ -1,3 +1,24 @@
+"""
+main.py
+
+This module serves as the main entry point for the EHCP document
+generation pipeline. It orchestrates the entire application lifecycle from
+initial setup to final cleanup.
+
+Key Responsibilities:
+- Sets up structured logging for the run.
+- Initialises local directories and a unique run ID for traceability.
+- Executes the high-level, asynchronous workflow:
+    1. Pre-processes source PDFs from Azure Blob Storage.
+    2. Kicks off the concurrent processing of all document sections.
+    3. Manages the final merge of validated sections.
+    4. Generates the final Word document from the merged markdown.
+- Implements a guaranteed `finally` block to ensure that all run artifacts
+  (logs, outputs, source files) are archived and that temporary containers
+  are cleaned up, regardless of whether the run succeeded or failed.
+"""
+
+
 import os
 import sys
 import logging
@@ -131,14 +152,20 @@ async def main_async():
     start_time = time.monotonic()
     run_timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     short_uuid = str(uuid.uuid4())[:4]
+    # A unique run_id is generated for each execution to ensure all artifacts
+    # (logs, outputs, archives) from a single run can be traced and audited.
     run_id = f"{run_timestamp}_{short_uuid}"
 
     setup_logging(run_timestamp)
 
+    # Caching is disabled to ensure that each run is deterministic and uses the
+    # latest instructions, which is critical during development and for auditability.
     litellm.caching = False
 
     litellm.max_retries = 5
     loop_logger = logging.getLogger('LoopTracer')
+    # This flag tracks the overall success of the run, determining whether to
+    # upload a 'fail.txt' marker and influencing final log messages.
     process_completed_successfully = False
 
     try:
@@ -216,10 +243,17 @@ async def main_async():
         loop_logger.info(f"Total Execution Time: {total_duration_minutes:.2f} minutes")
         loop_logger.info("=" * 40)
 
+    # The 'finally' block is critical. It guarantees that cleanup and archiving
+    # operations run every time, even if a critical, unhandled exception occurs 
+    # during the main process. This prevents leaving the system in a dirty state
+    #  for the next run.
     finally:
         if not process_completed_successfully:
             try:
                 logging.warning("--- Process failed. Uploading 'fail.txt' to the output container. ---")
+                # The 'fail.txt' file acts as a simple, explicit marker in blob storage,
+                # allowing external systems (Flow) to easily determine if the process 
+                # completed successfully without parsing logs.
                 await upload_blob_async(
                     container_name=config.OUTPUT_BLOB_CONTAINER,
                     blob_name="fail.txt",
@@ -242,7 +276,8 @@ async def main_async():
 
 if __name__ == "__main__":
     try:
-        # Create local directories needed for logs and temp files
+        # 'exist_ok=True' prevents an error from being thrown if the directories
+        # already exist, making the script safe to run multiple times.
         os.makedirs(config.LOGS_DIR, exist_ok=True)
         os.makedirs(config.OUTPUTS_DIR, exist_ok=True)
         

@@ -1,3 +1,22 @@
+"""
+config.py
+
+This module acts as the central configuration hub for the entire application.
+It is responsible for loading all settings, credentials, paths, and constants
+required for the pipeline to run.
+
+Key Responsibilities:
+- Loads sensitive credentials (API keys, storage keys) from the .env file.
+- Defines static paths for local directories (logs, outputs, instructions).
+- Specifies Azure Blob Storage container names and connection details.
+- Sets application-level operational parameters, such as the number of
+  concurrent sections to process and the maximum number of correction loops.
+- Constructs the LLM configuration dictionaries (`llm_config`, `llm_config_fast`)
+  for use with the AutoGen framework.
+- Dynamically provides the correct paths to instruction and guidance files
+  for each document section via the `get_section_config` function.
+"""
+
 import os
 from dotenv import load_dotenv
 

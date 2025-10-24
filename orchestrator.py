@@ -1,3 +1,18 @@
+"""
+orchestrator.py
+
+This module contains the core operational logic for the document generation
+process. Its primary responsibility is to manage the processing of a single
+document section from its initial creation through to its final validation.
+
+The central function, `process_section`, implements the critical
+"Write-Validate-Refine" loop. This iterative process ensures that each
+document section is repeatedly improved until it meets all validation
+criteria defined in the validation guidance. The module also manages the
+concurrency semaphore to control resource utilisation.
+"""
+
+
 import config
 import logging
 import asyncio
@@ -9,6 +24,9 @@ from utils import download_blob_as_text_async, parse_feedback_and_count_issues, 
 
 async def process_section(section_number: str, semaphore: asyncio.Semaphore, llm_config: Dict, llm_config_fast: Dict, prompt_writer: ConversableAgent):
     """Asynchronously processes a single section, including retries, under a semaphore."""
+    # The semaphore ensures that we only process a fixed number of sections
+    # concurrently (defined by CONCURRENT_SECTIONS in config), preventing
+    # overwhelming the LLM service with too many simultaneous requests.
     async with semaphore:
         logging.info(f"Semaphore acquired for section {section_number}. Starting processing.")
        
@@ -19,6 +37,8 @@ async def process_section(section_number: str, semaphore: asyncio.Semaphore, llm
             
             # Get source content for this section, respecting any exclude list
             section_config = config.get_section_config(section_number)
+            # Using .get() provides a default empty list if 'source_exclude_files'
+            # is not defined for a section, preventing a KeyError.
             exclude_list = section_config.get("source_exclude_files", []) # Use .get for safety
             
             logging.info(f"Fetching source documents for Section {section_number}...")
@@ -47,6 +67,7 @@ async def process_section(section_number: str, semaphore: asyncio.Semaphore, llm
             # ==================================================================
             # === Validation and Correction Loop =======================
             # ==================================================================
+            # The loop starts at 1 to align with human-readable iteration numbers (e.g., "Iteration 1").
             for i in range(1, max_iterations + 1):
                 logging.info(f"\n{'='*20} SECTION {section_number} - CORRECTION ITERATION {i} {'='*20}")
 
@@ -65,6 +86,9 @@ async def process_section(section_number: str, semaphore: asyncio.Semaphore, llm
                 logging.info(f"Section {section_number} Issues Found: Critical={issue_counts.get('critical', 0)}, Standard={issue_counts.get('standard', 0)}")
 
                 # --- SUCCESS CONDITION ---        
+                # If a section passes on the first attempt, we force a second loop. This is a
+                # deliberate robustness check to mitigate the risk of a "lucky pass" and to ensure that
+                # we give an opportunity for any non-critical errors to be corrected.
                 if issue_counts['critical'] == 0 and i >= 2:
                     logging.info(f"\n✅ Success! Section {section_number} passed validation on iteration {i}.")
                     loop_logger.info(f"===== Section {section_number} PASSED =====")
@@ -92,7 +116,9 @@ async def process_section(section_number: str, semaphore: asyncio.Semaphore, llm
                 **Feedback Report:**
                 {feedback_report}
                 """
-
+                # The 'Prompt_Writer' agent acts as a crucial buffer. It translates raw,
+                # potentially negative feedback into a neutral, actionable set of revision
+                # instructions, which makes the correction attempt by the Writer team more reliable.
                 clean_request_message = await prompt_writer.a_generate_reply(messages=[{"role": "user", "content": prompt_writer_task}])
                 
                 revision_instructions = clean_request_message.get("content", "") if isinstance(clean_request_message, dict) else str(clean_request_message)
@@ -107,13 +133,18 @@ async def process_section(section_number: str, semaphore: asyncio.Semaphore, llm
                 )
                 loop_logger.info(f"Section {section_number}, Iteration {i}: Writer team created revised draft '{next_output_name}'.")
 
-                # Update the current_output_name for the next loop
+                # The current output name is updated to point to the newly created file,
+                # ensuring the next iteration of the loop validates the most recent version.
                 current_output_name = next_output_name
 
-            # If the loop finishes, it means we hit max_iterations without passing.
+            # If the loop completes without returning True, it means we've hit the
+            # MAX_SECTION_ITERATIONS limit without passing validation.
             logging.error(f"\n🚫 FAILED: Section {section_number} could not pass after {max_iterations} iterations.")
             return False
 
+        # This top-level exception handler catches any unexpected, critical errors
+        # within a section's processing, ensuring that a single section's failure
+        # doesn't crash the entire application. It logs the error and returns False.
         except Exception as e:
             logging.critical(f"FATAL ERROR in process_section '{section_number}': {e}", exc_info=True)
             loop_logger.critical(f"===== Section {section_number} FAILED with a critical exception: {e} =====")

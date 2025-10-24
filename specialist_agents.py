@@ -1,3 +1,18 @@
+"""
+specialist_agents.py
+
+This module is dedicated to defining standalone, specialist agents that
+perform a single, highly-focused task and do not belong to a larger,
+pre-defined team like the Writer or Validator teams.
+
+Currently, it defines:
+- create_prompt_writer_agent: Creates the `Prompt_Writer` agent. This agent's
+  critical role is to act as a translator between the Validator and Writer
+  teams. It takes a raw feedback report and reframes it into a concise,
+  neutral, and actionable set of revision instructions, which is crucial for
+  the stability and effectiveness of the correction loop.
+"""
+
 from autogen import ConversableAgent
 from typing import Dict
 

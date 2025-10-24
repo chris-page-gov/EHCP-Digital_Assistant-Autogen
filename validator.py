@@ -1,3 +1,24 @@
+"""
+validator.py
+
+This module defines the multi-agent "Validator Team" responsible for quality
+assurance. It constructs and configures the agents and the group chat manager
+that form this team.
+
+The Validator Team's purpose is to meticulously review a generated document
+draft against a set of predefined rules and the original source materials.
+It is designed to identify factual inaccuracies, structural errors,
+hallucinations, and rule violations. The final output of this team is a
+structured markdown feedback report that includes a summary of critical and
+standard issues found.
+
+The team consists of:
+- Quality_Assessor: The lead agent that consolidates feedback and creates the final report.
+- Fact_Checker: A specialist agent focused solely on verifying content against source documents.
+- Validator_User_Proxy: The tool-executing agent for downloading drafts and uploading feedback.
+"""
+
+
 import autogen
 from autogen import ConversableAgent, UserProxyAgent, GroupChat, GroupChatManager
 from typing import Dict
