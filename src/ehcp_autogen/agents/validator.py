@@ -23,7 +23,7 @@ import autogen
 from autogen import ConversableAgent, UserProxyAgent, GroupChat, GroupChatManager
 from typing import Dict
 
-from utils import (
+from ..utils.utils import (
     is_terminate_message,
     download_blob_as_text_async,
     upload_blob_async,

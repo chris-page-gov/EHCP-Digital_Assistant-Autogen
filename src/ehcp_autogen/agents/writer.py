@@ -20,7 +20,7 @@ The team consists of:
 import autogen
 from autogen import ConversableAgent, UserProxyAgent, GroupChat, GroupChatManager
 from typing import Dict
-from utils import (
+from ..utils.utils import (
     is_terminate_message,
     upload_blob_async
 )

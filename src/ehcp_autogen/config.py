@@ -27,9 +27,10 @@ load_dotenv()
 # ==============================================================================
 # These paths point to files bundled with the application (e.g., instructions)
 # or temporary local files (e.g., logs, temp outputs).
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(os.path.join(__file__, '..'))))
 OUTPUTS_DIR = os.path.join(BASE_DIR, "outputs")  
 INSTRUCTIONS_DIR = os.path.join(BASE_DIR, "instructions")
+TEMPLATES_DIR = os.path.join(BASE_DIR, "templates")
 LOGS_DIR = os.path.join(BASE_DIR, "logs")
 
 # ==============================================================================

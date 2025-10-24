@@ -17,15 +17,15 @@ The module provides functions to create tasks for:
 """
 
 import logging
-from validator import create_validator_team
-import config
-from utils import _read_local_guidance_files_async
+from .agents.validator import create_validator_team
+from . import config
+from .utils.utils import read_guidance_files_async
 
 
 async def get_creation_task(section_number: str, output_blob_name: str, source_content: str) -> str:
     """Asynchronously generates the initial creation task prompt."""
     paths = config.get_section_config(section_number) 
-    guidance_content = await _read_local_guidance_files_async(paths["writer_guidance"])
+    guidance_content = await read_guidance_files_async(paths["writer_guidance"])
     
     return f"""
     Your task is to generate the summary document for section '{section_number}'.
@@ -40,7 +40,7 @@ async def get_creation_task(section_number: str, output_blob_name: str, source_c
 async def get_correction_task(section_number: str, previous_draft: str, revision_request: str, output_blob_name: str, source_content: str) -> str:
     """Asynchronously generates the correction task prompt."""
     paths = config.get_section_config(section_number) 
-    guidance_content = await _read_local_guidance_files_async(paths["writer_guidance"])
+    guidance_content = await read_guidance_files_async(paths["writer_guidance"])
 
     return f"""
     The document for section '{section_number}' requires revision. Your general guidance is below:
@@ -67,7 +67,7 @@ async def run_validation_async(section_number: str, llm_config: dict, llm_config
 
     logging.info(f"\n--- Kicking off Validator Team for Section {section_number} ---")
     paths = config.get_section_config(section_number)
-    guidance_content = await _read_local_guidance_files_async(paths["validation_guidance"])
+    guidance_content = await read_guidance_files_async(paths["validation_guidance"])
 
     validator_manager = create_validator_team(llm_config, llm_config_fast)
     validator_proxy_agent = validator_manager.groupchat.agent_by_name("Validator_User_Proxy")

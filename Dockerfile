@@ -24,4 +24,5 @@ COPY . .
 
 # Step 6: Define the command that will run when the container starts.
 # For a Container App Job, we simply execute the main Python script.
-CMD ["python", "main.py"]
+ENV PYTHONPATH=/app
+CMD ["python", "-m", "src.main"]

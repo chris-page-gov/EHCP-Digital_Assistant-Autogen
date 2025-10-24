@@ -13,14 +13,16 @@ concurrency semaphore to control resource utilisation.
 """
 
 
-import config
+
 import logging
 import asyncio
 from typing import Dict
 from autogen import ConversableAgent
-from tasks import get_creation_task, get_correction_task, run_validation_async
-from writer import create_writer_team
-from utils import download_blob_as_text_async, parse_feedback_and_count_issues, download_all_sources_from_container_async
+
+from .. import config
+from ..tasks import get_creation_task, get_correction_task, run_validation_async
+from ..agents.writer import create_writer_team
+from ..utils.utils import download_blob_as_text_async, parse_feedback_and_count_issues, download_all_sources_from_container_async
 
 async def process_section(section_number: str, semaphore: asyncio.Semaphore, llm_config: Dict, llm_config_fast: Dict, prompt_writer: ConversableAgent):
     """Asynchronously processes a single section, including retries, under a semaphore."""

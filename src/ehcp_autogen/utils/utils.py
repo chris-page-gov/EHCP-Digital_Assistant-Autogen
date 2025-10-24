@@ -5,7 +5,7 @@ This module provides a collection of reusable helper functions that support
 the main application logic. It abstracts away common, low-level operations
 into well-defined, asynchronous functions.
 
-The utilities are categorized into several key areas:
+The utilities are categorised into several key areas:
 1.  **Azure Blob Storage Utilities:** A suite of async functions for all blob
     operations (list, upload, download, clear, copy), managed through a 
     singleton BlobServiceClient.
@@ -27,12 +27,10 @@ import re
 import pypdf
 import logging
 from typing import List, Dict
-import config
+import src.ehcp_autogen.config as config
 import asyncio
 import io
-#from azure.storage.blob import BlobServiceClient
 from azure.storage.blob.aio import BlobServiceClient
-from azure.core.exceptions import ResourceNotFoundError
 from docxtpl import DocxTemplate
 
 # ==============================================================================
@@ -157,42 +155,10 @@ async def download_all_sources_from_container_async(container_name: str, exclude
         full_content += f"--- START OF FILE {filename} ---\n\n"
         full_content += await download_blob_as_text_async(container_name, blob_name)
         full_content += f"\n\n--- END OF FILE {filename} ---\n\n"
-    # # Step 2: Create a list of download tasks without awaiting them yet.
-    # download_tasks = [download_blob_as_text_async(container_name, blob_name) for blob_name in blob_names]
-
-    # # Step 3: Execute all the download tasks concurrently using asyncio.gather.
-    # contents = await asyncio.gather(*download_tasks)
-    
+        
     logging.info(f"--- Finished downloading {len(blob_names)} source documents. Formatting content. ---")
 
-    # Step 4: Now that all content is downloaded, format it into a single string.
-    # full_content_parts = []
-    # for i, content in enumerate(contents):
-    #     blob_name = blob_names[i]
-    #     filename = os.path.basename(blob_name)
-    #     full_content_parts.append(f"--- START OF FILE {filename} ---\n\n{content}\n\n--- END OF FILE {filename} ---\n\n")
-    
-    # return "".join(full_content_parts)
     return full_content
-
-async def _read_local_guidance_files_async(file_paths: list) -> str:
-    """Asynchronously reads local guidance files without blocking."""
-    loop = asyncio.get_running_loop()
-    def _read_sync():
-        full_content = ""
-        for path in file_paths:
-            try:
-                with open(path, 'r', encoding='utf-8') as f:
-                    full_content += f"--- START OF GUIDANCE FILE: {os.path.basename(path)} ---\n"
-                    full_content += f.read()
-                    full_content += f"\n--- END OF GUIDANCE FILE ---\n\n"
-            except FileNotFoundError:
-                logging.error(f"Guidance file not found: {path}")
-        return full_content
-    # Local file I/O in standard Python is blocking. To prevent this from stalling
-    # the entire async event loop, we run the synchronous file-reading operations
-    # in a separate thread pool using `run_in_executor`.
-    return await loop.run_in_executor(None, _read_sync)
 
 async def clear_blob_container_async(container_name: str):
     """
@@ -238,6 +204,49 @@ async def copy_blob_async(
     except Exception as e:
         logging.error(f"Failed to copy blob '{source_blob_name}'. Reason: {e}", exc_info=True)
 
+async def archive_run_artifacts(run_id: str, run_timestamp: str):
+    """
+    Copies all important files from a run into a dedicated folder
+    in the run-archive container for auditing purposes.
+    """
+    logging.info(f"--- Archiving artifacts for Run ID: {run_id} ---")
+    archive_container = config.ARCHIVE_BLOB_CONTAINER
+    
+    try:
+        # 1. Archive Source Documents
+        source_container = config.SOURCE_BLOB_CONTAINER
+        source_blobs = await list_blobs_async(source_container)
+        for blob_name in source_blobs:
+            dest_blob_name = f"{run_id}/source_docs/{blob_name}"
+            await copy_blob_async(source_container, blob_name, archive_container, dest_blob_name)
+
+        # 2. Archive Final Outputs
+        final_docs_container = config.FINAL_DOCUMENT_CONTAINER
+        final_blobs = await list_blobs_async(final_docs_container)
+        for blob_name in final_blobs:
+            dest_blob_name = f"{run_id}/outputs/{blob_name}"
+            await copy_blob_async(final_docs_container, blob_name, archive_container, dest_blob_name)
+
+        # 2. Archive All Outputs
+        output_container = config.OUTPUT_BLOB_CONTAINER
+        output_blobs = await list_blobs_async(output_container)
+        for blob_name in output_blobs:
+            dest_blob_name = f"{run_id}/outputs/{blob_name}"
+            await copy_blob_async(output_container, blob_name, archive_container, dest_blob_name)
+
+        # 3. Archive Log Files
+        log_files = [f for f in os.listdir(config.LOGS_DIR) if run_timestamp in f]
+        for log_file in log_files:
+            log_file_path = os.path.join(config.LOGS_DIR, log_file)
+            dest_blob_name = f"{run_id}/logs/{log_file}"
+            with open(log_file_path, "rb") as log_data:
+                await upload_blob_async(archive_container, dest_blob_name, log_data.read())
+        
+        logging.info(f"--- Archiving for Run ID {run_id} complete. ---")
+
+    except Exception as e:
+        logging.error(f"A critical error occurred during artifact archiving for Run ID {run_id}. Reason: {e}", exc_info=True)
+
 
 # ==============================================================================
 # 2. DATA PIPELINE UTILITIES
@@ -276,6 +285,25 @@ async def preprocess_all_pdfs_async() -> bool:
     except Exception as e:
         logging.critical(f"A critical error occurred during PDF pre-processing: {e}", exc_info=True)
         return False
+
+async def read_guidance_files_async(file_paths: list) -> str:
+    """Asynchronously reads local guidance files without blocking."""
+    loop = asyncio.get_running_loop()
+    def _read_sync():
+        full_content = ""
+        for path in file_paths:
+            try:
+                with open(path, 'r', encoding='utf-8') as f:
+                    full_content += f"--- START OF GUIDANCE FILE: {os.path.basename(path)} ---\n"
+                    full_content += f.read()
+                    full_content += f"\n--- END OF GUIDANCE FILE ---\n\n"
+            except FileNotFoundError:
+                logging.error(f"Guidance file not found: {path}")
+        return full_content
+    # Local file I/O in standard Python is blocking. To prevent this from stalling
+    # the entire async event loop, we run the synchronous file-reading operations
+    # in a separate thread pool using `run_in_executor`.
+    return await loop.run_in_executor(None, _read_sync)
 
 async def merge_output_files_async() -> bool:
     """Finds the latest iteration of each section's output file, then merges them into a single final document."""
