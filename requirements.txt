@@ -18,6 +18,9 @@ asyncio
 docxtpl
 python-docx
 
+# Cloud storage integration
+azure-storage-blob
+
 # Testing & coverage
 pytest
 pytest-asyncio

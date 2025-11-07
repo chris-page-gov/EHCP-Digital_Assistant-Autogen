@@ -36,12 +36,19 @@ coverage.svg
 cache.db
 *.cache.db
 
+# AutoGen cache and logs
+.cache/
+*.log
+logs/
+
 # --- IDE/Editor Specific Configurations ---
 /.devcontainer/.env.sample
 .devcontainer/local.*.json
 .vscode/
 .idea/
 *.DS_Store
+.vscode
+
 
 # --- Large / archival data (keep docs tracked) ---
 /archive/

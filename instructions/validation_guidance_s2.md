@@ -1,57 +1,20 @@
-# EHCP Validator Guidance: Section 2 - Child Overview
+# Validation Guidance: Section 2 - Child Overview
 
-Your task is to validate a single file, `output_s2.md`, and produce a feedback report.
-You MUST strictly follow the required format for the report and use the validation rules below to identify and categorise issues, paying close attention to the strict word count limits and content requirements for the 'History' and 'Views' sections.
+Your task is to validate `output_s2_i#.md` and produce a feedback report.
 
----
+## Section-Specific Validation Rules
 
-## Validation Rules
+### Structure
+*   **(CRITICAL)** The file structure **MUST** perfectly match the template defined in the `_structure_s2.md` guidance file. All headings and fields must be present and in the correct order.
 
-Use these rules to assess the document and populate your report.
-
-### Overall File Structure
-
-*   **Expected File (CRITICAL):** The file `output_s2.md` MUST exist. If it is missing, this is a **CRITICAL** error.
-
-### Content Validation Rules for `output_s2.md`
-
-*   **CRITICAL:** All views, interests, strengths, and aspirations MUST be verifiable against the source documents. It is a common error to invent hobbies or career goals. Flag any such fabrication as a **CRITICAL** hallucination error.
-*   **CRITICAL:** The summary of history must be based entirely on the source documents.
+### Content
+*   **(CRITICAL)** The "History" section MUST NOT exceed 500 words.
+*   **(CRITICAL)** The content under `Child Views`, `Family Views`, `Interests`, `Strengths`, and `Aspirations` MUST NOT exceed 500 words.
+*   **(CRITICAL)** The content under `Child Views`, `Family Views`, `Interests`, `Strengths`, and `Aspirations` MUST be a paragraph, NOT a bulleted list.
+*   **(CRITICAL)** The `Strengths` sub-section must ONLY contain strengths. If it describes needs or difficulties, it is a critical error.
+*   **(STANDARD)** The `Child Views` sub-section MUST state how the information was collected.
+*   **(STANDARD)** `Interests` should be specific and purposeful. Flag generic or bland statements like "enjoys TV" as a **STANDARD** error. Flag statements that are clearly not interests (e.g., "has a nice smile") as a **CRITICAL** error.
 
 
-### Section-Specific Validation Rules for Section 2
-
-1.  **History Word Count (CRITICAL):**
-    *   The "Summary of the Child or Young Person’s History" section MUST NOT exceed 500 words (approx. 3000 characters). This is a strict requirement. Failure is a **CRITICAL** error.
-
-2.  **Views Section Structure (CRITICAL):**
-    *   The "Summary of the Views, Interests and Aspirations..." section MUST be organized under these four sub-headings: `Views`, `Interests`, `Strengths`, `Aspirations`. Missing any of these is a **CRITICAL** error.
-    *   The `Views`, `Interests`, `Strengths`, `Aspirations` sub-sections must be formated as blocks of text, NOT as a list of bullet points. Failure to do so is a **CRITICAL** error.
-    *   The `Views` sub-section MUST state how the information was collected. Failure to do so is a **MAJOR** error.
-
-3.  **Content Quality (CRITICAL):**
-    *   **Strengths:** The `Strengths` sub-section must ONLY contain strengths. If it describes needs or difficulties, it is a **CRITICAL** error.
-    *   **Interests:** Interests should be specific and purposeful. Flag generic or bland statements like "enjoys TV" as a **MINOR** issue, but flag statements that are clearly not interests (e.g., "has a nice smile") as a **CRITICAL** error.
-
-    #### Section-Specific Content and Structure
-1.  **Required Structure (CRITICAL):** The file MUST follow this specific structure:
-
-## Summary of the Child or Young Person’s History
-**History:**
-[History content]
-
-## Summary of the Views, Interests and Aspirations of the Child and Their Parent, or of the Young Person
-
-**Views:**
-[Views content]
-**Interests:**
-[Interest content]
-**Strengths:**
-[Strengths content]
-**Aspirations:**
-[Aspirations content]
-
----
-Failure to do so is a CRITICAL error
 
 

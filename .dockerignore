@@ -1,0 +1,16 @@
+# Ignore Python virtual environment
+venv/
+
+# Ignore environment secrets file (secrets are managed by Azure)
+.env
+
+# Ignore Git directory and other local config
+.git/
+.gitignore
+.vscode/
+
+# Ignore generated files and caches
+__pycache__/
+*.pyc
+*.db
+*.log
